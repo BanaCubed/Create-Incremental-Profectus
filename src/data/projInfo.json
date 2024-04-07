@@ -1,15 +1,15 @@
 {
 	"$schema": "./projInfo-schema.json",
 
-	"title": "Profectus",
+	"title": "Create Incremental",
 	"description": "A project made in Profectus",
-	"id": "",
-	"author": "",
+	"id": "CreateIncremental",
+	"author": "BanaCubed",
 	"discordName": "",
 	"discordLink": "",
 
 	"versionNumber": "0.0",
-	"versionTitle": "Initial Commit",
+	"versionTitle": "Dawn of Time or something",
 
 	"allowGoBack": true,
 	"defaultShowSmall": false,
