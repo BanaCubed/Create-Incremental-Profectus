@@ -5,13 +5,77 @@
         </template>
         <template v-slot:body>
             <details open>
-                <summary>v0.0 Initial Commit - <time>2021-09-04</time></summary>
-                This is the first release :D
+                <summary>v1.0 Universal - <time>2024-XX-XX</time></summary>
+                Port to Profectus, Rebalance, and Major Content update
                 <ul>
-                    <li class="feature">Did everything</li>
-                    <li class="fix">Had some fun</li>
-                    <li class="breaking">Removed everything</li>
-                    <li class="balancing">Created some bugs to fix later</li>
+                    <li class="breaking">Ported to Profectus</li>
+                    <li class="breaking">Fully rebalanced existing content</li>
+                    <li class="feature">Universal Time</li>
+                    <li class="feature">Breakdowns Tab</li>
+                    <li class="fix">Fixed multiple NaN bugs</li>
+                    <li class="fix">Fixed multiple typos</li>
+                    <li class="change">Changed various colours</li>
+                    <li class="change">Changed Achievements</li>
+                    <li class="change">Changed Certain features</li>
+                    <li class="change">Implemented a Save Bank</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>v0.3 Hyper - <time>2024-04-13</time></summary>
+                v0.3.1 Matter Paths - <time>2024-05-15</time><br>
+                Addition of the Matter Paths
+                <ul>
+                    <li class="feature">Matter Paths</li>
+                    <li class="feature">Matter</li>
+                    <li class="feature">Antimatter</li>
+                    <li class="feature">Dark Matter & Black Hole</li>
+                    <li class="feature">Exotic Matter & Hypotheory</li>
+                    <li class="feature">Hotkeys</li>
+                    <li class="fix">Fixed multiple NaN bugs</li>
+                    <li class="fix">Fixed multiple typos</li>
+                    <li class="fix">Fixed a certain Power milestone</li>
+                    <li class="change">Softcap visual overhaul</li>
+                </ul>
+                v0.3 Hyper - <time>2024-04-13</time><br>
+                Addition of the third reset layer
+                <ul>
+                    <li class="balancing">Power</li>
+                    <li class="feature">Hyper Rebirth</li>
+                    <li class="feature">Hyper Cash</li>
+                    <li class="feature">Hyper Paths</li>
+                    <li class="fix">Fixed Power unlock</li>
+                    <li class="change">Changed some text</li>
+                    <li class="change">Changed challenge visuals</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>v0.2 Super - <time>2024-04-07</time></summary>
+                v0.2.1 Power - <time>2024-04-09</time><br>
+                These are being written retroactively and from memory
+                <ul>
+                    <li class="feature">Power</li>
+                    <li class="feature">Challenges</li>
+                    <li class="feature">Pylons</li>
+                </ul>
+                v0.2 Super - <time>2024-04-07</time><br>
+                Addition of the second reset layer
+                <ul>
+                    <li class="feature">Super Rebirth</li>
+                    <li class="feature">Secret Achievements</li>
+                    <li class="fix">Fixed a NaN bug</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>v0.1 Rebirth - <time>2024-04-04</time></summary>
+                This is the first version
+                <ul>
+                    <li class="feature">Cash</li>
+                    <li class="feature">Rebirth</li>
+                    <li class="feature">The Machine</li>
+                    <li class="feature">Achievements</li>
                 </ul>
             </details>
         </template>
@@ -66,8 +130,13 @@ li::before {
     background: var(--accent1);
 }
 
+.change::before {
+    content: "Change";
+    background: var(--bought);
+}
+
 .fix::before {
-    content: "Fix";
+    content: "Bugfix";
     background: var(--accent2);
 }
 

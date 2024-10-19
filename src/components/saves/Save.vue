@@ -64,6 +64,7 @@
             <div v-if="currentTime" class="time">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
+            <div v-if="progressDisplay"><component :is="progressDisplay" /></div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />
@@ -76,7 +77,7 @@
 
 <script setup lang="ts">
 import Tooltip from "features/tooltips/Tooltip.vue";
-import player from "game/player";
+import player, { LayerData } from "game/player";
 import { Direction } from "util/common";
 import { computed, ref, toRefs, unref, watch } from "vue";
 import DangerButton from "../fields/DangerButton.vue";
@@ -84,6 +85,11 @@ import FeedbackButton from "../fields/FeedbackButton.vue";
 import Text from "../fields/Text.vue";
 import type { LoadablePlayerData } from "./SavesManager.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
+import Decimal, { formatWhole } from "util/break_eternity";
+import { computeComponent } from "util/vue";
+import { main } from "data/projEntry";
+import cash from "data/layers/cash";
+import rebirth from "data/layers/rebirth";
 
 const _props = defineProps<{
     save: LoadablePlayerData;
@@ -106,6 +112,18 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
     minute: "numeric",
     second: "numeric"
 });
+
+const progressDisplay = computeComponent(
+    computed(() => {
+    	if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
+            return '?-? // Progress Unknown'
+        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
+            return `1-1 // Cash // ${formatWhole((save.value?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
+        } else {
+            return `1-2 // Rebirth // ${formatWhole((save.value?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
+        }
+    })
+);
 
 const isEditing = ref(false);
 const isConfirming = ref(false);

@@ -4,14 +4,19 @@
 
 * {
 	transition-duration: 0.5s;
-	font-family: "Roboto Mono", monospace;
+	font-family: "Sono", "Roboto Mono", monospace;
 	font-weight: bold;
 	margin: auto;
 	text-size-adjust: none;
+	user-select: none;
 }
 
 *:focus {
 	outline: none;
+}
+
+.error-container * {
+	user-select: text;
 }
 
 body {

@@ -8,8 +8,8 @@
 	"discordName": "",
 	"discordLink": "",
 
-	"versionNumber": "0.0",
-	"versionTitle": "Dawn of Time or something",
+	"versionNumber": "1.0",
+	"versionTitle": "Universal",
 
 	"allowGoBack": true,
 	"defaultShowSmall": false,
@@ -17,10 +17,10 @@
 	"useHeader": true,
 	"banner": null,
 	"logo": "",
-	"initialTabs": [ "main" ],
+	"initialTabs": [ "main", "cash" ],
 
 	"maxTickLength": 3600,
 	"offlineLimit": 1,
 	"enablePausing": true,
-	"exportEncoding": "base64"
+	"exportEncoding": "lz"
 }

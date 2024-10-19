@@ -8,6 +8,21 @@
             >
         </div>
         <div style="flex-grow: 1; cursor: unset"></div>
+        <div style="width: 200px; height: 46px; display: flex; flex-direction: column;">
+            <div v-if="player.devSpeed === 0" style="width: 200px">
+                Game Paused
+                <Node id="paused" />
+            </div>
+            <div v-if="player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1" style="width: 200px">
+                Dev Speed: {{format(player.devSpeed)}}x
+                <Node id="devspeed" />
+            </div>
+            <div v-if="player.offlineTime != null && player.offlineTime !== 0" style="width: 200px">
+                Offline Time: {{formatTime(player.offlineTime)}}
+                <Node id="offline" />
+            </div>
+        </div>
+        <div style="flex-grow: 1; cursor: unset"></div>
         <div class="discord">
             <span @click="openDiscord" class="material-icons">discord</span>
             <ul class="discord-links">
@@ -106,6 +121,8 @@ import { computed, ref } from "vue";
 import Info from "./Info.vue";
 import Options from "./Options.vue";
 import SavesManager from "./saves/SavesManager.vue";
+import player from "game/player";
+import { format, formatTime } from "util/bignum";
 
 const info = ref<ComponentPublicInstance<typeof Info> | null>(null);
 const savesManager = ref<ComponentPublicInstance<typeof SavesManager> | null>(null);

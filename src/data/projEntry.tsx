@@ -5,7 +5,9 @@ import { createResource, trackBest, trackOOMPS, trackTotal } from "features/reso
 import type { GenericTree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
 import { globalBus } from "game/events";
+import MainDisplay from "features/resources/MainDisplay.vue";
 import type { BaseLayer, GenericLayer } from "game/layers";
+import ResourceVue from "features/resources/Resource.vue";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
 import player from "game/player";
@@ -13,80 +15,117 @@ import type { DecimalSource } from "util/bignum";
 import Decimal, { format, formatTime } from "util/bignum";
 import { render } from "util/vue";
 import { computed, toRaw } from "vue";
-import prestige from "./layers/prestige";
+import rebirth from "./layers/rebirth";
+import cash from "./layers/cash";
+import { createTab, Tab } from "features/tabs/tab";
+import { createTabFamily } from "features/tabs/tabFamily";
+import { createModifierSection } from "game/modifiers";
+import { createHotkey } from "features/hotkey";
+import { createReset } from "features/reset";
 
 /**
  * @hidden
  */
-export const main = createLayer("main", function (this: BaseLayer) {
-    const points = createResource<DecimalSource>(10);
-    const best = trackBest(points);
-    const total = trackTotal(points);
+export const main: any = createLayer("main", function (this: BaseLayer) {
+    const progression = createResource(0, 'progress')
+    
 
-    const pointGain = computed(() => {
-        // eslint-disable-next-line prefer-const
-        let gain = new Decimal(1);
-        return gain;
-    });
-    globalBus.on("update", diff => {
-        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-    });
-    const oomps = trackOOMPS(points, pointGain);
+    const reset = createReset(() => ({
+        thingsToReset: (): Record<string, any>[] => []
+    }));
 
     const tree = createTree(() => ({
-        nodes: [[prestige.treeNode]],
-        branches: [],
-        onReset() {
-            points.value = toRaw(this.resettingNode.value) === toRaw(prestige.treeNode) ? 0 : 10;
-            best.value = points.value;
-            total.value = points.value;
-        },
+        nodes: [[cash.treeNode], [rebirth.treeNode]],
+        branches: [{
+            startNode: rebirth.treeNode,
+            endNode: cash.treeNode,
+            visibility: (cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9))?1:0
+        }],
         resetPropagation: branchedResetPropagation
     })) as GenericTree;
 
+    const tabs = createTabFamily({
+        tree: () => ({
+            display: "Tree",
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        {render(tree)}
+                    </>
+                ))
+            }))
+        }),
+        breakdown: () => ({
+            display: "Breakdowns",
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        <span></span>
+                        {render(breakdownTabs)}
+                    </>
+                ))
+            }))
+        }),
+    }, () => ({
+        visibility: true
+    }))
+
+    const breakdownTabs = createTabFamily({
+        cash: () => ({
+            display: "Cash",
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        {createModifierSection({
+                            title: "Cash Gain",
+                            modifier: cash.effects.cash,
+                            base: 0,
+                        })}
+                    </>
+                ))
+            }))
+        }),
+        rp: () => ({
+            display: "RP",
+            visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9))?0:1 },
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        {createModifierSection({
+                            title: "Rebirth Point Gain",
+                            modifier: rebirth.effects.rp,
+                            base: Decimal.div(cash.points.value, 100000).sqrt(),
+                        })}
+                    </>
+                ))
+            }))
+        }),
+    }, () => ({
+        visibility: true
+    }))
+
+    const hotkey = createHotkey(() => ({
+        description: "Toggle Pause",
+        key: "/",
+        onPress() {
+            player.devSpeed = player.devSpeed===1?0:1
+        },
+    }));
+
     return {
-        name: "Tree",
+        name: "Misc",
         links: tree.links,
+        minimizable: false,
         display: jsx(() => (
             <>
-                {player.devSpeed === 0 ? (
-                    <div>
-                        Game Paused
-                        <Node id="paused" />
-                    </div>
-                ) : null}
-                {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
-                    <div>
-                        Dev Speed: {format(player.devSpeed)}x
-                        <Node id="devspeed" />
-                    </div>
-                ) : null}
-                {player.offlineTime != null && player.offlineTime !== 0 ? (
-                    <div>
-                        Offline Time: {formatTime(player.offlineTime)}
-                        <Node id="offline" />
-                    </div>
-                ) : null}
-                <div>
-                    {Decimal.lt(points.value, "1e1000") ? <span>You have </span> : null}
-                    <h2>{format(points.value)}</h2>
-                    {Decimal.lt(points.value, "1e1e6") ? <span> points</span> : null}
-                </div>
-                {Decimal.gt(pointGain.value, 0) ? (
-                    <div>
-                        ({oomps.value})
-                        <Node id="oomps" />
-                    </div>
-                ) : null}
-                <Spacer />
-                {render(tree)}
+                {render(tabs)}
             </>
         )),
-        points,
-        best,
-        total,
-        oomps,
-        tree
+        tree,
+        tabs,
+        breakdownTabs,
+        hotkey,
+        progression
     };
 });
 
@@ -97,7 +136,7 @@ export const main = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, prestige];
+): Array<GenericLayer> => [main, rebirth, cash];
 
 /**
  * A computed ref whose value is true whenever the game is over.
