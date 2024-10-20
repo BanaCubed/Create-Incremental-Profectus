@@ -92,7 +92,6 @@ export default {
             "--outline": "#333c4a",
             "--border-radius": "4px",
             "--modal-border": "",
-            "--feature-margin": "5px"
         },
         floatingTabs: false
     } as Theme,
@@ -117,7 +116,6 @@ export default {
             "--accent3": "#EBCB8B",
             "--border-radius": "4px",
             "--modal-border": "solid 2px #3B4252",
-            "--feature-margin": "5px"
         },
         floatingTabs: false
     } as Theme,

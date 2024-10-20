@@ -40,7 +40,7 @@
                 v0.3 Hyper - <time>2024-04-13</time><br>
                 Addition of the third reset layer
                 <ul>
-                    <li class="balancing">Power</li>
+                    <li class="balancing">Rebalanced Power</li>
                     <li class="feature">Hyper Rebirth</li>
                     <li class="feature">Hyper Cash</li>
                     <li class="feature">Hyper Paths</li>
@@ -53,7 +53,7 @@
             <details>
                 <summary>v0.2 Super - <time>2024-04-07</time></summary>
                 v0.2.1 Power - <time>2024-04-09</time><br>
-                These are being written retroactively and from memory
+                Addition of an extremely unbalanced polynomial currency
                 <ul>
                     <li class="feature">Power</li>
                     <li class="feature">Challenges</li>
@@ -70,7 +70,7 @@
 
             <details>
                 <summary>v0.1 Rebirth - <time>2024-04-04</time></summary>
-                This is the first version
+                Initial released version of the game
                 <ul>
                     <li class="feature">Cash</li>
                     <li class="feature">Rebirth</li>

@@ -19,7 +19,7 @@ import { createLayerTreeNode, createResetButton } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
 import { computed } from "vue";
-import { createUpgrade } from "features/upgrades/upgrade";
+import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
 import { noPersist } from "game/persistence";
 import { createAdditiveModifier, createExponentialModifier, createModifierSection, createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
@@ -32,14 +32,14 @@ import settings from "game/settings";
 import rebirth from "./rebirth";
 
 const id = "cash";
-const layer = createLayer(id, function (this: BaseLayer) {
+const layer: any = createLayer(id, function (this: BaseLayer) {
     const points = createResource<DecimalSource>(0, "cash");
     const best = trackBest(points);
     const total = trackTotal(points);
 
     const pointGain = computed(() => {
         // eslint-disable-next-line prefer-const
-        let gain = effects.cash.apply(0);
+        let gain = effects.cash.apply(upgs.one.bought.value?1:0);
         return gain;
     });
     globalBus.on("update", diff => {
@@ -95,7 +95,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 description: "Boost cash gain based on cash",
                 effectDisplay: jsx(() => (
                     <>
-                    <span>x{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
+                    <span>×{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
                     </>
                 ))
             }
@@ -118,7 +118,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 description: "Boost cash gain based on cash again",
                 effectDisplay: jsx(() => (
                     <>
-                    <span>x{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}</span>
+                    <span>×{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}</span>
                     </>
                 ))
             }
@@ -132,7 +132,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 description: "Boost cash gain based on cash, yet again",
                 effectDisplay: jsx(() => (
                     <>
-                    <span>x{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}</span>
+                    <span>×{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}</span>
                     </>
                 ))
             }
@@ -156,15 +156,61 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 title: "Repitition",
             }
         })),
+        nine: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 120e6,
+            })),
+            display: {
+                description: "Boost cash gain based on cash, one more time",
+                effectDisplay: jsx(() => (
+                    <>
+                    <span>×{format(Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5))}</span>
+                    </>
+                ))
+            },
+            visibility: rebirth.upgs.four.bought.value
+        })),
+        ten: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 8e8,
+            })),
+            display: {
+                description: "Boost cash gain based on cash, for the last time",
+                effectDisplay: jsx(() => (
+                    <>
+                    <span>×{format(Decimal.max(0, points.value).add(1).log(1e2).add(1))}</span>
+                    </>
+                ))
+            },
+            visibility: rebirth.upgs.four.bought.value
+        })),
+        eleven: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 1e10,
+            })),
+            display: {
+                description: "Double RP gain",
+            },
+            visibility() { return rebirth.upgs.four.bought.value },
+        })),
+        twelve: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 1e11,
+            })),
+            display: {
+                description: "Unlock The Machine",
+                title: "Beep Boop",
+            },
+            visibility: rebirth.upgs.four.bought.value
+        })),
     }
 
-    const effects = {
+    const effects: any = {
         cash: createSequentialModifier(() => [
-            createAdditiveModifier(() => ({
-                addend: 1,
-                enabled: upgs.one.bought,
-                description: "The Start...",
-            })),
             createMultiplicativeModifier(() => ({
                 multiplier: 4,
                 enabled: upgs.two.bought,
@@ -196,9 +242,31 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 description: "Cash UPG 7"
             })),
             createMultiplicativeModifier(() => ({
+                multiplier() {return Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5)},
+                enabled: upgs.nine.bought,
+                description: "Cash UPG 9",
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier() {return Decimal.max(0, points.value).add(1).log(1e2).add(1)},
+                enabled: upgs.ten.bought,
+                description: "Cash UPG 10",
+            })),
+            createMultiplicativeModifier(() => ({
                 multiplier(): any {return Decimal.max(rebirth.points.value, 0).add(1).log(10).add(1).pow(2)},
                 enabled: upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9),
                 description: "RP Effect",
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {
+                    let upgs = Decimal.dZero
+                    if(rebirth.upgs.one.bought.value) { upgs = upgs.add(1) }
+                    if(rebirth.upgs.two.bought.value) { upgs = upgs.add(1) }
+                    if(rebirth.upgs.three.bought.value) { upgs = upgs.add(1) }
+                    if(rebirth.upgs.four.bought.value) { upgs = upgs.add(1) }
+                    return Decimal.pow(2, upgs)
+                },
+                enabled: rebirth.upgs.one.bought,
+                description: "RP UPG 1",
             })),
         ]),
     }
@@ -218,10 +286,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 ) : null}
                 <Spacer></Spacer>
                 <Row>
-                    {renderCol(upgs.one, upgs.five)}
-                    {renderCol(upgs.two, upgs.six)}
-                    {renderCol(upgs.three, upgs.seven)}
-                    {renderCol(upgs.four, upgs.eight)}
+                    {renderCol(upgs.one, upgs.five, upgs.nine)}
+                    {renderCol(upgs.two, upgs.six, upgs.ten)}
+                    {renderCol(upgs.three, upgs.seven, upgs.eleven)}
+                    {renderCol(upgs.four, upgs.eight, upgs.twelve)}
                 </Row>
             </>
         )),

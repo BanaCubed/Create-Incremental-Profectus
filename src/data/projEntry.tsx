@@ -22,6 +22,7 @@ import { createTabFamily } from "features/tabs/tabFamily";
 import { createModifierSection } from "game/modifiers";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
+import { createCollapsibleModifierSections } from "./common";
 
 /**
  * @hidden
@@ -58,51 +59,35 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         breakdown: () => ({
             display: "Breakdowns",
             tab: createTab(() => ({
-                display: jsx(() => (
-                    <>
-                        <span></span>
-                        {render(breakdownTabs)}
-                    </>
-                ))
+                display: breakdowns
+            }))
+        }),
+        currencies: () => ({
+            display: "Currencies",
+            tab: createTab(() => ({
+                display: breakdowns
             }))
         }),
     }, () => ({
         visibility: true
     }))
 
-    const breakdownTabs = createTabFamily({
-        cash: () => ({
-            display: "Cash",
-            tab: createTab(() => ({
-                display: jsx(() => (
-                    <>
-                        {createModifierSection({
-                            title: "Cash Gain",
-                            modifier: cash.effects.cash,
-                            base: 0,
-                        })}
-                    </>
-                ))
-            }))
-        }),
-        rp: () => ({
-            display: "RP",
-            visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9))?0:1 },
-            tab: createTab(() => ({
-                display: jsx(() => (
-                    <>
-                        {createModifierSection({
-                            title: "Rebirth Point Gain",
-                            modifier: rebirth.effects.rp,
-                            base: Decimal.div(cash.points.value, 100000).sqrt(),
-                        })}
-                    </>
-                ))
-            }))
-        }),
-    }, () => ({
-        visibility: true
-    }))
+    const [breakdowns, breakdownInfo] = createCollapsibleModifierSections(() => [
+        {
+            title: "Cash Gain",
+            modifier: cash.effects.cash,
+            base() { return cash.upgs.one.bought.value?1:0 },
+            unit: "/s",
+        }, {
+            title: "RP Gain",
+            modifier: rebirth.effects.rp,
+            base() { return Decimal.div(cash.points.value, 100000).sqrt() },
+            visible: cash.upgs.eight.bought.value||Decimal.gte(progression.value, 0.9),
+            unit: " RP",
+            subtitle: 'Amount on Reset',
+            baseText: 'Amount from Cash',
+        }, 
+    ])
 
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
@@ -123,9 +108,10 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         )),
         tree,
         tabs,
-        breakdownTabs,
+        breakdowns,
         hotkey,
-        progression
+        progression,
+        breakdownInfo
     };
 });
 

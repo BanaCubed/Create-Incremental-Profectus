@@ -13,7 +13,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render } from "util/vue";
+import { render, renderCol } from "util/vue";
 import { createLayerTreeNode, createResetButton } from "../common";
 import cash from "./cash"
 import { NonPersistent, noPersist, PersistentState } from "game/persistence";
@@ -22,6 +22,9 @@ import { createSequentialModifier, createAdditiveModifier, createMultiplicativeM
 import { computed } from "vue";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
+import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
+import { createCostRequirement } from "game/requirements";
+import Row from "components/layout/Row.vue";
 
 const id = "rebirth";
 const layer = createLayer(id, function (this: BaseLayer) {
@@ -46,13 +49,71 @@ const layer = createLayer(id, function (this: BaseLayer) {
         thingsToReset: (): Record<string, any>[] => [layer]
     }));
 
+    const upgs = {
+        one: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 1,
+            })),
+            display: {
+                description: "Double cash generation for each Rebirth upgrade owned",
+            },
+        })),
+        two: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 3,
+            })),
+            display: {
+                description: "Automate the first four Cash upgrades",
+            },
+        })),
+        three: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 10,
+            })),
+            display: {
+                description: "Automate the next four Cash upgrades",
+            },
+        })),
+        four: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 50,
+            })),
+            display: {
+                description: "Unlock the next four Cash upgrades",
+            },
+        })),
+    }
+
+    setupAutoPurchase(cash, upgs.two.bought, [
+        cash.upgs.one,
+        cash.upgs.two,
+        cash.upgs.three,
+        cash.upgs.four
+    ])
+
+    setupAutoPurchase(cash, upgs.three.bought, [
+        cash.upgs.five,
+        cash.upgs.six,
+        cash.upgs.seven,
+        cash.upgs.eight
+    ])
+
     const effects = {
         rp: createSequentialModifier(() => [
-            createAdditiveModifier(() => ({
-                addend: 0,
-                description: "huh",
-                enabled: false,
-            }))
+            createMultiplicativeModifier(() => ({
+                multiplier: 2,
+                description: "Cash UPG 11",
+                enabled: cash.upgs.eleven.bought,
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier: 0,
+                description: "Lack of Cash UPG 8",
+                enabled: !cash.upgs.eight.bought,
+            })),
         ]),
         rpCash: createSequentialModifier(() => [
             createMultiplicativeModifier(() => ({
@@ -82,8 +143,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
         display: jsx(() => (
             <>
             {
-                cash.upgs.eight.bought.value ? (Decimal.gte(cash.points.value, 100000) ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP
-                Next at ${formatWhole(conversion.nextAt.value)} cash` : `Reach ${formatWhole(conversion.nextAt.value)} cash to Rebirth`) : "Purchase Cash UPG 8 \"Repitition\" to Rebirth"
+                cash.upgs.eight.bought.value ? (Decimal.gte(cash.points.value, 100000) ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
+                next at ${formatWhole(conversion.nextAt.value)} cash` : `Reach ${formatWhole(100000)} cash to Rebirth`) : "Purchase Cash UPG 8 \"Repitition\" to Rebirth"
             }
             </>
         )),
@@ -100,7 +161,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         key: "r",
         onPress: resetButton.onClick,
         enabled() {
-            return false
+            return Decimal.gte(main.progression.value, 0.9)
         },
     }));
 
@@ -120,10 +181,17 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 ) : null}
                 <Spacer></Spacer>
                 {render(resetButton)}
+                <Row>
+                    {renderCol(upgs.one)}
+                    {renderCol(upgs.two)}
+                    {renderCol(upgs.three)}
+                    {renderCol(upgs.four)}
+                </Row>
             </>
         )),
         treeNode,
-        hotkey
+        hotkey,
+        upgs,
     };
 });
 
