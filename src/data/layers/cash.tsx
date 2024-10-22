@@ -3,37 +3,31 @@
  * @hidden
  */
 import { main } from "data/projEntry";
-import { createCumulativeConversion } from "features/conversion";
 import { jsx } from "features/feature";
-import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
-import MainDisplay from "features/resources/MainDisplay.vue";
 import Node from "components/Node.vue";
 import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
 import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol, renderRow } from "util/vue";
-import { createLayerTreeNode, createResetButton } from "../common";
+import { renderCol } from "util/vue";
+import { createLayerTreeNode } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
 import { computed } from "vue";
-import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
+import { createUpgrade } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
 import { noPersist } from "game/persistence";
-import { createAdditiveModifier, createExponentialModifier, createModifierSection, createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
+import { createExponentialModifier, createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
 import Row from "components/layout/Row.vue";
-import { createBoard } from "features/boards/board";
-import themes from "data/themes";
-import settings from "game/settings";
 import rebirth from "./rebirth";
 
 const id = "cash";
 const layer: any = createLayer(id, function (this: BaseLayer) {
-    const points = createResource<DecimalSource>(0, "cash");
+    const points = createResource<DecimalSource>(0, "Cash", 2, false);
     const best = trackBest(points);
     const total = trackTotal(points);
 
@@ -76,6 +70,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 description: "Begin generating 1 cash/s",
                 title: "The Start...",
             },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -84,7 +83,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Quadruple cash gain",
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         three: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -98,7 +102,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     <span>×{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
                     </>
                 ))
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         four: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -107,7 +116,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Quadruple cash gain again",
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         five: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -121,7 +135,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     <span>×{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}</span>
                     </>
                 ))
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         six: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -135,7 +154,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     <span>×{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}</span>
                     </>
                 ))
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         seven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -144,7 +168,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Raise previous boosts ^1.2",
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         eight: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -154,12 +183,17 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Unlock Rebirth",
                 title: "Repitition",
-            }
+            },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         nine: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 120e6,
+                cost: 80e6,
             })),
             display: {
                 description: "Boost cash gain based on cash, one more time",
@@ -169,12 +203,17 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     </>
                 ))
             },
-            visibility: rebirth.upgs.four.bought.value
+            visibility() { return rebirth.upgs.four.bought.value },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         ten: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 8e8,
+                cost: 7e8,
             })),
             display: {
                 description: "Boost cash gain based on cash, for the last time",
@@ -184,7 +223,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     </>
                 ))
             },
-            visibility: rebirth.upgs.four.bought.value
+            visibility() { return rebirth.upgs.four.bought.value },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         eleven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -195,17 +239,27 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 description: "Double RP gain",
             },
             visibility() { return rebirth.upgs.four.bought.value },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
         twelve: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1e11,
+                cost: 2.5e10,
             })),
             display: {
                 description: "Unlock The Machine",
                 title: "Beep Boop",
             },
-            visibility: rebirth.upgs.four.bought.value
+            visibility() { return rebirth.upgs.four.bought.value },
+            classes: computed(() => {
+                return {
+                    cash: true,
+                }
+            }),
         })),
     }
 
@@ -277,7 +331,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         tooltip,
         display: jsx(() => (
             <>
-                You have <ResourceVue resource={points} color={color} /> cash
+                <br></br>
+                You have <ResourceVue resource={points} color={color} /> Cash
                 {Decimal.gt(pointGain.value, 0) ? (
                     <div>
                         ({oomps.value})

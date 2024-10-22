@@ -1,28 +1,22 @@
-import Node from "components/Node.vue";
-import Spacer from "components/layout/Spacer.vue";
 import { jsx } from "features/feature";
-import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
+import { createResource } from "features/resources/resource";
 import type { GenericTree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
-import { globalBus } from "game/events";
-import MainDisplay from "features/resources/MainDisplay.vue";
 import type { BaseLayer, GenericLayer } from "game/layers";
-import ResourceVue from "features/resources/Resource.vue";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
 import player from "game/player";
-import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatTime } from "util/bignum";
+import Decimal, {  } from "util/bignum";
 import { render } from "util/vue";
-import { computed, toRaw } from "vue";
+import { computed } from "vue";
 import rebirth from "./layers/rebirth";
 import cash from "./layers/cash";
-import { createTab, Tab } from "features/tabs/tab";
+import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
-import { createModifierSection } from "game/modifiers";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
 import { createCollapsibleModifierSections } from "./common";
+import ResourceVue from "features/resources/Resource.vue";
 
 /**
  * @hidden
@@ -47,11 +41,12 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
 
     const tabs = createTabFamily({
         tree: () => ({
-            display: "Tree",
+            display: "Primary",
             tab: createTab(() => ({
                 display: jsx(() => (
                     <>
-                        {render(tree)}
+                        <span></span>
+                        {render(gameTabs)}
                     </>
                 ))
             }))
@@ -65,8 +60,33 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         currencies: () => ({
             display: "Currencies",
             tab: createTab(() => ({
-                display: breakdowns
+                display: jsx(() => (
+                    <>
+                        {Decimal.gte(progression.value, -0.1) ? (<span>You have <ResourceVue resource={cash.points} color={cash.color}></ResourceVue> Cash</span>) : null}
+                        {Decimal.gte(progression.value, 0.9) ? (<span><br></br>You have <ResourceVue resource={rebirth.points} color={rebirth.color}></ResourceVue> RP</span>) : null}
+                    </>
+                ))
             }))
+        }),
+    }, () => ({
+        visibility: true
+    }))
+
+    const gameTabs = createTabFamily({
+        cash: () => ({
+            display: "Cash",
+            glowColor: cash.color,
+            tab: createTab(() => ({
+                display: cash.display
+            }))
+        }),
+        rebirth: () => ({
+            display: "Rebirth",
+            glowColor: rebirth.color,
+            tab: createTab(() => ({
+                display: rebirth.display
+            })),
+            visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9))?0:2 }
         }),
     }, () => ({
         visibility: true
@@ -93,7 +113,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         description: "Toggle Pause",
         key: "/",
         onPress() {
-            player.devSpeed = player.devSpeed===1?0:1
+            player.devSpeed = (player.devSpeed===1?0:1)
         },
     }));
 
@@ -111,7 +131,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         breakdowns,
         hotkey,
         progression,
-        breakdownInfo
+        breakdownInfo,
+        gameTabs
     };
 });
 

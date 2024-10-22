@@ -12,12 +12,12 @@
 	"versionTitle": "Universal",
 
 	"allowGoBack": true,
-	"defaultShowSmall": false,
+	"defaultShowSmall": true,
 	"defaultDecimalsShown": 2,
 	"useHeader": true,
 	"banner": null,
 	"logo": "",
-	"initialTabs": [ "main", "cash" ],
+	"initialTabs": [ "main" ],
 
 	"maxTickLength": 3600,
 	"offlineLimit": 1,

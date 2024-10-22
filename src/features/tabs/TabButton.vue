@@ -53,10 +53,10 @@ export default defineComponent({
             if (color == null || color === "") {
                 return {};
             }
-            if (unref(floating)) {
-                return getNotifyStyle(color);
-            }
-            return { boxShadow: `0px 9px 5px -6px ${color}` };
+            // if (unref(floating)) {
+            //     return getNotifyStyle(color);
+            // }
+            return { 'borderColor': `${props.active?color:'inherit'}`, 'borderBottomColor': `${props.active?color:'transparent'}` };
         });
 
         function selectTab() {
@@ -87,7 +87,6 @@ export default defineComponent({
     border-radius: 5px;
     border: 2px solid;
     flex-shrink: 0;
-    border-color: var(--layer-color);
 }
 
 .tabButton:hover {

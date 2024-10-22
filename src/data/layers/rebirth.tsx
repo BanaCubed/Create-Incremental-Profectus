@@ -7,7 +7,6 @@ import { createCumulativeConversion } from "features/conversion";
 import { jsx } from "features/feature";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
-import MainDisplay from "features/resources/MainDisplay.vue";
 import { createResource, trackOOMPS } from "features/resources/resource";
 import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
@@ -16,9 +15,9 @@ import type { DecimalSource } from "util/bignum";
 import { render, renderCol } from "util/vue";
 import { createLayerTreeNode, createResetButton } from "../common";
 import cash from "./cash"
-import { NonPersistent, noPersist, PersistentState } from "game/persistence";
+import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
-import { createSequentialModifier, createAdditiveModifier, createMultiplicativeModifier, createExponentialModifier } from "game/modifiers";
+import { createSequentialModifier, createMultiplicativeModifier } from "game/modifiers";
 import { computed } from "vue";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
@@ -30,7 +29,7 @@ const id = "rebirth";
 const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Rebirth";
     const color = "#e60039";
-    const points = createResource<DecimalSource>(0, "RP");
+    const points = createResource<DecimalSource>(0, "RP", 2, false);
     const oomps = trackOOMPS(points)
 
     const pointGain = computed(() => {
@@ -58,6 +57,11 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Double cash generation for each Rebirth upgrade owned",
             },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                }
+            }),
         })),
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -67,6 +71,11 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Automate the first four Cash upgrades",
             },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                }
+            }),
         })),
         three: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -76,6 +85,11 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Automate the next four Cash upgrades",
             },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                }
+            }),
         })),
         four: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -85,6 +99,11 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Unlock the next four Cash upgrades",
             },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                }
+            }),
         })),
     }
 
@@ -142,10 +161,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         treeNode,
         display: jsx(() => (
             <>
-            {
-                cash.upgs.eight.bought.value ? (Decimal.gte(cash.points.value, 100000) ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
-                next at ${formatWhole(conversion.nextAt.value)} cash` : `Reach ${formatWhole(100000)} cash to Rebirth`) : "Purchase Cash UPG 8 \"Repitition\" to Rebirth"
-            }
+                {
+                    cash.upgs.eight.bought.value ? (Decimal.gte(cash.points.value, 100000) ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
+                    next at ${formatWhole(conversion.nextAt.value)} cash` : `Reach ${formatWhole(100000)} cash to Rebirth`) : "Purchase Cash UPG 8 \"Repitition\" to Rebirth"
+                }
             </>
         )),
         onClick() {
@@ -153,7 +172,12 @@ const layer = createLayer(id, function (this: BaseLayer) {
         },
         canClick(): boolean {
             return (Decimal.gte(conversion.actualGain.value, 1) && cash.upgs.eight.bought.value)
-        }
+        },
+        classes: computed(() => {
+            return {
+                rebirth: true,
+            }
+        }),
     }));
 
     const hotkey = createHotkey(() => ({
@@ -173,6 +197,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         effects,
         display: jsx(() => (
             <>
+                <br></br>
                 You have <ResourceVue resource={points} color={color} /> RP,<br></br>multiplying cash gain by x{format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
                 {Decimal.gt(pointGain.value, '1e1000') ? (
                     <div>

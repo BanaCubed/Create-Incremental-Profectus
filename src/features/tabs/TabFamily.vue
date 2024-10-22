@@ -133,10 +133,11 @@ export default defineComponent({
 
 <style scoped>
 .tab-family-container {
-    margin: calc(50px + var(--feature-margin)) 20px var(--feature-margin) 20px;
+    margin: calc(50px + var(--feature-margin)) 0px var(--feature-margin) 0px;
     position: relative;
     border: solid 4px;
     border-color: var(--outline);
+    border-width: 4px 0 0 0;
 }
 
 .layer-tab > .tab-family-container:first-child {

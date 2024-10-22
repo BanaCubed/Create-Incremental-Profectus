@@ -36,3 +36,6 @@
     background-color: var(--bought);
     cursor: default;
 }
+
+.rebirth.can { background-color: #e60039; }
+.cash.can    { background-color: #0b8000; }
