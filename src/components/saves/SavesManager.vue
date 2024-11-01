@@ -1,7 +1,9 @@
 <template>
     <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
-            <h2>Saves Manager</h2>
+            <div class="header">
+                <h2>Saves Manager</h2>
+            </div>
         </template>
         <template #body="{ shown }">
             <div v-if="showNotSyncedWarning" style="color: var(--danger)">
@@ -310,5 +312,13 @@ function editSave(id: string, newName: string) {
 
 .presets .vue-select[aria-expanded="true"] vue-dropdown {
     visibility: hidden;
+}
+
+.header {
+    margin: -20px;
+    margin-bottom: 0;
+    padding: 10px;
+    padding-bottom: 10px;
+    background: var(--raised-background);
 }
 </style>

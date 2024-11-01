@@ -35,6 +35,7 @@ import "./main.css";
 
 const useHeader = projInfo.useHeader;
 const theme = computed(() => themes[settings.theme].variables as CSSProperties);
+console.log(theme)
 const showTPS = toRef(settings, "showTPS");
 const appErrors = toRef(state, "errors");
 

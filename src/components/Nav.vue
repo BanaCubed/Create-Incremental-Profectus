@@ -8,20 +8,6 @@
             >
         </div>
         <div style="flex-grow: 1; cursor: unset"></div>
-        <div style="width: 200px; height: 46px; display: flex; flex-direction: column;">
-            <div v-if="player.devSpeed === 0" style="width: 200px">
-                Game Paused
-                <Node id="paused" />
-            </div>
-            <div v-if="player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1" style="width: 200px">
-                Dev Speed: {{format(player.devSpeed)}}x
-                <Node id="devspeed" />
-            </div>
-            <div v-if="player.offlineTime != null && player.offlineTime !== 0" style="width: 200px">
-                Offline Time: {{formatTime(player.offlineTime)}}
-                <Node id="offline" />
-            </div>
-        </div>
         <div style="flex-grow: 1; cursor: unset"></div>
         <div class="discord">
             <span @click="openDiscord" class="material-icons">discord</span>
@@ -89,7 +75,7 @@
             </a>
         </div>
         <div class="discord">
-            <span @click="openDiscord" class="material-icons">discord</span>
+            <span @click="openDiscord" class="material-icons" style="top: 0; position: relative;">discord</span>
             <ul class="discord-links">
                 <li v-if="discordLink">
                     <a :href="discordLink" target="_blank">{{ discordName }}</a>
@@ -102,6 +88,7 @@
                 </li>
             </ul>
         </div>
+        <div style="flex-grow: 1;"></div>
     </div>
     <Info ref="info" :changelog="changelog" />
     <SavesManager ref="savesManager" />
@@ -169,11 +156,13 @@ const needsSync = computed(
 
 .overlay-nav {
     position: fixed;
-    top: 10px;
-    left: 10px;
+    padding-top: 10px;
+    left: 0px;
     display: flex;
     flex-direction: column;
     z-index: 2;
+    height: 100vh;
+    background-color: var(--background);
 }
 
 .overlay-nav > * {
@@ -229,6 +218,7 @@ const needsSync = computed(
     transition: right 0.25s ease;
     background: var(--raised-background);
     z-index: 10;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
 .overlay-nav .discord-links {
@@ -258,7 +248,7 @@ const needsSync = computed(
     font-size: 36px;
 }
 
-.material-icons:hover {
+.material-icons:hover, .version:hover span {
     text-shadow: 5px 0 10px var(--link), -3px 0 12px var(--foreground);
 }
 
@@ -275,11 +265,7 @@ const needsSync = computed(
 }
 
 .version {
-    color: var(--points);
-}
-
-.version:hover span {
-    text-shadow: 5px 0 10px var(--points), -3px 0 12px var(--points);
+    color: var(--foreground);
 }
 
 .nav > div > a,

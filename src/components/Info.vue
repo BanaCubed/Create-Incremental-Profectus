@@ -13,7 +13,19 @@
         </template>
         <template v-slot:body="{ shown }">
             <div v-if="shown">
-                <div v-if="author">By {{ author }}</div>
+                <div>Created by:<br>
+                    <a target="_blank" href="https://banacubed.github.io/" style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb terminal palette</span>BanaCubed</a><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb palette</span>adoplayzz</span><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>Create_Incremental_Boy</span><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>EchoingLycanthrope</span><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>EdenGameMaster</span><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>galaxyuser63274</span><br>
+                    <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>Shadow69420</span><br>
+
+                    <br><span id="key"><span class="material-icons">lightbulb</span> Idea // <span class="material-icons">terminal</span> Code // <span class="material-icons">palette</span> Art<br>
+                    For name change or addition of links contact @banacubed on discord<br>
+                    Ideas can be submitted in the <a style="display: inline; width: fit-content;" target="_self" href="https://galaxy.click/forum/thread/255">original forum</a> on galaxy</span>
+                </div><br>
                 <div>
                     Made in Profectus, by thepaperpilot with inspiration from Acameada and Jacorb
                 </div>
@@ -127,5 +139,30 @@ function openChangelog() {
 .info-modal-discord {
     margin: 0;
     margin-right: 4px;
+}
+
+.user-thingy {
+    font-size: 20px;
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    width: 30%;
+    text-align: right;
+    padding-right: 3px;
+}
+
+#key {
+    color: var(--highlighted);
+    font-size: 10px;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+#key>.material-icons {
+    font-size: 10px;
+    display: inline-block;
+    position: relative;
+    top: 1.5px;
 }
 </style>

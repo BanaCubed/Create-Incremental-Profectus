@@ -104,15 +104,17 @@ export default defineComponent({
     margin: 0 10px 0 10px;
 }
 
+.treeNode:hover {
+    box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.25), 0 0 10px 5px var(--background);
+}
+
 .treeNode > *:first-child {
-    width: 100%;
-    height: 100%;
-    border: 2px solid rgba(0, 0, 0, 0.125);
-    border-radius: inherit;
-    font-size: 40px;
-    color: rgba(0, 0, 0, 0.5);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-    box-shadow: -4px -4px 4px rgba(0, 0, 0, 0.25) inset, 0px 0px 20px var(--background);
+    width: 100px;
+    height: 100px;
+    box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    font-size: 60px;
+    color: rgba(255, 255, 255, 0.25);
     display: flex;
 }
 

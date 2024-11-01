@@ -1,10 +1,10 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ formatWhole(tps) }}</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ format(tps) }}</div>
 </template>
 
 <script setup lang="ts">
 import state from "game/state";
-import Decimal, { formatWhole } from "util/bignum";
+import Decimal, { format } from "util/bignum";
 import { computed } from "vue";
 
 const tps = computed(() =>

@@ -130,8 +130,8 @@ const alignModifierUnitsTitle = jsx(() => (
 <style>
 .option-tabs {
     border-bottom: 2px solid var(--outline);
+    margin: -10px;
     margin-top: 10px;
-    margin-bottom: -10px;
 }
 
 .option-tabs button {
@@ -163,5 +163,13 @@ const alignModifierUnitsTitle = jsx(() => (
 
 .save-button {
     text-align: right;
+}
+
+.header {
+    margin: -20px;
+    margin-bottom: 0;
+    padding: 10px;
+    padding-bottom: 0;
+    background: var(--raised-background);
 }
 </style>

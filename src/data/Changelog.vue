@@ -1,7 +1,9 @@
 <template>
     <Modal v-model="isOpen">
         <template v-slot:header>
-            <h2>Changelog</h2>
+            <div class="header">
+                <h2>Changelog</h2>
+            </div>
         </template>
         <template v-slot:body>
             <details open>
@@ -11,7 +13,7 @@
                     <li class="breaking">Ported to Profectus</li>
                     <li class="breaking">Fully rebalanced existing content</li>
                     <li class="feature">Universal Time</li>
-                    <li class="feature">Breakdowns Tab</li>
+                    <li class="feature">Breakdowns Modals</li>
                     <li class="fix">Fixed multiple NaN bugs</li>
                     <li class="fix">Fixed multiple typos</li>
                     <li class="change">Changed various colours</li>
@@ -148,5 +150,13 @@ li::before {
 .breaking::before {
     content: "Breaking";
     background: var(--danger);
+}
+
+.header {
+    margin: -20px;
+    margin-bottom: 0;
+    padding: 10px;
+    padding-bottom: 10px;
+    background: var(--raised-background);
 }
 </style>

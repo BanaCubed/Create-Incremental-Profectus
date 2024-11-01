@@ -61,7 +61,7 @@ const defaultTheme: Theme = {
         "--accent3": "#7c6282",
 
         "--border-radius": "15px",
-        "--modal-border": "solid 2px var(--color)",
+        "--modal-border": "4px solid rgba(0, 0, 0, 0.25)",
         "--feature-margin": "0px"
     },
     floatingTabs: true,
@@ -74,7 +74,8 @@ export enum Themes {
     Classic = "classic",
     Paper = "paper",
     Nordic = "nordic",
-    Aqua = "aqua"
+    Aqua = "aqua",
+    Cryonix = "cryo"
 }
 
 /** A dictionary of all available themes. */
@@ -88,10 +89,10 @@ export default {
             "--feature-foreground": "#000",
             "--raised-background": "#333c4a",
             "--locked": "#3a3e45",
-            "--bought": "#5C8A58",
+            "--highlighted": "#434c5e",
+            "--bought": "#5CAA58",
             "--outline": "#333c4a",
             "--border-radius": "4px",
-            "--modal-border": "",
         },
         floatingTabs: false
     } as Theme,
@@ -115,7 +116,6 @@ export default {
             "--accent2": "#A3BE8C",
             "--accent3": "#EBCB8B",
             "--border-radius": "4px",
-            "--modal-border": "solid 2px #3B4252",
         },
         floatingTabs: false
     } as Theme,
@@ -129,7 +129,21 @@ export default {
             "--raised-background": "#001f3f",
             "--points": "#dfefff",
             "--locked": "#c4a7b3",
-            "--outline": "#bfdfff"
+            "--outline": "#bfdfff",
+            "--highlighted": "#06c",
         }
-    } as Theme
+    } as Theme,
+    cryo: {
+        ...defaultTheme,
+        variables: {
+            ...defaultTheme.variables,
+            "--foreground": "#0391a3",
+            "--background": "#e6e6f2",
+            "--feature-foreground": "#002626",
+            "--tooltip-background": "#aaaaf2",
+            "--raised-background": "#aaaaf2",
+            "--points": "#4555bf",
+        },
+        floatingTabs: false,
+    } as Theme,
 } as Record<Themes, Theme>;

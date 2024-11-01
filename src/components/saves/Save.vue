@@ -53,18 +53,18 @@
             </button>
         </div>
         <div class="details" v-if="save.error == undefined && !isEditing">
-            <Tooltip display="Synced!" :direction="Direction.Right" v-if="synced"
+            <Tooltip display="Synced!" :direction="Direction.Right" v-if="synced" @click="emit('open')" :disabled="readonly"
                 ><span class="material-icons synced">cloud</span></Tooltip
             >
             <button class="button open" @click="emit('open')" :disabled="readonly">
                 <h3>{{ save.name }}</h3>
             </button>
-            <span class="save-version">v{{ save.modVersion }}</span
+            <span class="save-version" @click="emit('open')" :disabled="readonly">v{{ save.modVersion }}</span
             ><br />
-            <div v-if="currentTime" class="time">
+            <div v-if="currentTime" class="time" @click="emit('open')" :disabled="readonly">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
-            <div v-if="progressDisplay"><component :is="progressDisplay" /></div>
+            <div v-if="progressDisplay"><component :is="progressDisplay" @click="emit('open')" :disabled="readonly" /></div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />

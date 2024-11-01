@@ -11,23 +11,53 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { renderCol } from "util/vue";
-import { createLayerTreeNode } from "../common";
+import { render, renderCol } from "util/vue";
+import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
-import { computed } from "vue";
+import { computed, unref } from "vue";
 import { createUpgrade } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
-import { noPersist } from "game/persistence";
-import { createExponentialModifier, createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
+import { noPersist, persistent } from "game/persistence";
+import { createAdditiveModifier, createExponentialModifier, createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
 import Row from "components/layout/Row.vue";
 import rebirth from "./rebirth";
+import { createTab } from "features/tabs/tab";
+import { createTabFamily } from "features/tabs/tabFamily";
+import { createClickable } from "features/clickables/clickable";
+
+/**
+ * Util function for display of dynamic portion of subtitle for The Machine
+ * @returns string, to be used in the subtitle
+ */
+function machineDisplay() {
+    // Inactive case, also handles negative lengths if that happens
+    if (layer.machine.value.length<1) { return 'Inactive // ' + layer.machine.value.length + '/1'; }
+
+    const modeNames = ['Cash', 'Neutral', 'Rebirth'];
+    let text = 'in ';
+
+    // Single mode case
+    if (layer.machine.value.length<2) {
+        text = text + modeNames[layer.machine.value[0]] + ' Mode'
+    } else {
+        text = text + ' the ';
+        for (let index = 0; index < layer.machine.value.length; index++) {
+            const mode = layer.machine.value[index];
+            
+            text = text + modeNames[mode] + ', ';
+        }
+        text = text.substring(0, text.length-2) + ' Modes';
+    }
+    return text + ` // ${layer.machine.value.length}/1`;
+}
 
 const id = "cash";
 const layer: any = createLayer(id, function (this: BaseLayer) {
     const points = createResource<DecimalSource>(0, "Cash", 2, false);
+    const machine: any = persistent([]);
     const best = trackBest(points);
     const total = trackTotal(points);
 
@@ -42,14 +72,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     const oomps = trackOOMPS(points, pointGain);
     
     const name = "Cash";
-    const color = "#0b8000";
+    const color = "#0b9000";
 
     const treeNode = createLayerTreeNode(() => ({
         layerID: 'cash',
         color,
         reset,
         display: '$',
-        append: false,
+        append: true,
     }));
     const tooltip = addTooltip(treeNode, {
         display: createResourceTooltip(points),
@@ -57,7 +87,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     });
 
     const reset = createReset(() => ({
-        thingsToReset: (): Record<string, any>[] => [upgs, effects, points, best, total, oomps]
+        thingsToReset: (): Record<string, any>[] => [upgs, effects, points, best, total, oomps, machine]
     }));
 
     const upgs = {
@@ -73,6 +103,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    bottom: true,
                 }
             }),
         })),
@@ -87,6 +119,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
+                    bottom: true,
                 }
             }),
         })),
@@ -106,6 +141,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
+                    bottom: true,
                 }
             }),
         })),
@@ -120,6 +158,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    left: true,
+                    bottom: true,
                 }
             }),
         })),
@@ -139,6 +179,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
                 }
             }),
         })),
@@ -158,6 +199,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -172,6 +215,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -187,6 +232,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -207,6 +254,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
                 }
             }),
         })),
@@ -227,6 +275,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -242,6 +292,8 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -258,6 +310,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
+                    left: true,
                 }
             }),
         })),
@@ -323,6 +376,199 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 description: "RP UPG 1",
             })),
         ]),
+        machine: {
+            cash: {
+                cash: createSequentialModifier(() => [
+                ]),
+            },
+            neut: {
+                cash: createSequentialModifier(() => [
+                ]),
+                rp: createSequentialModifier(() => [
+                ]),
+            },
+            rp: {
+                rp: createSequentialModifier(() => [
+                ]),
+            },
+        },
+    }
+
+    const machineClickables = {
+        cash: createClickable(() => ({
+            onClick() {
+                if (machine.value.includes(0)) { machine.value = machine.value.filter((n: number) => n != 0); }
+                else if (machine.value.length<1) {
+                    machine.value.push(0);
+                }
+            },
+            canClick() {
+                return machine.value.includes(0)?machine.value.length<=1:machine.value.length<1;
+            },
+            display: jsx(() => (
+                <>
+                    <span>{machine.value.includes(0)?'Disable':'Enable'}</span>
+                </>
+            )),
+            style: {
+                'min-height': '50px',
+            }
+        })),
+        neut: createClickable(() => ({
+            onClick() {
+                if (machine.value.includes(1)) { machine.value = machine.value.filter((n: number) => n != 1); }
+                else if (machine.value.length<1) {
+                    machine.value.push(1);
+                }
+            },
+            canClick() {
+                return machine.value.includes(1)?machine.value.length<=1:machine.value.length<1;
+            },
+            display: jsx(() => (
+                <>
+                    <span>{machine.value.includes(1)?'Disable':'Enable'}</span>
+                </>
+            )),
+            style: {
+                'min-height': '50px',
+            }
+        })),
+        rp: createClickable(() => ({
+            onClick() {
+                if (machine.value.includes(2)) { machine.value = machine.value.filter((n: number) => n != 2); }
+                else if (machine.value.length<1) {
+                    machine.value.push(2);
+                }
+            },
+            canClick() {
+                return machine.value.includes(2)?machine.value.length<=1:machine.value.length<1;
+            },
+            display: jsx(() => (
+                <>
+                    <span>{machine.value.includes(2)?'Disable':'Enable'}</span>
+                </>
+            )),
+            style: {
+                'min-height': '50px',
+            }
+        })),
+    }
+
+    const tabs = createTabFamily({
+        cash: () => ({
+            display: "Cash",
+            glowColor: color,
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        <br></br>
+                        You have <ResourceVue resource={points} color={color} /> Cash{render(modals.cashGain)}
+                        {Decimal.gt(pointGain.value, 0) ? (
+                            <div>
+                                ({oomps.value})
+                                <Node id="oomps" />
+                            </div>
+                        ) : null}
+                        <Spacer></Spacer>
+                        <Row>
+                            {renderCol(upgs.one, upgs.five, upgs.nine)}
+                            {renderCol(upgs.two, upgs.six, upgs.ten)}
+                            {renderCol(upgs.three, upgs.seven, upgs.eleven)}
+                            {renderCol(upgs.four, upgs.eight, upgs.twelve)}
+                        </Row>
+                    </>
+                )),
+            }))
+        }),
+        machine: () => ({
+            display: "Machine",
+            glowColor: '#666',
+            tab: createTab(() => ({
+                display: jsx(() => (
+                    <>
+                        <br></br>
+                        You have <ResourceVue resource={points} color={color} /> Cash{render(modals.cashGain)}
+                        {Decimal.gt(pointGain.value, 0) ? (
+                            <div>
+                                ({oomps.value})
+                                <Node id="oomps" />
+                            </div>
+                        ) : null}
+                        <Spacer></Spacer>
+                        <h2>The Machine</h2><br></br>
+                        <sup style="color: var(--highlighted)">Currently {machineDisplay()}</sup>
+                        <div style="background-color: rgba(102, 102, 102, 25%); width: 450px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
+                            <table>
+                                <tr>
+                                    <td style="width: 300px;"><h3>Cash Mode</h3>{render(modals.machineC)}<br></br>
+                                    <sup style="color: var(--highlighted)">{machine.value.includes(0)?'Enabled':'Disabled'}</sup><br></br>
+                                    <h5>x8 Cash</h5><br></br></td>
+                                    <td style="width: 150px;">{render(machineClickables.cash)}</td>
+                                </tr>
+                                <tr>
+                                    <td><h3>Neutral Mode</h3>{render(modals.machineN)}<br></br>
+                                    <sup style="color: var(--highlighted)">{machine.value.includes(1)?'Enabled':'Disabled'}</sup><br></br>
+                                    <h5>x3 Cash, x2 RP</h5><br></br></td>
+                                    <td>{render(machineClickables.neut)}</td>
+                                </tr>
+                                <tr>
+                                    <td><h3>Rebirth Mode</h3>{render(modals.machineR)}<br></br>
+                                    <sup style="color: var(--highlighted)">{machine.value.includes(2)?'Enabled':'Disabled'}</sup><br></br>
+                                    <h5>x4 RP</h5><br></br></td>
+                                    <td>{render(machineClickables.rp)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </>
+                )),
+            })),
+        }),
+    }, () => ({
+        visibility: true
+    }))
+
+    const modals = {
+        cashGain: createModifierModal(
+            'Cash',
+            () => [{
+                title: 'Cash Gain',
+                modifier: effects.cash,
+                base() { return upgs.one.bought?1:0 },
+
+            }],
+        ),
+        machineC: createModifierModal(
+            'Cash Mode',
+            () => [{
+                title: 'Cash Bonus',
+                modifier: effects.machine.cash.cash,
+                base: 8,
+
+            }],
+        ),
+        machineN: createModifierModal(
+            'Neutral Mode',
+            () => [{
+                title: 'Cash Bonus',
+                modifier: effects.machine.neut.cash,
+                base: 3,
+
+            }, {
+                title: 'RP Bonus',
+                modifier: effects.machine.neut.rp,
+                base: 2,
+
+            }],
+        ),
+        machineR: createModifierModal(
+            'Rebirth Mode',
+            () => [{
+                title: 'RP Bonus',
+                modifier: effects.machine.rp.rp,
+                base: 4,
+
+            }],
+        ),
     }
 
     return {
@@ -331,32 +577,38 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         tooltip,
         display: jsx(() => (
             <>
-                <br></br>
-                You have <ResourceVue resource={points} color={color} /> Cash
-                {Decimal.gt(pointGain.value, 0) ? (
-                    <div>
-                        ({oomps.value})
-                        <Node id="oomps" />
-                    </div>
-                ) : null}
-                <Spacer></Spacer>
-                <Row>
-                    {renderCol(upgs.one, upgs.five, upgs.nine)}
-                    {renderCol(upgs.two, upgs.six, upgs.ten)}
-                    {renderCol(upgs.three, upgs.seven, upgs.eleven)}
-                    {renderCol(upgs.four, upgs.eight, upgs.twelve)}
-                </Row>
+                { upgs.twelve.bought.value ? render(tabs) :
+                    <>
+                        You have <ResourceVue resource={points} color={color} /> Cash{render(modals.cashGain)}
+                        {Decimal.gt(pointGain.value, 0) ? (
+                            <div>
+                                ({oomps.value})
+                                <Node id="oomps" />
+                            </div>
+                        ) : null}
+                        <Spacer></Spacer>
+                        <Row>
+                            {renderCol(upgs.one, upgs.five, upgs.nine)}
+                            {renderCol(upgs.two, upgs.six, upgs.ten)}
+                            {renderCol(upgs.three, upgs.seven, upgs.eleven)}
+                            {renderCol(upgs.four, upgs.eight, upgs.twelve)}
+                        </Row>
+                    </>
+                }
             </>
         )),
         treeNode,
         points,
         best,
+        tabs,
         total,
         pointGain,
         oomps,
         upgs,
         effects,
         reset,
+        machine,
+        machineClickables,
     };
 });
 

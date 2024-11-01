@@ -1,7 +1,7 @@
 <template>
     <ErrorVue v-if="errors.length > 0" :errors="errors" />
     <div class="layer-container" :style="{ '--layer-color': unref(color) }" v-bind="$attrs" v-else>
-        <button v-if="showGoBack" class="goBack" @click="goBack">❌</button>
+        <button v-if="showGoBack" class="goBack material-icons" @click="goBack">close</button>
 
         <button
             class="layer-tab minimized"
@@ -180,8 +180,8 @@ export default defineComponent({
 
 .minimized + .minimize {
     transform: rotate(-90deg);
-    top: 10px;
-    right: 18px;
+    /* top: 10px;
+    right: 18px; */
     pointer-events: none;
 }
 
@@ -194,7 +194,6 @@ export default defineComponent({
     margin-left: -35px;
     border: none;
     background: var(--background);
-    box-shadow: var(--background) 0 2px 3px 5px;
     border-radius: 50%;
     color: var(--foreground);
     font-size: 30px;

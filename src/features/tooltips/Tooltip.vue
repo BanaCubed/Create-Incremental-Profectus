@@ -131,7 +131,7 @@ export default defineComponent({
     margin-bottom: 5px;
     transform: translateX(-50%);
     padding: 7px;
-    border-radius: 3px;
+    border-radius: var(--border-radius);
     background-color: var(--tooltip-background);
     color: var(--points);
     z-index: 100 !important;

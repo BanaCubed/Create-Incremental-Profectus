@@ -9,12 +9,12 @@
 	"discordLink": "https://discord.gg/wt5XyPRtte",
 
 	"versionNumber": "1.0",
-	"versionTitle": "Universal",
+	"versionTitle": "Universal // α2: Pre-Super III",
 
-	"allowGoBack": true,
+	"allowGoBack": false,
 	"defaultShowSmall": true,
 	"defaultDecimalsShown": 2,
-	"useHeader": true,
+	"useHeader": false,
 	"banner": null,
 	"logo": "",
 	"initialTabs": [ "main" ],

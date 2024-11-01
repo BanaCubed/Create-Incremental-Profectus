@@ -6,7 +6,7 @@ import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
 import player from "game/player";
-import Decimal, {  } from "util/bignum";
+import Decimal, { format, formatTime } from "util/bignum";
 import { render } from "util/vue";
 import { computed } from "vue";
 import rebirth from "./layers/rebirth";
@@ -17,6 +17,7 @@ import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
 import { createCollapsibleModifierSections } from "./common";
 import ResourceVue from "features/resources/Resource.vue";
+import Node from "components/Node.vue";
 
 /**
  * @hidden
@@ -39,76 +40,6 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         resetPropagation: branchedResetPropagation
     })) as GenericTree;
 
-    const tabs = createTabFamily({
-        tree: () => ({
-            display: "Primary",
-            tab: createTab(() => ({
-                display: jsx(() => (
-                    <>
-                        <span></span>
-                        {render(gameTabs)}
-                    </>
-                ))
-            }))
-        }),
-        breakdown: () => ({
-            display: "Breakdowns",
-            tab: createTab(() => ({
-                display: breakdowns
-            }))
-        }),
-        currencies: () => ({
-            display: "Currencies",
-            tab: createTab(() => ({
-                display: jsx(() => (
-                    <>
-                        {Decimal.gte(progression.value, -0.1) ? (<span>You have <ResourceVue resource={cash.points} color={cash.color}></ResourceVue> Cash</span>) : null}
-                        {Decimal.gte(progression.value, 0.9) ? (<span><br></br>You have <ResourceVue resource={rebirth.points} color={rebirth.color}></ResourceVue> RP</span>) : null}
-                    </>
-                ))
-            }))
-        }),
-    }, () => ({
-        visibility: true
-    }))
-
-    const gameTabs = createTabFamily({
-        cash: () => ({
-            display: "Cash",
-            glowColor: cash.color,
-            tab: createTab(() => ({
-                display: cash.display
-            }))
-        }),
-        rebirth: () => ({
-            display: "Rebirth",
-            glowColor: rebirth.color,
-            tab: createTab(() => ({
-                display: rebirth.display
-            })),
-            visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9))?0:2 }
-        }),
-    }, () => ({
-        visibility: true
-    }))
-
-    const [breakdowns, breakdownInfo] = createCollapsibleModifierSections(() => [
-        {
-            title: "Cash Gain",
-            modifier: cash.effects.cash,
-            base() { return cash.upgs.one.bought.value?1:0 },
-            unit: "/s",
-        }, {
-            title: "RP Gain",
-            modifier: rebirth.effects.rp,
-            base() { return Decimal.div(cash.points.value, 100000).sqrt() },
-            visible: cash.upgs.eight.bought.value||Decimal.gte(progression.value, 0.9),
-            unit: " RP",
-            subtitle: 'Amount on Reset',
-            baseText: 'Amount from Cash',
-        }, 
-    ])
-
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
         key: "/",
@@ -118,21 +49,41 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
     }));
 
     return {
-        name: "Misc",
+        name: "Tree",
         links: tree.links,
-        minimizable: false,
+        minimizable: true,
         display: jsx(() => (
             <>
-                {render(tabs)}
+                {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
+                    <div>
+                        Dev Speed: {format(player.devSpeed)}x
+                        <Node id="devspeed" />
+                    </div>
+                ) : (player.devSpeed === 0 ? (
+                    <div>
+                        Game Paused
+                        <Node id="paused" />
+                    </div>
+                ) : <br></br>)}
+                {player.offlineTime != null && player.offlineTime !== 0 ? (
+                    <div>
+                        Offline Time: {formatTime(player.offlineTime)}
+                        <Node id="offline" />
+                    </div>
+                ) : <br></br>}
+                You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
+                {Decimal.gt(cash.pointGain.value, 0) ? (
+                    <div>
+                        ({cash.oomps.value})
+                        <Node id="oomps" />
+                    </div>
+                ) : null}
+                {render(tree)}
             </>
         )),
         tree,
-        tabs,
-        breakdowns,
         hotkey,
         progression,
-        breakdownInfo,
-        gameTabs
     };
 });
 

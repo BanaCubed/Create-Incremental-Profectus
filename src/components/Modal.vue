@@ -96,13 +96,14 @@ defineExpose({ isOpen, nodes });
     max-height: 95vh;
     background-color: var(--background);
     padding: 20px;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     transition: all 0.3s ease;
     text-align: left;
     border: var(--modal-border);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    overflow: clip;
 }
 
 .modal-header {

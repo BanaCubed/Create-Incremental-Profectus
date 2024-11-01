@@ -133,11 +133,15 @@ export default defineComponent({
 
 <style scoped>
 .tab-family-container {
-    margin: calc(50px + var(--feature-margin)) 0px var(--feature-margin) 0px;
+    margin: calc(46px + var(--feature-margin)) 0px var(--feature-margin) 0px;
     position: relative;
     border: solid 4px;
     border-color: var(--outline);
     border-width: 4px 0 0 0;
+}
+
+.tab-family-container:has(:not(.floating)), .tab-buttons-container:not(.floating) {
+    border-width: 0 !important;
 }
 
 .layer-tab > .tab-family-container:first-child {
@@ -145,9 +149,6 @@ export default defineComponent({
 }
 
 .layer-tab > .tab-family-container:first-child:nth-last-child(3) {
-    border-bottom-style: none;
-    border-left-style: none;
-    border-right-style: none;
     height: calc(100% + 50px);
 }
 
@@ -165,10 +166,6 @@ export default defineComponent({
     margin-top: 50px;
 }
 
-.tab-family-container[data-v-f18896fc] > :last-child {
-    margin-bottom: 20px;
-}
-
 .tab-buttons-container {
     z-index: 4;
 }
@@ -180,7 +177,7 @@ export default defineComponent({
 
 :not(.layer-tab):not(.modal-body) > .tab-family-container > .tab-buttons-container:not(.floating) {
     width: calc(100% + 6px);
-    margin-left: -3px;
+    /* margin-left: -3px; */
 }
 
 .tab-buttons-container:not(.floating) .tab-buttons {
@@ -223,10 +220,12 @@ export default defineComponent({
 }
 
 .showGoBack
-    > .tab-family-container:first-child
-    > .tab-buttons-container:not(.floating)
-    .tab-buttons {
-    padding-left: 70px;
+    > .tab-family-container:first-child {
+    margin-left: 32px;
+}
+
+.showGoBack > .tab-family-container:first-child {
+    padding-left: -32px;
 }
 
 :not(.showGoBack)

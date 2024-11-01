@@ -49,14 +49,17 @@ export default defineComponent({
         const component = computeComponent(display);
 
         const glowColorStyle = computed(() => {
-            const color = unwrapRef(glowColor);
+            let color = unwrapRef(glowColor);
+            if (unref(floating)) {
+                if (color == null || color === "") {
+                    color = 'var(--highlighted)'
+                }
+                return { 'borderColor': `${props.active?'rgba(255, 255, 255, 0.25)':'rgba(0, 0, 0, 0.25)'}`, 'backgroundColor': `${color}` };
+            }
             if (color == null || color === "") {
                 return {};
             }
-            // if (unref(floating)) {
-            //     return getNotifyStyle(color);
-            // }
-            return { 'borderColor': `${props.active?color:'inherit'}`, 'borderBottomColor': `${props.active?color:'transparent'}` };
+            return { 'borderColor': `${props.active?color:'inherit'}`, 'borderBottomColor': `${props.active?color:'transparent'}`, 'boxShadow': `${props.active?'inset 0 -15px 10px -15px '+color:'none'}` };
         });
 
         function selectTab() {
@@ -83,15 +86,17 @@ export default defineComponent({
     font-size: 20px;
     cursor: pointer;
     padding: 5px 20px;
-    margin: 5px;
-    border-radius: 5px;
-    border: 2px solid;
+    margin: 4px;
+    margin-bottom: 8px;
+    border-radius: var(--border-radius);
+    border: 4px solid;
     flex-shrink: 0;
+    text-shadow: 0 0 4px var(--background);
 }
 
 .tabButton:hover {
     transform: scale(1.1, 1.1);
-    text-shadow: 0 0 7px var(--foreground);
+    text-shadow: 0 0 7px var(--background), 0 0 4px var(--background);
 }
 
 :not(.floating) > .tabButton {
@@ -103,6 +108,11 @@ export default defineComponent({
     border-bottom-width: 4px;
     border-radius: 0;
     transform: unset;
+}
+
+:not(.floating) > .tabButton:hover {
+    padding-top: 0px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
 }
 
 :not(.floating) .tabButton:not(.active) {

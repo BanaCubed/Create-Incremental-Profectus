@@ -28,7 +28,7 @@ import Row from "components/layout/Row.vue";
 const id = "rebirth";
 const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Rebirth";
-    const color = "#e60039";
+    const color = "#c60029";
     const points = createResource<DecimalSource>(0, "RP", 2, false);
     const oomps = trackOOMPS(points)
 
@@ -60,6 +60,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     rebirth: true,
+                    right: true,
                 }
             }),
         })),
@@ -74,6 +75,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     rebirth: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -88,6 +91,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     rebirth: true,
+                    right: true,
+                    left: true,
                 }
             }),
         })),
@@ -102,6 +107,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     rebirth: true,
+                    left: true,
                 }
             }),
         })),
@@ -147,7 +153,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         color,
         reset,
         display: 'R',
-        append: false,
+        append: true,
         visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9))?0:2 }
     }));
     const tooltip = addTooltip(treeNode, {

@@ -12,7 +12,7 @@ import type { GenericFormula } from "game/formulas/types";
 import { BaseLayer } from "game/layers";
 import type { Modifier } from "game/modifiers";
 import type { Persistent } from "game/persistence";
-import { DefaultValue, persistent } from "game/persistence";
+import { DefaultValue, deletePersistent, persistent } from "game/persistence";
 import player from "game/player";
 import settings from "game/settings";
 import type { DecimalSource } from "util/bignum";
@@ -27,8 +27,9 @@ import type {
 import { convertComputable, processComputable } from "util/computed";
 import { getFirstFeature, renderColJSX, renderJSX } from "util/vue";
 import type { ComputedRef, Ref } from "vue";
-import { computed, unref } from "vue";
+import { computed, ref, unref } from "vue";
 import "./common.css";
+import Modal from "components/Modal.vue";
 
 /** An object that configures a {@link ResetButton} */
 export interface ResetButtonOptions extends ClickableOptions {
@@ -128,7 +129,7 @@ export function createResetButton<T extends ClickableOptions & ResetButtonOption
                         )}
                     </b>{" "}
                     {resetButton.conversion.gainResource.displayName}
-                    {unref(resetButton.showNextAt) != null ? (
+                    {unref(resetButton?.showNextAt) != null ? (
                         <div>
                             <br />
                             {unref(resetButton.conversion.buyMax) ? "Next:" : "Req:"}{" "}
@@ -504,4 +505,36 @@ export function isRendered(layer: BaseLayer, feature: { id: string }): ComputedR
 export function isRendered(layer: BaseLayer, idOrFeature: string | { id: string }) {
     const id = typeof idOrFeature === "string" ? idOrFeature : idOrFeature.id;
     return computed(() => id in layer.nodes.value);
+}
+
+export function createModifierModal(
+    title: Computable<string>,
+    sectionsFunc: () => Section[],
+    fontSize?: string
+) {
+    const [modifiers, collapsed] = createCollapsibleModifierSections(sectionsFunc);
+    const computedTitle = convertComputable(title);
+    deletePersistent(collapsed);
+
+    const showModifiers = ref(false);
+
+    return jsx(() => (
+        <>
+            <button class="button"
+                    style={{
+                        display: "inline-block",
+                        fontSize: fontSize ?? "20px"
+                    }}
+                    onClick={() => showModifiers.value = true}
+            >🛈</button>
+            <Modal
+                modelValue={showModifiers.value}
+                onUpdate:modelValue={value => showModifiers.value = value}
+                v-slots={{
+                    header: () => <h2>{unref(computedTitle)}</h2>,
+                    body: modifiers
+                }}
+            />
+        </>
+    ))
 }
