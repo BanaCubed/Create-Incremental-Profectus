@@ -34,7 +34,7 @@ import { createClickable } from "features/clickables/clickable";
  */
 function machineDisplay() {
     // Inactive case, also handles negative lengths if that happens
-    if (layer.machine.value.length<1) { return 'Inactive // ' + layer.machine.value.length + '/1'; }
+    if (layer.machine.value.length<1) { return 'Inactive // ' + layer.machine.value.length + '/' + layer.machineUtils.maxModes; }
 
     const modeNames = ['Cash', 'Neutral', 'Rebirth'];
     let text = 'in ';
@@ -51,7 +51,7 @@ function machineDisplay() {
         }
         text = text.substring(0, text.length-2) + ' Modes';
     }
-    return text + ` // ${layer.machine.value.length}/1`;
+    return text + ` // ${layer.machine.value.length}/${layer.machineUtils.maxModes}`;
 }
 
 const id = "cash";
@@ -70,6 +70,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
     });
     const oomps = trackOOMPS(points, pointGain);
+
+    const machineUtils = {
+        canDisable: computed(() => {
+            return false
+        }),
+        maxModes: 1
+    }
     
     const name = "Cash";
     const color = "#0b9000";
@@ -398,12 +405,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         cash: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(0)) { machine.value = machine.value.filter((n: number) => n != 0); }
-                else if (machine.value.length<1) {
+                else if (machine.value.length<machineUtils.maxModes) {
                     machine.value.push(0);
                 }
             },
             canClick() {
-                return machine.value.includes(0)?machine.value.length<=1:machine.value.length<1;
+                return machine.value.includes(0)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
             },
             display: jsx(() => (
                 <>
@@ -417,12 +424,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         neut: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(1)) { machine.value = machine.value.filter((n: number) => n != 1); }
-                else if (machine.value.length<1) {
+                else if (machine.value.length<machineUtils.maxModes) {
                     machine.value.push(1);
                 }
             },
             canClick() {
-                return machine.value.includes(1)?machine.value.length<=1:machine.value.length<1;
+                return machine.value.includes(1)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
             },
             display: jsx(() => (
                 <>
@@ -436,12 +443,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         rp: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(2)) { machine.value = machine.value.filter((n: number) => n != 2); }
-                else if (machine.value.length<1) {
+                else if (machine.value.length<machineUtils.maxModes) {
                     machine.value.push(2);
                 }
             },
             canClick() {
-                return machine.value.includes(2)?machine.value.length<=1:machine.value.length<1;
+                return machine.value.includes(2)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
             },
             display: jsx(() => (
                 <>
@@ -609,6 +616,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         reset,
         machine,
         machineClickables,
+        machineUtils,
     };
 });
 
