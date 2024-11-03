@@ -22,7 +22,7 @@
                     <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>galaxyuser63274</span><br>
                     <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>Shadow69420</span><br>
 
-                    <br><span id="key"><span class="material-icons">lightbulb</span> Idea // <span class="material-icons">terminal</span> Code // <span class="material-icons">palette</span> Art<br>
+                    <br><span id="key"><span class="material-icons">lightbulb</span> Idea // <span class="material-icons">terminal</span> Code // <span class="material-icons">palette</span> Art // <span class="material-icons">translate</span> Translation<br>
                     For name change or addition of links contact @banacubed on discord<br>
                     Ideas can be submitted in the <a style="display: inline; width: fit-content;" target="_self" href="https://galaxy.click/forum/thread/255">original forum</a> on galaxy</span>
                 </div><br>

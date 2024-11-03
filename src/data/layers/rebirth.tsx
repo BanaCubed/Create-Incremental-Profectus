@@ -14,7 +14,7 @@ import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render, renderCol } from "util/vue";
 import { createLayerTreeNode, createModifierModal, createResetButton } from "../common";
-import cash from "./cash"
+import cash from "./cash";
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
 import { createSequentialModifier, createMultiplicativeModifier } from "game/modifiers";
@@ -30,7 +30,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Rebirth";
     const color = "#c60029";
     const points = createResource<DecimalSource>(0, "RP", 2, false);
-    const oomps = trackOOMPS(points)
+    const oomps = trackOOMPS(points);
 
     const pointGain = computed(() => {
         // eslint-disable-next-line prefer-const
@@ -41,7 +41,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
     const conversion = createCumulativeConversion(() => ({
         formula: x => x.div(100000).sqrt().mul(pointGain),
         baseResource: cash.points,
-        gainResource: noPersist(points),
+        gainResource: noPersist(points)
     }));
 
     const reset = createReset(() => ({
@@ -52,119 +52,131 @@ const layer = createLayer(id, function (this: BaseLayer) {
         one: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1,
+                cost: 1
             })),
             display: {
-                description: "Double cash generation for each Rebirth upgrade owned",
+                description: "Double cash generation for each Rebirth upgrade owned"
             },
             classes: computed(() => {
                 return {
                     rebirth: true,
-                    right: true,
-                }
-            }),
+                    right: true
+                };
+            })
         })),
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 3,
+                cost: 3
             })),
             display: {
-                description: "Automate the first four Cash upgrades",
+                description: "Automate the first four Cash upgrades"
             },
             classes: computed(() => {
                 return {
                     rebirth: true,
                     right: true,
-                    left: true,
-                }
-            }),
+                    left: true
+                };
+            })
         })),
         three: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 10,
+                cost: 10
             })),
             display: {
-                description: "Automate the next four Cash upgrades",
+                description: "Automate the next four Cash upgrades"
             },
             classes: computed(() => {
                 return {
                     rebirth: true,
                     right: true,
-                    left: true,
-                }
-            }),
+                    left: true
+                };
+            })
         })),
         four: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 50,
+                cost: 50
             })),
             display: {
-                description: "Unlock the next four Cash upgrades",
+                description: "Unlock the next four Cash upgrades"
             },
             classes: computed(() => {
                 return {
                     rebirth: true,
-                    left: true,
-                }
-            }),
-        })),
-    }
+                    left: true
+                };
+            })
+        }))
+    };
 
     setupAutoPurchase(cash, upgs.two.bought, [
         cash.upgs.one,
         cash.upgs.two,
         cash.upgs.three,
         cash.upgs.four
-    ])
+    ]);
 
     setupAutoPurchase(cash, upgs.three.bought, [
         cash.upgs.five,
         cash.upgs.six,
         cash.upgs.seven,
         cash.upgs.eight
-    ])
+    ]);
 
     const effects = {
         rp: createSequentialModifier(() => [
             createMultiplicativeModifier(() => ({
                 multiplier: 2,
                 description: "Cash UPG 11",
-                enabled: cash.upgs.eleven.bought,
+                enabled: cash.upgs.eleven.bought
             })),
             createMultiplicativeModifier(() => ({
-                multiplier(): any {return cash.effects.machine.neut.rp.apply(2)},
-                enabled() {return cash.machine.value.includes(1)},
-                description: "Machine Neutral Mode",
+                multiplier(): any {
+                    return cash.effects.machine.neut.rp.apply(2);
+                },
+                enabled() {
+                    return cash.machine.value.includes(1);
+                },
+                description: "Machine Neutral Mode"
             })),
             createMultiplicativeModifier(() => ({
-                multiplier(): any {return cash.effects.machine.rp.rp.apply(4)},
-                enabled() {return cash.machine.value.includes(2)},
-                description: "Machine Rebirth Mode",
+                multiplier(): any {
+                    return cash.effects.machine.rp.rp.apply(4);
+                },
+                enabled() {
+                    return cash.machine.value.includes(2);
+                },
+                description: "Machine Rebirth Mode"
             })),
             createMultiplicativeModifier(() => ({
                 multiplier: 0,
                 description: "Unable to Rebirth",
-                enabled: !cash.upgs.eight.bought,
-            })),
+                enabled: !cash.upgs.eight.bought
+            }))
         ]),
         rpCash: createSequentialModifier(() => [
             createMultiplicativeModifier(() => ({
-                multiplier() { return Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2) },
+                multiplier() {
+                    return Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2);
+                },
                 description: "Initial Amount"
             }))
         ])
-    }
+    };
 
     const treeNode = createLayerTreeNode(() => ({
-        layerID: 'rebirth',
+        layerID: "rebirth",
         color,
         reset,
-        display: 'R',
+        display: "R",
         append: true,
-        visibility() { return (cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9))?0:2 }
+        visibility() {
+            return cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9) ? 0 : 2;
+        }
     }));
     const tooltip = addTooltip(treeNode, {
         display: createResourceTooltip(points),
@@ -177,23 +189,25 @@ const layer = createLayer(id, function (this: BaseLayer) {
         treeNode,
         display: jsx(() => (
             <>
-                {
-                    cash.upgs.eight.bought.value ? (Decimal.gte(cash.points.value, 100000) ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
-                    next at ${formatWhole(conversion.nextAt.value)} cash` : `Reach ${formatWhole(100000)} cash to Rebirth`) : "Purchase Cash UPG 8 \"Repitition\" to Rebirth"
-                }
+                {cash.upgs.eight.bought.value
+                    ? Decimal.gte(cash.points.value, 100000)
+                        ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
+                    next at ${formatWhole(conversion.nextAt.value)} cash`
+                        : `Reach ${formatWhole(100000)} cash to Rebirth`
+                    : 'Purchase Cash UPG 8 "Repitition" to Rebirth'}
             </>
         )),
         onClick() {
-            main.progression.value = Decimal.max(main.progression.value, 1)
+            main.progression.value = Decimal.max(main.progression.value, 1);
         },
         canClick(): boolean {
-            return (Decimal.gte(conversion.actualGain.value, 1) && cash.upgs.eight.bought.value)
+            return Decimal.gte(conversion.actualGain.value, 1) && cash.upgs.eight.bought.value;
         },
         classes: computed(() => {
             return {
-                rebirth: true,
-            }
-        }),
+                rebirth: true
+            };
+        })
     }));
 
     const hotkey = createHotkey(() => ({
@@ -201,21 +215,21 @@ const layer = createLayer(id, function (this: BaseLayer) {
         key: "r",
         onPress: resetButton.onClick,
         enabled() {
-            return Decimal.gte(main.progression.value, 0.9)
-        },
+            return Decimal.gte(main.progression.value, 0.9);
+        }
     }));
 
     const modals = {
-        rpGain: createModifierModal(
-            'Rebirth',
-            () => [{
-                title: 'RP Gain',
+        rpGain: createModifierModal("Rebirth", () => [
+            {
+                title: "RP Gain",
                 modifier: effects.rp,
-                base() { return Decimal.div(cash.points.value, 1e5).sqrt() },
-
-            }],
-        ),
-    }
+                base() {
+                    return Decimal.div(cash.points.value, 1e5).sqrt();
+                }
+            }
+        ])
+    };
 
     return {
         name,
@@ -226,12 +240,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         display: jsx(() => (
             <>
                 <br></br>
-                You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}<br></br>Multiplying cash gain by x{format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
-                {Decimal.gt(pointGain.value, '1e1000') ? (
-                    <div>
-                        ({oomps.value})
-                    </div>
-                ) : null}
+                You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}
+                <br></br>Multiplying cash gain by x
+                {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
+                {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
                 <Spacer></Spacer>
                 {render(resetButton)}
                 <Row>
@@ -244,7 +256,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         )),
         treeNode,
         hotkey,
-        upgs,
+        upgs
     };
 });
 

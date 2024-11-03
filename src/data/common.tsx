@@ -520,21 +520,24 @@ export function createModifierModal(
 
     return jsx(() => (
         <>
-            <button class="button"
-                    style={{
-                        display: "inline-block",
-                        fontSize: fontSize ?? "20px"
-                    }}
-                    onClick={() => showModifiers.value = true}
-            >🛈</button>
+            <button
+                class="button"
+                style={{
+                    display: "inline-block",
+                    fontSize: fontSize ?? "20px"
+                }}
+                onClick={() => (showModifiers.value = true)}
+            >
+                🛈
+            </button>
             <Modal
                 modelValue={showModifiers.value}
-                onUpdate:modelValue={value => showModifiers.value = value}
+                onUpdate:modelValue={value => (showModifiers.value = value)}
                 v-slots={{
                     header: () => <h2>{unref(computedTitle)}</h2>,
                     body: modifiers
                 }}
             />
         </>
-    ))
+    ));
 }

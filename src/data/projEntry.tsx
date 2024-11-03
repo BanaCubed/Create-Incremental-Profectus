@@ -11,11 +11,7 @@ import { render } from "util/vue";
 import { computed } from "vue";
 import rebirth from "./layers/rebirth";
 import cash from "./layers/cash";
-import { createTab } from "features/tabs/tab";
-import { createTabFamily } from "features/tabs/tabFamily";
 import { createHotkey } from "features/hotkey";
-import { createReset } from "features/reset";
-import { createCollapsibleModifierSections } from "./common";
 import ResourceVue from "features/resources/Resource.vue";
 import Node from "components/Node.vue";
 
@@ -23,15 +19,18 @@ import Node from "components/Node.vue";
  * @hidden
  */
 export const main: any = createLayer("main", function (this: BaseLayer) {
-    const progression = createResource(0, 'progress')
+    const progression = createResource(0, "progress");
 
     const tree = createTree(() => ({
         nodes: [[cash.treeNode], [rebirth.treeNode]],
-        branches: [{
-            startNode: rebirth.treeNode,
-            endNode: cash.treeNode,
-            visibility: (cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9))?1:0
-        }],
+        branches: [
+            {
+                startNode: rebirth.treeNode,
+                endNode: cash.treeNode,
+                visibility:
+                    cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9) ? 1 : 0
+            }
+        ],
         resetPropagation: branchedResetPropagation
     })) as GenericTree;
 
@@ -39,8 +38,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         description: "Toggle Pause",
         key: "/",
         onPress() {
-            player.devSpeed = (player.devSpeed===1?0:1)
-        },
+            player.devSpeed = player.devSpeed === 1 ? 0 : 1;
+        }
     }));
 
     return {
@@ -54,18 +53,22 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
                         Dev Speed: {format(player.devSpeed)}x
                         <Node id="devspeed" />
                     </div>
-                ) : (player.devSpeed === 0 ? (
+                ) : player.devSpeed === 0 ? (
                     <div>
                         Game Paused
                         <Node id="paused" />
                     </div>
-                ) : <br />)}
+                ) : (
+                    <br />
+                )}
                 {player.offlineTime != null && player.offlineTime !== 0 ? (
                     <div>
                         Offline Time: {formatTime(player.offlineTime)}
                         <Node id="offline" />
                     </div>
-                ) : <br />}
+                ) : (
+                    <br />
+                )}
                 You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
                 {Decimal.gt(cash.pointGain.value, 0) ? (
                     <div>
@@ -78,7 +81,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         )),
         tree,
         hotkey,
-        progression,
+        progression
     };
 });
 

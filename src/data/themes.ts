@@ -88,11 +88,10 @@ export default {
             "--background": "#2a323d",
             "--feature-foreground": "#000",
             "--raised-background": "#333c4a",
-            "--locked": "#3a3e45",
             "--highlighted": "#434c5e",
             "--bought": "#5CAA58",
             "--outline": "#333c4a",
-            "--border-radius": "4px",
+            "--border-radius": "4px"
         },
         floatingTabs: false
     } as Theme,
@@ -106,7 +105,6 @@ export default {
             "--feature-foreground": "#000",
             "--raised-background": "#3B4252",
             "--points": "#E5E9F0",
-            "--locked": "#4c566a",
             "--highlighted": "#434c5e",
             "--bought": "#8FBCBB",
             "--danger": "#D08770",
@@ -115,7 +113,7 @@ export default {
             "--accent1": "#B48EAD",
             "--accent2": "#A3BE8C",
             "--accent3": "#EBCB8B",
-            "--border-radius": "4px",
+            "--border-radius": "4px"
         },
         floatingTabs: false
     } as Theme,
@@ -130,7 +128,7 @@ export default {
             "--points": "#dfefff",
             "--locked": "#c4a7b3",
             "--outline": "#bfdfff",
-            "--highlighted": "#06c",
+            "--highlighted": "#06c"
         }
     } as Theme,
     cryo: {
@@ -142,8 +140,8 @@ export default {
             "--feature-foreground": "#002626",
             "--tooltip-background": "#aaaaf2",
             "--raised-background": "#aaaaf2",
-            "--points": "#4555bf",
+            "--points": "#4555bf"
         },
-        floatingTabs: false,
-    } as Theme,
+        floatingTabs: false
+    } as Theme
 } as Record<Themes, Theme>;
