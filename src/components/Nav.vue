@@ -47,9 +47,9 @@
         </div>
     </div>
     <div v-else class="overlay-nav" v-bind="$attrs">
-        <div @click="changelog?.open()" class="version-container">
-            <Tooltip display="Changelog" :direction="Direction.Right" xoffset="25%" class="version">
-                <span>v{{ versionNumber }}</span>
+        <div @click="options?.open()">
+            <Tooltip display="Settings" :direction="Direction.Right">
+                <span class="material-icons">settings</span>
             </Tooltip>
         </div>
         <div @click="savesManager?.open()">
@@ -57,39 +57,19 @@
                 <span class="material-icons" :class="{ needsSync }">library_books</span>
             </Tooltip>
         </div>
-        <div @click="options?.open()">
-            <Tooltip display="Settings" :direction="Direction.Right">
-                <span class="material-icons">settings</span>
-            </Tooltip>
-        </div>
         <div @click="info?.open()">
             <Tooltip display="Info" :direction="Direction.Right">
                 <span class="material-icons">info</span>
             </Tooltip>
         </div>
-        <div>
-            <a href="https://forums.moddingtree.com/" target="_blank">
-                <Tooltip display="Forums" :direction="Direction.Right" xoffset="7px">
-                    <span class="material-icons">forum</span>
-                </Tooltip>
-            </a>
-        </div>
-        <div class="discord">
-            <span @click="openDiscord" class="material-icons" style="top: 0; position: relative;">discord</span>
-            <ul class="discord-links">
-                <li v-if="discordLink">
-                    <a :href="discordLink" target="_blank">{{ discordName }}</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/yJ4fjnjU54" target="_blank">Profectus & Friends</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/F3xveHV" target="_blank">The Modding Tree</a>
-                </li>
-            </ul>
+        <div @click="help?.open()">
+            <Tooltip display="Help" :direction="Direction.Right">
+                <span class="material-icons">help</span>
+            </Tooltip>
         </div>
         <div style="flex-grow: 1;"></div>
     </div>
+    <Help ref="help" :changelog="changelog" />
     <Info ref="info" :changelog="changelog" />
     <SavesManager ref="savesManager" />
     <Options ref="options" />
@@ -106,11 +86,13 @@ import { galaxy, syncedSaves } from "util/galaxy";
 import type { ComponentPublicInstance } from "vue";
 import { computed, ref } from "vue";
 import Info from "./Info.vue";
+import Help from "./Help.vue";
 import Options from "./Options.vue";
 import SavesManager from "./saves/SavesManager.vue";
 import player from "game/player";
 import { format, formatTime } from "util/bignum";
 
+const help = ref<ComponentPublicInstance<typeof Help> | null>(null);
 const info = ref<ComponentPublicInstance<typeof Info> | null>(null);
 const savesManager = ref<ComponentPublicInstance<typeof SavesManager> | null>(null);
 const options = ref<ComponentPublicInstance<typeof Options> | null>(null);
@@ -156,13 +138,14 @@ const needsSync = computed(
 
 .overlay-nav {
     position: fixed;
-    padding-top: 10px;
+    /* padding-top: 10px; */
     left: 0px;
     display: flex;
     flex-direction: column;
     z-index: 2;
     height: 100vh;
     background-color: var(--background);
+    box-shadow: 0 0 10px 10px var(--background);
 }
 
 .overlay-nav > * {
@@ -202,6 +185,7 @@ const needsSync = computed(
 
 .overlay-nav .discord {
     position: relative;
+    top: -0px;
 }
 
 .discord img {
@@ -215,17 +199,20 @@ const needsSync = computed(
     padding: 20px;
     right: -280px;
     width: 200px;
-    transition: right 0.25s ease;
+    transition: right 1.5s ease;
     background: var(--raised-background);
     z-index: 10;
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-width: 4px;
+    border-color: rgba(0, 0, 0, 0.25);
+    border-style: solid;
 }
 
 .overlay-nav .discord-links {
     position: absolute;
     left: -280px;
     right: unset;
-    transition: left 0.25s ease;
+    transition: left 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .overlay-nav .discord:hover .discord-links {
@@ -234,10 +221,6 @@ const needsSync = computed(
 
 .discord-links li {
     margin-bottom: 4px;
-}
-
-.discord-links li:first-child {
-    font-size: 1.2em;
 }
 
 *:not(.overlay-nav) .discord:hover .discord-links {

@@ -24,11 +24,6 @@ import Node from "components/Node.vue";
  */
 export const main: any = createLayer("main", function (this: BaseLayer) {
     const progression = createResource(0, 'progress')
-    
-
-    const reset = createReset(() => ({
-        thingsToReset: (): Record<string, any>[] => []
-    }));
 
     const tree = createTree(() => ({
         nodes: [[cash.treeNode], [rebirth.treeNode]],
@@ -64,13 +59,13 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
                         Game Paused
                         <Node id="paused" />
                     </div>
-                ) : <br></br>)}
+                ) : <br />)}
                 {player.offlineTime != null && player.offlineTime !== 0 ? (
                     <div>
                         Offline Time: {formatTime(player.offlineTime)}
                         <Node id="offline" />
                     </div>
-                ) : <br></br>}
+                ) : <br />}
                 You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
                 {Decimal.gt(cash.pointGain.value, 0) ? (
                     <div>

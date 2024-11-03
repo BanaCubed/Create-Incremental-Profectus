@@ -1,5 +1,6 @@
 <template>
     <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ format(tps) }}</div>
+    <div class="tpsDisplay2" v-if="!tps.isNan()">v1.0 β4 α2</div>
 </template>
 
 <script setup lang="ts">
@@ -17,6 +18,13 @@ const tps = computed(() =>
 
 <style scoped>
 .tpsDisplay {
+    position: absolute;
+    left: 10px;
+    bottom: 26px;
+    z-index: 100;
+}
+
+.tpsDisplay2 {
     position: absolute;
     left: 10px;
     bottom: 10px;

@@ -34,7 +34,7 @@ import { createClickable } from "features/clickables/clickable";
  */
 function machineDisplay() {
     // Inactive case, also handles negative lengths if that happens
-    if (layer.machine.value.length<1) { return 'Inactive // ' + layer.machine.value.length + '/' + layer.machineUtils.maxModes; }
+    if (layer.machine.value.length<1) { return 'Inactive // ' + layer.machine.value.length + '/' + layer.machineUtils.maxModes.value; }
 
     const modeNames = ['Cash', 'Neutral', 'Rebirth'];
     let text = 'in ';
@@ -51,7 +51,7 @@ function machineDisplay() {
         }
         text = text.substring(0, text.length-2) + ' Modes';
     }
-    return text + ` // ${layer.machine.value.length}/${layer.machineUtils.maxModes}`;
+    return text + ` // ${layer.machine.value.length}/${layer.machineUtils.maxModes.value}`;
 }
 
 const id = "cash";
@@ -73,9 +73,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
 
     const machineUtils = {
         canDisable: computed(() => {
-            return false
+            return false;
         }),
-        maxModes: 1
+        maxModes: computed(() => {
+            let n = 0;
+            if(upgs.twelve.bought.value) { n++; }
+            return n;
+        }),
     }
     
     const name = "Cash";
@@ -320,6 +324,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     left: true,
                 }
             }),
+            onPurchase() {
+                main.progression.value = Decimal.max(main.progression.value, 2);
+            },
         })),
     }
 
@@ -366,8 +373,18 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 description: "Cash UPG 10",
             })),
             createMultiplicativeModifier(() => ({
+                multiplier(): any {return effects.machine.cash.cash.apply(8)},
+                enabled() {return machine.value.includes(0)},
+                description: "Machine Cash Mode",
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {return effects.machine.neut.cash.apply(3)},
+                enabled() {return machine.value.includes(1)},
+                description: "Machine Neutral Mode",
+            })),
+            createMultiplicativeModifier(() => ({
                 multiplier(): any {return Decimal.max(rebirth.points.value, 0).add(1).log(10).add(1).pow(2)},
-                enabled: upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9),
+                enabled() {return upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9)},
                 description: "RP Effect",
             })),
             createMultiplicativeModifier(() => ({
@@ -405,16 +422,16 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         cash: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(0)) { machine.value = machine.value.filter((n: number) => n != 0); }
-                else if (machine.value.length<machineUtils.maxModes) {
+                else if (machine.value.length<machineUtils.maxModes.value) {
                     machine.value.push(0);
                 }
             },
             canClick() {
-                return machine.value.includes(0)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
+                return machine.value.includes(0)?(machineUtils.canDisable.value?machine.value.length<=machineUtils.maxModes.value:false):machine.value.length<machineUtils.maxModes.value;
             },
             display: jsx(() => (
                 <>
-                    <span>{machine.value.includes(0)?'Disable':'Enable'}</span>
+                    <h2>{machine.value.includes(0)?'Disable':'Enable'}</h2>
                 </>
             )),
             style: {
@@ -424,16 +441,16 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         neut: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(1)) { machine.value = machine.value.filter((n: number) => n != 1); }
-                else if (machine.value.length<machineUtils.maxModes) {
+                else if (machine.value.length<machineUtils.maxModes.value) {
                     machine.value.push(1);
                 }
             },
             canClick() {
-                return machine.value.includes(1)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
+                return machine.value.includes(1)?(machineUtils.canDisable.value?machine.value.length<=machineUtils.maxModes.value:false):machine.value.length<machineUtils.maxModes.value;
             },
             display: jsx(() => (
                 <>
-                    <span>{machine.value.includes(1)?'Disable':'Enable'}</span>
+                    <h2>{machine.value.includes(1)?'Disable':'Enable'}</h2>
                 </>
             )),
             style: {
@@ -443,16 +460,16 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         rp: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(2)) { machine.value = machine.value.filter((n: number) => n != 2); }
-                else if (machine.value.length<machineUtils.maxModes) {
+                else if (machine.value.length<machineUtils.maxModes.value) {
                     machine.value.push(2);
                 }
             },
             canClick() {
-                return machine.value.includes(2)?machine.value.length<=machineUtils.maxModes:machine.value.length<machineUtils.maxModes;
+                return machine.value.includes(2)?(machineUtils.canDisable.value?machine.value.length<=machineUtils.maxModes.value:false):machine.value.length<machineUtils.maxModes.value;
             },
             display: jsx(() => (
                 <>
-                    <span>{machine.value.includes(2)?'Disable':'Enable'}</span>
+                    <h2>{machine.value.includes(2)?'Disable':'Enable'}</h2>
                 </>
             )),
             style: {
@@ -490,6 +507,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         machine: () => ({
             display: "Machine",
             glowColor: '#666',
+            visibility() { return Decimal.gte(main.progression.value, 1.9)?0:2 },
             tab: createTab(() => ({
                 display: jsx(() => (
                     <>
@@ -509,19 +527,19 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 <tr>
                                     <td style="width: 300px;"><h3>Cash Mode</h3>{render(modals.machineC)}<br></br>
                                     <sup style="color: var(--highlighted)">{machine.value.includes(0)?'Enabled':'Disabled'}</sup><br></br>
-                                    <h5>x8 Cash</h5><br></br></td>
+                                    <h5>×{format(effects.machine.cash.cash.apply(8))} Cash</h5><br></br></td>
                                     <td style="width: 150px;">{render(machineClickables.cash)}</td>
                                 </tr>
                                 <tr>
                                     <td><h3>Neutral Mode</h3>{render(modals.machineN)}<br></br>
                                     <sup style="color: var(--highlighted)">{machine.value.includes(1)?'Enabled':'Disabled'}</sup><br></br>
-                                    <h5>x3 Cash, x2 RP</h5><br></br></td>
+                                    <h5>×{format(effects.machine.neut.cash.apply(3))} Cash, ×{format(effects.machine.neut.rp.apply(2))} RP</h5><br></br></td>
                                     <td>{render(machineClickables.neut)}</td>
                                 </tr>
                                 <tr>
                                     <td><h3>Rebirth Mode</h3>{render(modals.machineR)}<br></br>
                                     <sup style="color: var(--highlighted)">{machine.value.includes(2)?'Enabled':'Disabled'}</sup><br></br>
-                                    <h5>x4 RP</h5><br></br></td>
+                                    <h5>×{format(effects.machine.rp.rp.apply(4))} RP</h5><br></br></td>
                                     <td>{render(machineClickables.rp)}</td>
                                 </tr>
                             </table>
@@ -584,7 +602,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         tooltip,
         display: jsx(() => (
             <>
-                { upgs.twelve.bought.value ? render(tabs) :
+                { Decimal.gte(main.progression.value, 1.9) ? render(tabs) :
                     <>
                         You have <ResourceVue resource={points} color={color} /> Cash{render(modals.cashGain)}
                         {Decimal.gt(pointGain.value, 0) ? (

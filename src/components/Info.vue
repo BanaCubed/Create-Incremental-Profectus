@@ -30,42 +30,43 @@
                     Made in Profectus, by thepaperpilot with inspiration from Acameada and Jacorb
                 </div>
                 <br />
-                <div class="link" @click="openChangelog">Changelog</div>
-                <br />
-                <div>
-                    <a
-                        :href="discordLink"
-                        v-if="discordLink"
-                        class="info-modal-discord-link"
-                        target="_blank"
-                    >
-                        <span class="material-icons info-modal-discord">discord</span>
-                        {{ discordName }}
-                    </a>
-                </div>
-                <div>
-                    <a
-                        href="https://discord.gg/yJ4fjnjU54"
-                        class="info-modal-discord-link"
-                        target="_blank"
-                    >
-                        <span class="material-icons info-modal-discord">discord</span>
-                        Profectus & Friends
-                    </a>
-                </div>
-                <div>
-                    <a
-                        href="https://discord.gg/F3xveHV"
-                        class="info-modal-discord-link"
-                        target="_blank"
-                    >
-                        <span class="material-icons info-modal-discord">discord</span>
-                        The Modding Tree
-                    </a>
+                <span style="width: fit-content; display: inline;" class="link" @click="openChangelog"><span class="material-icons user-thingy">history</span>Changelog</span>
+                <br /><br />
+                <div style="margin-left: calc(30% - 24px);">
+                    <div>
+                        <a
+                            :href="discordLink"
+                            v-if="discordLink"
+                            class="info-modal-discord-link"
+                            target="_blank"
+                        >
+                            <span class="material-icons info-modal-discord">discord</span>
+                            {{ discordName }}
+                        </a>
+                    </div>
+                    <div>
+                        <a
+                            href="https://discord.gg/yJ4fjnjU54"
+                            class="info-modal-discord-link"
+                            target="_blank"
+                        >
+                            <span class="material-icons info-modal-discord">discord</span>
+                            Profectus & Friends
+                        </a>
+                    </div>
+                    <div>
+                        <a
+                            href="https://discord.gg/F3xveHV"
+                            class="info-modal-discord-link"
+                            target="_blank"
+                        >
+                            <span class="material-icons info-modal-discord">discord</span>
+                            The Modding Tree
+                        </a>
+                    </div>
                 </div>
                 <br />
                 <div>Time Played: {{ timePlayed }}</div>
-                <component :is="infoComponent" />
             </div>
         </template>
     </Modal>

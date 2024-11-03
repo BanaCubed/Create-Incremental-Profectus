@@ -13,7 +13,7 @@ import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render, renderCol } from "util/vue";
-import { createLayerTreeNode, createResetButton } from "../common";
+import { createLayerTreeNode, createModifierModal, createResetButton } from "../common";
 import cash from "./cash"
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
@@ -135,8 +135,18 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 enabled: cash.upgs.eleven.bought,
             })),
             createMultiplicativeModifier(() => ({
+                multiplier(): any {return cash.effects.machine.neut.rp.apply(2)},
+                enabled() {return cash.machine.value.includes(1)},
+                description: "Machine Neutral Mode",
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {return cash.effects.machine.rp.rp.apply(4)},
+                enabled() {return cash.machine.value.includes(2)},
+                description: "Machine Rebirth Mode",
+            })),
+            createMultiplicativeModifier(() => ({
                 multiplier: 0,
-                description: "Lack of Cash UPG 8",
+                description: "Unable to Rebirth",
                 enabled: !cash.upgs.eight.bought,
             })),
         ]),
@@ -195,6 +205,18 @@ const layer = createLayer(id, function (this: BaseLayer) {
         },
     }));
 
+    const modals = {
+        rpGain: createModifierModal(
+            'Rebirth',
+            () => [{
+                title: 'RP Gain',
+                modifier: effects.rp,
+                base() { return Decimal.div(cash.points.value, 1e5).sqrt() },
+
+            }],
+        ),
+    }
+
     return {
         name,
         color,
@@ -204,7 +226,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         display: jsx(() => (
             <>
                 <br></br>
-                You have <ResourceVue resource={points} color={color} /> RP,<br></br>multiplying cash gain by x{format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
+                You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}<br></br>Multiplying cash gain by x{format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
                 {Decimal.gt(pointGain.value, '1e1000') ? (
                     <div>
                         ({oomps.value})

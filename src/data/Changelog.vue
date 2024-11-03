@@ -12,14 +12,15 @@
                 <ul>
                     <li class="breaking">Ported to Profectus</li>
                     <li class="breaking">Fully rebalanced existing content</li>
+                    <li class="feature">Breakdown Modals</li>
+                    <li class="feature">Help Menu</li>
+                    <li class="feature">Save Bank</li>
                     <li class="feature">Universal Time</li>
-                    <li class="feature">Breakdowns Modals</li>
                     <li class="fix">Fixed multiple NaN bugs</li>
                     <li class="fix">Fixed multiple typos</li>
                     <li class="change">Changed various colours</li>
                     <li class="change">Changed Achievements</li>
                     <li class="change">Changed Certain features</li>
-                    <li class="change">Implemented a Save Bank</li>
                 </ul>
             </details>
 

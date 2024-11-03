@@ -5,11 +5,11 @@
 	"description": "A project made in Profectus",
 	"id": "CreateIncremental",
 	"author": "BanaCubed",
-	"discordName": "BanaCubed's Discord",
+	"discordName": "Create Incremental Server",
 	"discordLink": "https://discord.gg/wt5XyPRtte",
 
 	"versionNumber": "1.0",
-	"versionTitle": "Universal // α2: Pre-Super III",
+	"versionTitle": "Universal // β4: Revamp II // α2: Pre-Super",
 
 	"allowGoBack": false,
 	"defaultShowSmall": true,
