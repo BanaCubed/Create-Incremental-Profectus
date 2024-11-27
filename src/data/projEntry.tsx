@@ -15,6 +15,7 @@ import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import Node from "components/Node.vue";
 import { persistent } from "game/persistence";
+import { setupAutoClick } from "features/clickables/clickable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -51,6 +52,18 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         c: persistent(false),
         n: persistent(false),
         r: persistent(false)
+    };
+
+    const autoMachineAutoClickers: any = {
+        c: setupAutoClick(cash, cash.machineClickables.cash, () => {
+            return autoMachine.c.value;
+        }),
+        n: setupAutoClick(cash, cash.machineClickables.neut, () => {
+            return autoMachine.n.value;
+        }),
+        r: setupAutoClick(cash, cash.machineClickables.rp, () => {
+            return autoMachine.r.value;
+        })
     };
 
     return {
@@ -93,7 +106,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         tree,
         hotkey,
         progression,
-        autoMachine
+        autoMachine,
+        autoMachineAutoClickers
     };
 });
 
