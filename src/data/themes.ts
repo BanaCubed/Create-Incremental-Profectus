@@ -75,12 +75,12 @@ export enum Themes {
     Paper = "paper",
     Nordic = "nordic",
     Aqua = "aqua",
-    Cryonix = "cryo"
+    Cryo = "cryo",
+    Cubic = "cubic"
 }
 
 /** A dictionary of all available themes. */
 export default {
-    classic: defaultTheme,
     paper: {
         ...defaultTheme,
         variables: {
@@ -117,6 +117,22 @@ export default {
         },
         floatingTabs: false
     } as Theme,
+    cubic: {
+        ...defaultTheme,
+        variables: {
+            ...defaultTheme.variables,
+            "--background": "#030425",
+            "--feature-foreground": "#000002",
+            "--raised-background": "#031455",
+            "--highlighted": "#666668",
+            "--bought": "#5CAA58",
+            "--outline": "#222344",
+            "--border-radius": "0px",
+            "--modal-border": "4px solid #222344"
+        },
+        floatingTabs: false
+    } as Theme,
+    classic: defaultTheme,
     aqua: {
         ...defaultTheme,
         variables: {

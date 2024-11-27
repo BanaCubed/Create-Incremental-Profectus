@@ -18,7 +18,8 @@
                 <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
             <div v-if="isTab('appearance')">
-                <Select :title="themeTitle" :options="themes" v-model="theme" />
+                <Select :title="notationTitle" :options="notationsOptions" v-model="notation" />
+                <!-- <Select :title="langTitle" :options="langOptions" v-model="language" /> -->
                 <component :is="settingFieldsComponent" />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
@@ -43,6 +44,9 @@ import Select from "./fields/Select.vue";
 import Toggle from "./fields/Toggle.vue";
 import FeedbackButton from "./fields/FeedbackButton.vue";
 
+settings.notation = settings.notation || 0;
+settings.language = settings.language || 'en';
+
 const isOpen = ref(false);
 const currentTab = ref("behaviour");
 
@@ -63,16 +67,41 @@ defineExpose({
     }
 });
 
-const themes = Object.keys(rawThemes).map(theme => ({
-    label: camelToTitle(theme),
-    value: theme
-}));
+const notationsOptions = [
+    {
+        label: "Scientific",
+        value: 0,
+    },
+    {
+        label: "Standard",
+        value: 1,
+    },
+    {
+        label: "Logarithmic",
+        value: 2,
+    },
+    {
+        label: "Mixed Scientific",
+        value: 3,
+    },
+    {
+        label: "Mixed Logarithmic",
+        value: 4,
+    },
+];
+
+const langOptions = [
+    {
+        label: "English",
+        value: 'en',
+    },
+];
 
 const settingFieldsComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
 });
 
-const { showTPS, theme, unthrottled, alignUnits } = toRefs(settings);
+const { showTPS, notation, language, unthrottled, alignUnits } = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -107,10 +136,16 @@ const isPausedTitle = jsx(() => (
         <desc>Stop everything from moving.</desc>
     </span>
 ));
-const themeTitle = jsx(() => (
+const notationTitle = jsx(() => (
     <span class="option-title">
-        Theme
-        <desc>How the game looks.</desc>
+        Notation
+        <desc>How numbers are displayed.<br />Currently unfinished porting from β3.</desc>
+    </span>
+));
+const langTitle = jsx(() => (
+    <span class="option-title">
+        Language
+        <desc>The language the game uses.<br />The game was developed in English.</desc>
     </span>
 ));
 const showTPSTitle = jsx(() => (
@@ -129,7 +164,7 @@ const alignModifierUnitsTitle = jsx(() => (
 
 <style>
 .option-tabs {
-    border-bottom: 2px solid var(--outline);
+    border-bottom: 4px solid var(--outline);
     margin: -10px;
     margin-top: 10px;
 }
@@ -137,12 +172,12 @@ const alignModifierUnitsTitle = jsx(() => (
 .option-tabs button {
     background-color: transparent;
     color: var(--foreground);
-    margin-bottom: -2px;
+    margin-bottom: -4px;
     font-size: 14px;
     cursor: pointer;
     padding: 5px 20px;
     border: none;
-    border-bottom: 2px solid var(--foreground);
+    border-bottom: 4px solid var(--foreground);
 }
 
 .option-tabs button:not(.selected) {

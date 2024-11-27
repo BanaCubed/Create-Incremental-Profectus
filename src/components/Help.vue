@@ -30,10 +30,11 @@ import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
 import player from "game/player";
 import { infoComponents } from "game/settings";
-import { formatTime } from "util/bignum";
+import Decimal, { formatTime } from "util/bignum";
 import { coerceComponent, render } from "util/vue";
 import { computed, ref, toRefs, unref } from "vue";
 import rebirth from "data/layers/rebirth";
+import { main } from "data/projEntry";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
@@ -73,7 +74,6 @@ const guideTabs = createTabFamily({
                     <span>
                         <h2>Cash</h2> <br /><sup style="color: var(--highlighted)">Updated 2024-11-03</sup> <br />
                         This section of the game is very straightforward, just buy the upgrades whenever you can. <br /><br />
-                        A very small optimisation you can make is waiting to get slightly more cash than you need for most upgrades, so that cash's self-boost doesn't reset to 1, but that is a negligible boost.
                     </span>
                 </>
             )),
@@ -82,6 +82,9 @@ const guideTabs = createTabFamily({
     rebirth: () => ({
         display: 'Rebirth',
         glowColor: rebirth.color,
+        visibility() {
+            return Decimal.gte(main.progression.value, 0.9);
+        },
         tab: createTab(() => ({
             display: jsx(() => (
                 <>
@@ -105,13 +108,13 @@ const formulaTabs = createTabFamily({
                 <>
                     <br />
                     <span>
-                        <h2>Cash</h2> <br /><sup style="color: var(--highlighted)">Updated 2024-11-03</sup> <br />
+                        <h2>Cash</h2> <br /><br />
                         $ is a shortening of Cash <br /> <br />
-                        { cash.upgs.three.bought.value ? <span>Cash UPG 3  //  log<sub>5</sub>($+1)+1<br /></span> : null }
-                        { cash.upgs.five.bought.value ? <span>Cash UPG 5  // (log<sub>8</sub>($+1)+1)<sup>0.8</sup><br /></span> : null }
-                        { cash.upgs.six.bought.value ? <span>Cash UPG 6  // (log<sub>6</sub>($+1)+1)<sup>0.6</sup><br /></span> : null }
-                        { cash.upgs.nine.bought.value ? <span>Cash UPG 9  // (log<sub>100,000</sub>($+1)+1)<sup>1.5</sup><br /></span> : null }
-                        { cash.upgs.ten.bought.value ? <span>Cash UPG 10 //  log<sub>100</sub>($+1)+1<br /></span> : null }
+                        { cash.upgs.three.bought.value ? <span>Cash UPG 3     log<sub>5</sub>($+1)+1<br /></span> : null }
+                        { cash.upgs.five.bought.value ? <span>Cash UPG 5    (log<sub>8</sub>($+1)+1)<sup>0.8</sup><br /></span> : null }
+                        { cash.upgs.six.bought.value ? <span>Cash UPG 6    (log<sub>6</sub>($+1)+1)<sup>0.6</sup><br /></span> : null }
+                        { cash.upgs.nine.bought.value ? <span>Cash UPG 9    (log<sub>100,000</sub>($+1)+1)<sup>1.5</sup><br /></span> : null }
+                        { cash.upgs.ten.bought.value ? <span>Cash UPG 10    log<sub>100</sub>($+1)+1<br /></span> : null }
                     </span>
                 </>
             )),
@@ -120,13 +123,19 @@ const formulaTabs = createTabFamily({
     rebirth: () => ({
         display: 'Rebirth',
         glowColor: rebirth.color,
+        visibility() {
+            return Decimal.gte(main.progression.value, 0.9);
+        },
         tab: createTab(() => ({
             display: jsx(() => (
                 <>
                     <br />
                     <span>
-                        <h2>Rebirth</h2> <br /><sup style="color: var(--highlighted)">Updated 2024-11-03</sup> <br />
-                        TBA // To Be Added
+                        <h2>Rebirth</h2> <br /><br />
+                        RP is a shortening of Rebirth Points <br /> <br />
+                        <span>RP Gain       ($/100,000)<sup>0.5</sup><br /></span>
+                        <span>RP Effect     (log<sub>10</sub>(RP+1)+1)<sup>2</sup><br /></span>
+                        { rebirth.upgs.one.bought.value ? <span>RP UPG 3       2<sup>Upgrades</sup><br /></span> : null }
                     </span>
                 </>
             )),

@@ -32,6 +32,8 @@ import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
 import { createClickable } from "features/clickables/clickable";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
  * @returns string, to be used in the subtitle
@@ -132,8 +134,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
-                    right: true,
-                    bottom: true
+                    right: true
                 };
             })
         })),
@@ -149,8 +150,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return {
                     cash: true,
                     right: true,
-                    left: true,
-                    bottom: true
+                    left: true
                 };
             })
         })),
@@ -171,8 +171,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return {
                     cash: true,
                     right: true,
-                    left: true,
-                    bottom: true
+                    left: true
                 };
             })
         })),
@@ -187,8 +186,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true,
-                    left: true,
-                    bottom: true
+                    left: true
                 };
             })
         })),
@@ -444,16 +442,22 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             createMultiplicativeModifier(() => ({
                 multiplier(): any {
                     let upgs = Decimal.dZero;
-                    if (rebirth.upgs.one.bought.value) {
+                    if (rebirth.upgs.one.bought.value === true) {
                         upgs = upgs.add(1);
                     }
-                    if (rebirth.upgs.two.bought.value) {
+                    if (rebirth.upgs.two.bought.value === true) {
                         upgs = upgs.add(1);
                     }
-                    if (rebirth.upgs.three.bought.value) {
+                    if (rebirth.upgs.three.bought.value === true) {
                         upgs = upgs.add(1);
                     }
-                    if (rebirth.upgs.four.bought.value) {
+                    if (rebirth.upgs.four.bought.value === true) {
+                        upgs = upgs.add(1);
+                    }
+                    if (rebirth.upgs.five.bought.value === true) {
+                        upgs = upgs.add(1);
+                    }
+                    if (rebirth.upgs.six.bought.value === true) {
                         upgs = upgs.add(1);
                     }
                     return Decimal.pow(2, upgs);
@@ -519,16 +523,75 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     };
 
     const machineClickables = {
+        auto: {
+            c: createClickable(() => ({
+                onClick() {
+                    main.autoMachine.c.value = main.autoMachine.c.value !== true;
+                },
+                canClick() {
+                    return Decimal.gte(main.progression.value, 2.9);
+                },
+                style() {
+                    return {
+                        "min-height": "50px",
+                        width: "50px",
+                        "background-color":
+                            main.autoMachine.c.value === true ? "var(--bought)" : "var(--danger)"
+                    };
+                },
+                visibility() {
+                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                }
+            })),
+            n: createClickable(() => ({
+                onClick() {
+                    main.autoMachine.n.value = main.autoMachine.n.value !== true;
+                },
+                canClick() {
+                    return Decimal.gte(main.progression.value, 2.9);
+                },
+                style() {
+                    return {
+                        "min-height": "50px",
+                        width: "50px",
+                        "background-color":
+                            main.autoMachine.n.value === true ? "var(--bought)" : "var(--danger)"
+                    };
+                },
+                visibility() {
+                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                }
+            })),
+            r: createClickable(() => ({
+                onClick() {
+                    main.autoMachine.r.value = main.autoMachine.r.value !== true;
+                },
+                canClick() {
+                    return Decimal.gte(main.progression.value, 2.9);
+                },
+                style() {
+                    return {
+                        "min-height": "50px",
+                        width: "50px",
+                        "background-color":
+                            main.autoMachine.r.value === true ? "var(--bought)" : "var(--danger)"
+                    };
+                },
+                visibility() {
+                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                }
+            }))
+        },
         cash: createClickable(() => ({
             onClick() {
-                if (machine.value.includes(0)) {
-                    machine.value = machine.value.filter((n: number) => n != 0);
+                if (machine.value.includes(0) === true) {
+                    machine.value = machine.value.filter((n: number) => n !== 0);
                 } else if (machine.value.length < machineUtils.maxModes.value) {
                     machine.value.push(0);
                 }
             },
             canClick() {
-                return machine.value.includes(0)
+                return machine.value.includes(0) === true
                     ? machineUtils.canDisable.value
                         ? machine.value.length <= machineUtils.maxModes.value
                         : false
@@ -536,7 +599,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             display: jsx(() => (
                 <>
-                    <h2>{machine.value.includes(0) ? "Disable" : "Enable"}</h2>
+                    <h2>{machine.value.includes(0) === true ? "Disable" : "Enable"}</h2>
                 </>
             )),
             style: {
@@ -545,14 +608,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         })),
         neut: createClickable(() => ({
             onClick() {
-                if (machine.value.includes(1)) {
-                    machine.value = machine.value.filter((n: number) => n != 1);
+                if (machine.value.includes(1) === true) {
+                    machine.value = machine.value.filter((n: number) => n !== 1);
                 } else if (machine.value.length < machineUtils.maxModes.value) {
                     machine.value.push(1);
                 }
             },
             canClick() {
-                return machine.value.includes(1)
+                return machine.value.includes(1) === true
                     ? machineUtils.canDisable.value
                         ? machine.value.length <= machineUtils.maxModes.value
                         : false
@@ -560,7 +623,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             display: jsx(() => (
                 <>
-                    <h2>{machine.value.includes(1) ? "Disable" : "Enable"}</h2>
+                    <h2>{machine.value.includes(1) === true ? "Disable" : "Enable"}</h2>
                 </>
             )),
             style: {
@@ -569,14 +632,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         })),
         rp: createClickable(() => ({
             onClick() {
-                if (machine.value.includes(2)) {
-                    machine.value = machine.value.filter((n: number) => n != 2);
+                if (machine.value.includes(2) === true) {
+                    machine.value = machine.value.filter((n: number) => n !== 2);
                 } else if (machine.value.length < machineUtils.maxModes.value) {
                     machine.value.push(2);
                 }
             },
             canClick() {
-                return machine.value.includes(2)
+                return machine.value.includes(2) === true
                     ? machineUtils.canDisable.value
                         ? machine.value.length <= machineUtils.maxModes.value
                         : false
@@ -584,7 +647,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             display: jsx(() => (
                 <>
-                    <h2>{machine.value.includes(2) ? "Disable" : "Enable"}</h2>
+                    <h2>{machine.value.includes(2) === true ? "Disable" : "Enable"}</h2>
                 </>
             )),
             style: {
@@ -646,56 +709,71 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             <sup style="color: var(--highlighted)">
                                 Currently {machineDisplay()}
                             </sup>
-                            <div style="background-color: rgba(102, 102, 102, 25%); width: 450px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
+                            <div style="background-color: rgba(102, 102, 102, 25%); width: 470px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
                                 <table>
                                     <tr>
-                                        <td style="width: 300px;">
+                                        <td style="width: 270px;">
                                             <h3>Cash Mode</h3>
                                             {render(modals.machineC)}
-                                            <br></br>
+                                            <br />
                                             <sup style="color: var(--highlighted)">
-                                                {machine.value.includes(0) ? "Enabled" : "Disabled"}
+                                                {machine.value.includes(0) === true
+                                                    ? "Enabled"
+                                                    : "Disabled"}
                                             </sup>
-                                            <br></br>
+                                            <br />
                                             <h5>
                                                 ×{format(effects.machine.cash.cash.apply(8))} Cash
                                             </h5>
-                                            <br></br>
+                                            <br />
                                         </td>
                                         <td style="width: 150px;">
                                             {render(machineClickables.cash)}
+                                        </td>
+                                        <td style="width: 50px;">
+                                            {render(machineClickables.auto.c)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <h3>Neutral Mode</h3>
                                             {render(modals.machineN)}
-                                            <br></br>
+                                            <br />
                                             <sup style="color: var(--highlighted)">
-                                                {machine.value.includes(1) ? "Enabled" : "Disabled"}
+                                                {machine.value.includes(1) === true
+                                                    ? "Enabled"
+                                                    : "Disabled"}
                                             </sup>
-                                            <br></br>
+                                            <br />
                                             <h5>
                                                 ×{format(effects.machine.neut.cash.apply(3))} Cash,
                                                 ×{format(effects.machine.neut.rp.apply(2))} RP
                                             </h5>
-                                            <br></br>
+                                            <br />
                                         </td>
                                         <td>{render(machineClickables.neut)}</td>
+                                        <td style="width: 50px;">
+                                            {render(machineClickables.auto.n)}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <h3>Rebirth Mode</h3>
                                             {render(modals.machineR)}
-                                            <br></br>
+                                            <br />
                                             <sup style="color: var(--highlighted)">
-                                                {machine.value.includes(2) ? "Enabled" : "Disabled"}
+                                                {machine.value.includes(2) === true
+                                                    ? "Enabled"
+                                                    : "Disabled"}
                                             </sup>
-                                            <br></br>
+                                            <br />
                                             <h5>×{format(effects.machine.rp.rp.apply(4))} RP</h5>
-                                            <br></br>
+                                            <br />
                                         </td>
                                         <td>{render(machineClickables.rp)}</td>
+                                        <td style="width: 50px;">
+                                            {render(machineClickables.auto.r)}
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -715,7 +793,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 title: "Cash Gain",
                 modifier: effects.cash,
                 base() {
-                    return upgs.one.bought ? 1 : 0;
+                    return upgs.one.bought.value === true ? 1 : 0;
                 }
             }
         ]),

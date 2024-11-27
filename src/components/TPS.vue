@@ -1,6 +1,6 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ format(tps) }}</div>
-    <div class="tpsDisplay2" v-if="!tps.isNan()">v1.0 β4 α2</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ format(tps, 0) }}</div>
+    <div class="tpsDisplay2" v-if="!tps.isNan()">v1.0 β4</div>
 </template>
 
 <script setup lang="ts">

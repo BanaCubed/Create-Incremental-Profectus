@@ -28,8 +28,8 @@
 .col {
 	display: flex;
 	flex-flow: column wrap;
-	justify-content: center;
-	align-items: center;
+	justify-content: start;
+	align-items: start;
 	height: 100%;
 	margin: 10px 0;
 }

@@ -14,6 +14,9 @@ import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import Node from "components/Node.vue";
+import { persistent } from "game/persistence";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * @hidden
@@ -28,7 +31,9 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
                 startNode: rebirth.treeNode,
                 endNode: cash.treeNode,
                 visibility:
-                    cash.upgs.eight.bought.value || Decimal.gte(progression.value, 0.9) ? 1 : 0
+                    cash.upgs.eight.bought.value === true || Decimal.gte(progression.value, 0.9)
+                        ? 1
+                        : 0
             }
         ],
         resetPropagation: branchedResetPropagation
@@ -41,6 +46,12 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
             player.devSpeed = player.devSpeed === 1 ? 0 : 1;
         }
     }));
+
+    const autoMachine: any = {
+        c: persistent(false),
+        n: persistent(false),
+        r: persistent(false)
+    };
 
     return {
         name: "Tree",
@@ -81,7 +92,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         )),
         tree,
         hotkey,
-        progression
+        progression,
+        autoMachine
     };
 });
 

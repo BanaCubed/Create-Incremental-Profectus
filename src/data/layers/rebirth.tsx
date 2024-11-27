@@ -25,11 +25,13 @@ import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
 import Row from "components/layout/Row.vue";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 const id = "rebirth";
 const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Rebirth";
     const color = "#c60029";
-    const points = createResource<DecimalSource>(0, "RP", 2, false);
+    const points = createResource<DecimalSource>(0, "RP", 0, false);
     const oomps = trackOOMPS(points);
 
     const pointGain = computed(() => {
@@ -48,7 +50,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         thingsToReset: (): Record<string, any>[] => [layer]
     }));
 
-    const upgs = {
+    const upgs: any = {
         one: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -110,6 +112,40 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     left: true
                 };
             })
+        })),
+        five: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 3000
+            })),
+            display: {
+                description: "Unlock Auto Machine"
+            },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                    right: true
+                };
+            }),
+            onPurchase() {
+                main.progression.value = Decimal.max(main.progression.value, 3);
+            }
+        })),
+        six: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 25000
+            })),
+            display: {
+                description: "Unlock Rebirth Buyables"
+            },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                    right: upgs.five.bought.value,
+                    left: true
+                };
+            })
         }))
     };
 
@@ -155,7 +191,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
             createMultiplicativeModifier(() => ({
                 multiplier: 0,
                 description: "Unable to Rebirth",
-                enabled: !cash.upgs.eight.bought
+                enabled() {
+                    return cash.upgs.eight.bought.value !== true;
+                }
             }))
         ]),
         rpCash: createSequentialModifier(() => [
@@ -175,7 +213,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
         display: "R",
         append: true,
         visibility() {
-            return cash.upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9) ? 0 : 2;
+            return cash.upgs.eight.bought.value === true || Decimal.gte(main.progression.value, 0.9)
+                ? 0
+                : 2;
         }
     }));
     const tooltip = addTooltip(treeNode, {
@@ -189,7 +229,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         treeNode,
         display: jsx(() => (
             <>
-                {cash.upgs.eight.bought.value
+                {cash.upgs.eight.bought.value === true
                     ? Decimal.gte(cash.points.value, 100000)
                         ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
                     next at ${formatWhole(conversion.nextAt.value)} cash`
@@ -247,8 +287,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Spacer></Spacer>
                 {render(resetButton)}
                 <Row>
-                    {renderCol(upgs.one)}
-                    {renderCol(upgs.two)}
+                    {renderCol(upgs.one, upgs.five)}
+                    {renderCol(upgs.two, upgs.six)}
                     {renderCol(upgs.three)}
                     {renderCol(upgs.four)}
                 </Row>

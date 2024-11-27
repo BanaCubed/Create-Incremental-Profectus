@@ -67,6 +67,7 @@ function cancel() {
     position: relative;
     border: solid 2px var(--danger);
     border-right-width: 16px;
+    border-radius: var(--border-radius);
 }
 
 .danger::after {

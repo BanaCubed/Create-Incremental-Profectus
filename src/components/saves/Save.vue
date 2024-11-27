@@ -160,6 +160,7 @@ function changeName() {
     display: flex;
     align-items: center;
     min-height: 30px;
+    border-radius: var(--border-radius);
 }
 
 .save.active {

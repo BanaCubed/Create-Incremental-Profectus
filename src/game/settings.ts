@@ -20,6 +20,10 @@ export interface Settings {
     unthrottled: boolean;
     /** Whether to align modifiers to the unit. */
     alignUnits: boolean;
+    /** The default Notation used to render numbers. */
+    notation: number;
+    /** The default Notation used to render numbers. */
+    language: string;
 }
 
 const state = reactive<Partial<Settings>>({
@@ -28,7 +32,9 @@ const state = reactive<Partial<Settings>>({
     showTPS: true,
     theme: Themes.Nordic,
     unthrottled: false,
-    alignUnits: false
+    alignUnits: false,
+    notation: 3,
+    language: "en"
 });
 
 watch(
@@ -61,7 +67,8 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         saves: [],
         showTPS: true,
         theme: Themes.Nordic,
-        alignUnits: false
+        alignUnits: false,
+        notation: 3
     };
     globalBus.emit("loadSettings", settings);
     Object.assign(state, settings);

@@ -1,4 +1,5 @@
 import projInfo from "data/projInfo.json";
+import settings from "game/settings";
 import type { DecimalSource } from "lib/break_eternity";
 import Decimal from "lib/break_eternity";
 
@@ -57,17 +58,20 @@ export function regularFormat(num: DecimalSource, precision: number): string {
     return num.toStringWithDecimalPlaces(precision);
 }
 
-const eeee1000 = new Decimal("eeee1000");
-const e100000 = new Decimal("e100000");
-const e1000 = new Decimal("e1000");
-const e9 = new Decimal(1e9);
-const e6 = new Decimal(1e6);
-const e3 = new Decimal(1e3);
 const nearOne = new Decimal(0.98);
-const thousandth = new Decimal(0.001);
 const zero = new Decimal(0);
+
+const defaultNotationThresholds = [
+    [new Decimal(1e4), new Decimal(1e9), new Decimal("1e1000"), new Decimal("1e9")],
+    [new Decimal(1e4), new Decimal(1e306), new Decimal("1e10000"), new Decimal("1e4")],
+    [new Decimal(1e4), new Decimal(1e9), new Decimal(1e9), new Decimal("1e9")],
+    [new Decimal(1e4), new Decimal(1e36), new Decimal("1000"), new Decimal("1e6")],
+    [new Decimal(1e4), new Decimal(1e9), new Decimal(1e60), new Decimal("1e9")]
+];
+
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
     if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
@@ -79,38 +83,98 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     if (num.mag === Number.POSITIVE_INFINITY) {
         return "Infinity";
     }
-    if (num.gte(eeee1000)) {
-        const slog = num.slog();
-        if (slog.gte(e6)) {
-            return "F" + format(slog.floor());
-        } else {
-            return (
-                Decimal.pow(10, slog.sub(slog.floor())).toStringWithDecimalPlaces(3) +
-                "F" +
-                commaFormat(slog.floor(), 0)
-            );
-        }
-    } else if (num.gte(e100000)) {
-        return exponentialFormat(num, 0, false);
-    } else if (num.gte(e1000)) {
-        return exponentialFormat(num, 0);
-    } else if (num.gte(e9)) {
-        return exponentialFormat(num, precision);
-    } else if (num.gte(e3)) {
+    if (num.gte(defaultNotationThresholds[settings.notation][2])) {
+        return formatLog(num, precision);
+    }
+    if (num.gte(defaultNotationThresholds[settings.notation][1])) {
+        return formatSci(num, precision);
+    }
+    if (num.gte(defaultNotationThresholds[settings.notation][3])) {
+        return formatStan(num, precision);
+    }
+    if (num.gte(defaultNotationThresholds[settings.notation][0])) {
         return commaFormat(num, 0);
-    } else if (num.gte(thousandth) || !small) {
-        return regularFormat(num, precision);
-    } else if (num.eq(zero)) {
-        return (0).toFixed(precision);
     }
+    return regularFormat(num, precision);
+    console.log("Number formatting error occured!!");
+    return "ERROR";
+}
 
-    num = invertOOM(num);
-    if (num.lt(e1000)) {
-        const val = exponentialFormat(num, precision);
-        return val.replace(/([^(?:e|F)]*)$/, "-$1");
-    } else {
-        return format(num, precision) + "⁻¹";
-    }
+export function formatLog(num: DecimalSource, precision = 2): string {
+    const e = Decimal.log10(num);
+    return (
+        "e" +
+        e
+            .mul(10 ** precision)
+            .trunc()
+            .div(10 ** precision)
+            .toStringWithDecimalPlaces(precision)
+    );
+}
+
+export function formatSci(num: DecimalSource, precision = 2): string {
+    const e = Decimal.log10(num).floor();
+    num = Decimal.div(num, Decimal.pow(10, e));
+    num = num
+        .mul(10 ** precision)
+        .trunc()
+        .div(10 ** precision);
+    return num.toStringWithDecimalPlaces(precision) + "e" + e.toStringWithDecimalPlaces(0);
+}
+
+const standardSuffixes = [
+    "K",
+    "M",
+    "B",
+    "T",
+    "Qa",
+    "Qi",
+    "Sx",
+    "Sp",
+    "Oc",
+    "No",
+    "Dc",
+    "UDc",
+    "DDc",
+    "TDc",
+    "QaDc",
+    "QiDc",
+    "SxDc",
+    "SpDc",
+    "OcDc",
+    "NoDc",
+    "Vg",
+    "UVg",
+    "DVg",
+    "TVg",
+    "QaVg",
+    "QiVg",
+    "SxVg",
+    "SpVg",
+    "OcVg",
+    "NoVg",
+    "Tg",
+    "UTg",
+    "DTg",
+    "TTg",
+    "QaTg",
+    "QiTg",
+    "SxTg",
+    "SpTg",
+    "OcTg",
+    "NoTg"
+];
+export function formatStan(num: DecimalSource, precision = 2): string {
+    const e = Decimal.log(num, 1000).floor().toNumber() - 1;
+    num = Decimal.div(num, Decimal.pow(1000, e + 1));
+    num = num
+        .mul(10 ** precision)
+        .trunc()
+        .div(10 ** precision);
+    return (
+        num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber()) +
+        standardSuffixes[e]
+    );
 }
 
 export function formatWhole(num: DecimalSource): string {
@@ -118,7 +182,7 @@ export function formatWhole(num: DecimalSource): string {
     if (num.sign < 0) {
         return "-" + formatWhole(num.neg());
     }
-    if (num.gte(e9)) {
+    if (num.gte(1e4)) {
         return format(num);
     }
     if (num.lte(nearOne) && !num.eq(zero)) {
