@@ -61,11 +61,11 @@ export function regularFormat(num: DecimalSource, precision: number): string {
 const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
-const defaultNotationThresholds = [
+const defaultNotationThresholds: Decimal[][] = [
     [new Decimal(1e4), new Decimal(1e9), new Decimal("1e1000"), new Decimal("1e9")],
     [new Decimal(1e4), new Decimal(1e306), new Decimal("1e10000"), new Decimal("1e4")],
     [new Decimal(1e4), new Decimal(1e9), new Decimal(1e9), new Decimal("1e9")],
-    [new Decimal(1e4), new Decimal(1e36), new Decimal("1000"), new Decimal("1e6")],
+    [new Decimal(1e4), new Decimal(1e36), new Decimal("1e1000"), new Decimal("1e6")],
     [new Decimal(1e4), new Decimal(1e9), new Decimal(1e60), new Decimal("1e9")]
 ];
 
@@ -162,7 +162,69 @@ const standardSuffixes = [
     "SxTg",
     "SpTg",
     "OcTg",
-    "NoTg"
+    "NoTg",
+    "Qg",
+    "UQg",
+    "DQg",
+    "TQg",
+    "QaQg",
+    "QiQg",
+    "SxQg",
+    "SpQg",
+    "OcQg",
+    "NoQg",
+    "Qt",
+    "UQt",
+    "DQt",
+    "TQt",
+    "QaQt",
+    "QiQt",
+    "SxQt",
+    "SpQt",
+    "OcQt",
+    "NoQt",
+    "Se",
+    "USe",
+    "DSe",
+    "TSe",
+    "QaSe",
+    "QiSe",
+    "SxSe",
+    "SpSe",
+    "OcSe",
+    "NoSe",
+    "Sg",
+    "USg",
+    "DSg",
+    "TSg",
+    "QaSg",
+    "QiSg",
+    "SxSg",
+    "SpSg",
+    "OcSg",
+    "NoSg",
+    "Og",
+    "UOg",
+    "DOg",
+    "TOg",
+    "QaOg",
+    "QiOg",
+    "SxOg",
+    "SpOg",
+    "OcOg",
+    "NoOg",
+    "Nn",
+    "UNn",
+    "DNn",
+    "TNn",
+    "QaNn",
+    "QiNn",
+    "SxNn",
+    "SpNn",
+    "OcNn",
+    "NoNn",
+    "Ce",
+    "UCe"
 ];
 export function formatStan(num: DecimalSource, precision = 2): string {
     const e = Decimal.log(num, 1000).floor().toNumber() - 1;
@@ -173,6 +235,7 @@ export function formatStan(num: DecimalSource, precision = 2): string {
         .div(10 ** precision);
     return (
         num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber()) +
+        " " +
         standardSuffixes[e]
     );
 }

@@ -12,6 +12,7 @@
         <template v-slot:body>
             <div v-if="isTab('behaviour')">
                 <Toggle :title="unthrottledTitle" v-model="unthrottled" />
+                <!-- <Toggle :title="appendTitle" v-model="appendLayers" /> --> <!-- I can't get this to work -->
                 <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
                 <Toggle :title="offlineProdTitle" v-model="offlineProd" />
                 <Toggle :title="autosaveTitle" v-model="autosave" />
@@ -101,7 +102,7 @@ const settingFieldsComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
 });
 
-const { showTPS, notation, language, unthrottled, alignUnits } = toRefs(settings);
+const { showTPS, notation, language, unthrottled, alignUnits, appendLayers } = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -122,6 +123,12 @@ const offlineProdTitle = jsx(() => (
     <span class="option-title">
         Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
         <desc>Simulate production that occurs while the game is closed.</desc>
+    </span>
+));
+const appendTitle = jsx(() => (
+    <span class="option-title">
+        Append Layers
+        <desc>Whether opening a layer appends it to previous layers or replaces them.</desc>
     </span>
 ));
 const autosaveTitle = jsx(() => (

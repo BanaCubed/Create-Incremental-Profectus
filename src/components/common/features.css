@@ -40,5 +40,7 @@
 .rebirth.can { background-color: #e60039; }
 .cash.can    { background-color: #0b8000; }
 
-.upgrade.left { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }
-.upgrade.right { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.upgrade.left,  .clickable.left  { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }
+.upgrade.right, .clickable.right { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+
+.wide { width: 240px !important; }

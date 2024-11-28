@@ -15,7 +15,7 @@ import { render, renderCol } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
-import { computed } from "vue";
+import { computed, unref } from "vue";
 import { createUpgrade } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
 import { noPersist, persistent } from "game/persistence";
@@ -31,6 +31,7 @@ import rebirth from "./rebirth";
 import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
 import { createClickable } from "features/clickables/clickable";
+import settings from "game/settings";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -38,7 +39,7 @@ import { createClickable } from "features/clickables/clickable";
  * Util function for display of dynamic portion of subtitle for The Machine
  * @returns string, to be used in the subtitle
  */
-function machineDisplay() {
+export function machineDisplay() {
     // Inactive case, also handles negative lengths if that happens
     if (layer.machine.value.length < 1) {
         return (
@@ -102,7 +103,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         color,
         reset,
         display: "$",
-        append: true
+        append: computed(() => {
+            return unref(settings.appendLayers);
+        })
     }));
     const tooltip = addTooltip(treeNode, {
         display: createResourceTooltip(points),
@@ -536,11 +539,20 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         "min-height": "50px",
                         width: "50px",
                         "background-color":
-                            main.autoMachine.c.value === true ? "var(--bought)" : "var(--danger)"
+                            main.autoMachine.c.value === true ? "var(--accent2)" : "var(--danger)"
                     };
                 },
                 visibility() {
                     return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                },
+                display: {
+                    description: jsx(() => (
+                        <>
+                            AUTO
+                            <br />
+                            {main.autoMachine.c.value === true ? "ON" : "OFF"}
+                        </>
+                    ))
                 }
             })),
             n: createClickable(() => ({
@@ -555,11 +567,20 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         "min-height": "50px",
                         width: "50px",
                         "background-color":
-                            main.autoMachine.n.value === true ? "var(--bought)" : "var(--danger)"
+                            main.autoMachine.n.value === true ? "var(--accent2)" : "var(--danger)"
                     };
                 },
                 visibility() {
                     return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                },
+                display: {
+                    description: jsx(() => (
+                        <>
+                            AUTO
+                            <br />
+                            {main.autoMachine.n.value === true ? "ON" : "OFF"}
+                        </>
+                    ))
                 }
             })),
             r: createClickable(() => ({
@@ -574,11 +595,20 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         "min-height": "50px",
                         width: "50px",
                         "background-color":
-                            main.autoMachine.r.value === true ? "var(--bought)" : "var(--danger)"
+                            main.autoMachine.r.value === true ? "var(--accent2)" : "var(--danger)"
                     };
                 },
                 visibility() {
                     return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                },
+                display: {
+                    description: jsx(() => (
+                        <>
+                            AUTO
+                            <br />
+                            {main.autoMachine.r.value === true ? "ON" : "OFF"}
+                        </>
+                    ))
                 }
             }))
         },

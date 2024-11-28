@@ -136,6 +136,7 @@ const formulaTabs = createTabFamily({
                         <span>RP Gain       ($/100,000)<sup>0.5</sup><br /></span>
                         <span>RP Effect     (log<sub>10</sub>(RP+1)+1)<sup>2</sup><br /></span>
                         { rebirth.upgs.one.bought.value ? <span>RP UPG 3       2<sup>Upgrades</sup><br /></span> : null }
+                        { rebirth.upgs.six.bought.value ? <span>RP BUY 1       1.25<sup>Amount</sup><br /></span> : null }
                     </span>
                 </>
             )),

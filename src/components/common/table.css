@@ -17,7 +17,7 @@
 	justify-content: center;
 	align-items: stretch;
 	max-width: 100%;
-	margin: 0 10px;
+	margin: 0 0;
 }
 
 .row > :not(.feature) {

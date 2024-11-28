@@ -20,10 +20,12 @@ export interface Settings {
     unthrottled: boolean;
     /** Whether to align modifiers to the unit. */
     alignUnits: boolean;
-    /** The default Notation used to render numbers. */
+    /** The default notation used to render numbers. */
     notation: number;
-    /** The default Notation used to render numbers. */
+    /** Language most text in the game is written in. Does not affect code. */
     language: string;
+    /** Whether or not a new layer replaces the old one. */
+    appendLayers: boolean;
 }
 
 const state = reactive<Partial<Settings>>({
@@ -34,7 +36,8 @@ const state = reactive<Partial<Settings>>({
     unthrottled: false,
     alignUnits: false,
     notation: 3,
-    language: "en"
+    language: "en",
+    appendLayers: false
 });
 
 watch(
@@ -68,7 +71,8 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         showTPS: true,
         theme: Themes.Nordic,
         alignUnits: false,
-        notation: 3
+        notation: 3,
+        appendLayers: false
     };
     globalBus.emit("loadSettings", settings);
     Object.assign(state, settings);

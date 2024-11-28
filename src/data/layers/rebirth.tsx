@@ -12,18 +12,22 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol } from "util/vue";
+import { render, renderCol, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal, createResetButton } from "../common";
 import cash from "./cash";
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
 import { createSequentialModifier, createMultiplicativeModifier } from "game/modifiers";
-import { computed } from "vue";
+import { computed, unref } from "vue";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
 import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
 import Row from "components/layout/Row.vue";
+import settings from "game/settings";
+import { createRepeatable } from "features/repeatable";
+import Formula from "game/formulas/formulas";
+import Column from "components/layout/Column.vue";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -111,12 +115,19 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     rebirth: true,
                     left: true
                 };
-            })
+            }),
+            style() {
+                return {
+                    "border-top-right-radius": "var(--border-radius)",
+                    "border-bottom-right-radius":
+                        upgs.six.bought.value === true ? "0" : "var(--border-radius)"
+                };
+            }
         })),
         five: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 3000
+                cost: 2000
             })),
             display: {
                 description: "Unlock Auto Machine"
@@ -146,6 +157,44 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     left: true
                 };
             })
+        }))
+    };
+
+    const buys: any = {
+        one: createRepeatable(() => ({
+            requirements: [
+                createCostRequirement(() => ({
+                    resource: noPersist(points),
+                    cost: Formula.variable(buys.one.amount)
+                        .step(1e5, c => c.pow(2))
+                        .pow_base(2)
+                        .mul(15000)
+                }))
+            ],
+            display: {
+                description: "Boost RP gain",
+                showAmount: false,
+                effectDisplay: jsx(() => (
+                    <>
+                        ×{format(Decimal.pow(1.25, buys.one.amount.value))}
+                        <br />
+                        Amount: {formatWhole(buys.one.amount.value)}
+                    </>
+                ))
+            },
+            visibility() {
+                return upgs.six.bought.value === true ? 0 : 2;
+            },
+            classes: {
+                rebirth: true,
+                left: true,
+                wide: true
+            },
+            style() {
+                return {
+                    "border-bottom-right-radius": "var(--border-radius)"
+                };
+            }
         }))
     };
 
@@ -189,6 +238,13 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 description: "Machine Rebirth Mode"
             })),
             createMultiplicativeModifier(() => ({
+                multiplier() {
+                    return Decimal.pow(1.25, buys.one.amount.value);
+                },
+                description: "Rebirth BUY 1",
+                enabled: upgs.six.bought
+            })),
+            createMultiplicativeModifier(() => ({
                 multiplier: 0,
                 description: "Unable to Rebirth",
                 enabled() {
@@ -211,7 +267,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
         color,
         reset,
         display: "R",
-        append: true,
+        append: computed(() => {
+            return unref(settings.appendLayers);
+        }),
         visibility() {
             return cash.upgs.eight.bought.value === true || Decimal.gte(main.progression.value, 0.9)
                 ? 0
@@ -289,14 +347,17 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Row>
                     {renderCol(upgs.one, upgs.five)}
                     {renderCol(upgs.two, upgs.six)}
-                    {renderCol(upgs.three)}
-                    {renderCol(upgs.four)}
+                    <Column>
+                        {renderRow(upgs.three, upgs.four)}
+                        {render(buys.one)}
+                    </Column>
                 </Row>
             </>
         )),
         treeNode,
         hotkey,
-        upgs
+        upgs,
+        buys
     };
 });
 
