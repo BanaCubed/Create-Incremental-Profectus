@@ -157,6 +157,37 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     left: true
                 };
             })
+        })),
+        seven: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 250000
+            })),
+            display: {
+                description: "Increase maximum machine modes by 1"
+            },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                    right: true
+                };
+            })
+        })),
+        eight: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 1.5e6
+            })),
+            display: {
+                description: "Automate cash upgrades 9-12"
+            },
+            classes: computed(() => {
+                return {
+                    rebirth: true,
+                    right: true,
+                    left: true
+                };
+            })
         }))
     };
 
@@ -176,9 +207,45 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 showAmount: false,
                 effectDisplay: jsx(() => (
                     <>
-                        ×{format(Decimal.pow(1.25, buys.one.amount.value))}
+                        ×
+                        {format(
+                            Decimal.pow(
+                                Decimal.add(Decimal.mul(0.05, buys.two.amount.value), 1.25),
+                                buys.one.amount.value
+                            )
+                        )}
                         <br />
                         Amount: {formatWhole(buys.one.amount.value)}
+                    </>
+                ))
+            },
+            visibility() {
+                return upgs.six.bought.value === true ? 0 : 2;
+            },
+            classes: {
+                rebirth: true,
+                left: true,
+                wide: true
+            }
+        })),
+        two: createRepeatable(() => ({
+            requirements: [
+                createCostRequirement(() => ({
+                    resource: noPersist(points),
+                    cost: Formula.variable(buys.two.amount)
+                        .step(10, c => c.pow(5))
+                        .pow_base(8)
+                        .mul(100000)
+                }))
+            ],
+            display: {
+                description: "Increase previous buyable's effect base",
+                showAmount: false,
+                effectDisplay: jsx(() => (
+                    <>
+                        +{format(Decimal.mul(0.05, buys.two.amount.value))}
+                        <br />
+                        Amount: {formatWhole(buys.two.amount.value)}
                     </>
                 ))
             },
@@ -212,6 +279,13 @@ const layer = createLayer(id, function (this: BaseLayer) {
         cash.upgs.eight
     ]);
 
+    setupAutoPurchase(cash, upgs.eight.bought, [
+        cash.upgs.nine,
+        cash.upgs.ten,
+        cash.upgs.eleven,
+        cash.upgs.twelve
+    ]);
+
     const effects = {
         rp: createSequentialModifier(() => [
             createMultiplicativeModifier(() => ({
@@ -239,7 +313,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
             })),
             createMultiplicativeModifier(() => ({
                 multiplier() {
-                    return Decimal.pow(1.25, buys.one.amount.value);
+                    return Decimal.pow(
+                        Decimal.add(Decimal.mul(0.05, buys.two.amount.value), 1.25),
+                        buys.one.amount.value
+                    );
                 },
                 description: "Rebirth BUY 1",
                 enabled: upgs.six.bought
@@ -345,11 +422,12 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Spacer></Spacer>
                 {render(resetButton)}
                 <Row>
-                    {renderCol(upgs.one, upgs.five)}
-                    {renderCol(upgs.two, upgs.six)}
+                    {renderCol(upgs.one, upgs.five, upgs.seven)}
+                    {renderCol(upgs.two, upgs.six, upgs.eight)}
                     <Column>
                         {renderRow(upgs.three, upgs.four)}
                         {render(buys.one)}
+                        {render(buys.two)}
                     </Column>
                 </Row>
             </>
@@ -357,7 +435,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
         treeNode,
         hotkey,
         upgs,
-        buys
+        buys,
+        minimizable: false
     };
 });
 

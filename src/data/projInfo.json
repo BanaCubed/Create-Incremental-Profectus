@@ -11,7 +11,7 @@
 	"versionNumber": "1.0",
 	"versionTitle": "Universal // β4: Revamp II",
 
-	"allowGoBack": false,
+	"allowGoBack": true,
 	"defaultShowSmall": true,
 	"defaultDecimalsShown": 2,
 	"useHeader": false,

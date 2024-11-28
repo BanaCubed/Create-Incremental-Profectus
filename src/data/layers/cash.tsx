@@ -30,7 +30,7 @@ import Row from "components/layout/Row.vue";
 import rebirth from "./rebirth";
 import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
-import { createClickable } from "features/clickables/clickable";
+import { createClickable, setupAutoClick } from "features/clickables/clickable";
 import settings from "game/settings";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -79,6 +79,15 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     });
     globalBus.on("update", diff => {
         points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
+        if (Decimal.gt(autoMachine.c.value, 0.5) && !machine.value.includes(0)) {
+            machineClickables.cash.onClick();
+        }
+        if (Decimal.gt(autoMachine.n.value, 0.5) && !machine.value.includes(1)) {
+            machineClickables.neut.onClick();
+        }
+        if (Decimal.gt(autoMachine.r.value, 0.5) && !machine.value.includes(2)) {
+            machineClickables.rp.onClick();
+        }
     });
     const oomps = trackOOMPS(points, pointGain);
 
@@ -91,8 +100,17 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             if (upgs.twelve.bought.value) {
                 n++;
             }
+            if (rebirth.upgs.seven.bought.value === true) {
+                n++;
+            }
             return n;
         })
+    };
+
+    const autoMachine: any = {
+        c: persistent(0, false),
+        n: persistent(0, false),
+        r: persistent(0, false)
     };
 
     const name = "Cash";
@@ -463,7 +481,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     if (rebirth.upgs.six.bought.value === true) {
                         upgs = upgs.add(1);
                     }
-                    return Decimal.pow(2, upgs);
+                    if (rebirth.upgs.seven.bought.value === true) {
+                        upgs = upgs.add(1);
+                    }
+                    return Decimal.pow(2, upgs).min(100);
                 },
                 enabled: rebirth.upgs.one.bought,
                 description: "RP UPG 1"
@@ -524,94 +545,98 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             }
         }
     };
+    
+    const machineAutos: any = {
+        c: createClickable(() => ({
+            onClick() {
+                autoMachine.c.value = Decimal.lte(autoMachine.c.value, 0.5) ? 1 : 0;
+            },
+            canClick() {
+                return Decimal.gte(main.progression.value, 2.9);
+            },
+            style() {
+                return {
+                    "min-height": "50px",
+                    width: "50px",
+                    "background-color": Decimal.gt(autoMachine.c.value, 0.5)
+                        ? "var(--accent2)"
+                        : "var(--danger)"
+                };
+            },
+            visibility() {
+                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+            },
+            display: {
+                description: jsx(() => (
+                    <>
+                        AUTO
+                        <br />
+                        {Decimal.gt(autoMachine.c.value, 0.5) ? "ON" : "OFF"}
+                    </>
+                ))
+            }
+        })),
+        n: createClickable(() => ({
+            onClick() {
+                autoMachine.n.value = Decimal.lte(autoMachine.n.value, 0.5) ? 1 : 0;
+            },
+            canClick() {
+                return Decimal.gte(main.progression.value, 2.9);
+            },
+            style() {
+                return {
+                    "min-height": "50px",
+                    width: "50px",
+                    "background-color": Decimal.gt(autoMachine.n.value, 0.5)
+                        ? "var(--accent2)"
+                        : "var(--danger)"
+                };
+            },
+            visibility() {
+                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+            },
+            display: {
+                description: jsx(() => (
+                    <>
+                        AUTO
+                        <br />
+                        {Decimal.gt(autoMachine.n.value, 0.5) ? "ON" : "OFF"}
+                    </>
+                ))
+            }
+        })),
+        r: createClickable(() => ({
+            onClick() {
+                autoMachine.r.value = Decimal.lte(autoMachine.r.value, 0.5) ? 1 : 0;
+            },
+            canClick() {
+                return Decimal.gte(main.progression.value, 2.9);
+            },
+            style() {
+                return {
+                    "min-height": "50px",
+                    width: "50px",
+                    "background-color": Decimal.gt(autoMachine.r.value, 0.5)
+                        ? "var(--accent2)"
+                        : "var(--danger)"
+                };
+            },
+            visibility() {
+                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+            },
+            display: {
+                description: jsx(() => (
+                    <>
+                        AUTO
+                        <br />
+                        {Decimal.gt(autoMachine.r.value, 0.5) ? "ON" : "OFF"}
+                    </>
+                ))
+            }
+        }))
+    }
 
     const machineClickables = {
-        auto: {
-            c: createClickable(() => ({
-                onClick() {
-                    main.autoMachine.c.value = main.autoMachine.c.value !== true;
-                },
-                canClick() {
-                    return Decimal.gte(main.progression.value, 2.9);
-                },
-                style() {
-                    return {
-                        "min-height": "50px",
-                        width: "50px",
-                        "background-color":
-                            main.autoMachine.c.value === true ? "var(--accent2)" : "var(--danger)"
-                    };
-                },
-                visibility() {
-                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
-                },
-                display: {
-                    description: jsx(() => (
-                        <>
-                            AUTO
-                            <br />
-                            {main.autoMachine.c.value === true ? "ON" : "OFF"}
-                        </>
-                    ))
-                }
-            })),
-            n: createClickable(() => ({
-                onClick() {
-                    main.autoMachine.n.value = main.autoMachine.n.value !== true;
-                },
-                canClick() {
-                    return Decimal.gte(main.progression.value, 2.9);
-                },
-                style() {
-                    return {
-                        "min-height": "50px",
-                        width: "50px",
-                        "background-color":
-                            main.autoMachine.n.value === true ? "var(--accent2)" : "var(--danger)"
-                    };
-                },
-                visibility() {
-                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
-                },
-                display: {
-                    description: jsx(() => (
-                        <>
-                            AUTO
-                            <br />
-                            {main.autoMachine.n.value === true ? "ON" : "OFF"}
-                        </>
-                    ))
-                }
-            })),
-            r: createClickable(() => ({
-                onClick() {
-                    main.autoMachine.r.value = main.autoMachine.r.value !== true;
-                },
-                canClick() {
-                    return Decimal.gte(main.progression.value, 2.9);
-                },
-                style() {
-                    return {
-                        "min-height": "50px",
-                        width: "50px",
-                        "background-color":
-                            main.autoMachine.r.value === true ? "var(--accent2)" : "var(--danger)"
-                    };
-                },
-                visibility() {
-                    return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
-                },
-                display: {
-                    description: jsx(() => (
-                        <>
-                            AUTO
-                            <br />
-                            {main.autoMachine.r.value === true ? "ON" : "OFF"}
-                        </>
-                    ))
-                }
-            }))
-        },
         cash: createClickable(() => ({
             onClick() {
                 if (machine.value.includes(0) === true) {
@@ -761,7 +786,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             {render(machineClickables.cash)}
                                         </td>
                                         <td style="width: 50px;">
-                                            {render(machineClickables.auto.c)}
+                                            {render(machineAutos.c)}
                                         </td>
                                     </tr>
                                     <tr>
@@ -783,7 +808,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                         </td>
                                         <td>{render(machineClickables.neut)}</td>
                                         <td style="width: 50px;">
-                                            {render(machineClickables.auto.n)}
+                                            {render(machineAutos.n)}
                                         </td>
                                     </tr>
                                     <tr>
@@ -802,7 +827,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                         </td>
                                         <td>{render(machineClickables.rp)}</td>
                                         <td style="width: 50px;">
-                                            {render(machineClickables.auto.r)}
+                                            {render(machineAutos.r)}
                                         </td>
                                     </tr>
                                 </table>
@@ -908,7 +933,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         reset,
         machine,
         machineClickables,
-        machineUtils
+        machineUtils,
+        minimizable: false,
+        autoMachine
     };
 });
 

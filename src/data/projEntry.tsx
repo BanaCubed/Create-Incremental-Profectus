@@ -48,24 +48,6 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         }
     }));
 
-    const autoMachine: any = {
-        c: persistent(false),
-        n: persistent(false),
-        r: persistent(false)
-    };
-
-    const autoMachineAutoClickers: any = {
-        c: setupAutoClick(cash, cash.machineClickables.cash, () => {
-            return autoMachine.c.value;
-        }),
-        n: setupAutoClick(cash, cash.machineClickables.neut, () => {
-            return autoMachine.n.value;
-        }),
-        r: setupAutoClick(cash, cash.machineClickables.rp, () => {
-            return autoMachine.r.value;
-        })
-    };
-
     return {
         name: "Tree",
         links: tree.links,
@@ -105,9 +87,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         )),
         tree,
         hotkey,
-        progression,
-        autoMachine,
-        autoMachineAutoClickers
+        progression
     };
 });
 
