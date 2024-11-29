@@ -11,7 +11,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol } from "util/vue";
+import { render, renderCol, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
@@ -30,8 +30,9 @@ import Row from "components/layout/Row.vue";
 import rebirth from "./rebirth";
 import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
-import { createClickable, setupAutoClick } from "features/clickables/clickable";
+import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
+import Column from "components/layout/Column.vue";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -79,13 +80,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     });
     globalBus.on("update", diff => {
         points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-        if (Decimal.gt(autoMachine.c.value, 0.5) && !machine.value.includes(0)) {
+        if (Decimal.gt(autoMachine.c.value, 0.5) && machine.value.includes(0) !== true) {
             machineClickables.cash.onClick();
         }
-        if (Decimal.gt(autoMachine.n.value, 0.5) && !machine.value.includes(1)) {
+        if (Decimal.gt(autoMachine.n.value, 0.5) && machine.value.includes(1) !== true) {
             machineClickables.neut.onClick();
         }
-        if (Decimal.gt(autoMachine.r.value, 0.5) && !machine.value.includes(2)) {
+        if (Decimal.gt(autoMachine.r.value, 0.5) && machine.value.includes(2) !== true) {
             machineClickables.rp.onClick();
         }
     });
@@ -101,6 +102,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 n++;
             }
             if (rebirth.upgs.seven.bought.value === true) {
+                n++;
+            }
+            if (rebirth.upgs.eleven.bought.value === true) {
                 n++;
             }
             return n;
@@ -154,8 +158,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true
+                    cash: true
                 };
             })
         })),
@@ -169,9 +172,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -190,9 +191,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -206,8 +205,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -228,8 +226,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true
+                    cash: true
                 };
             })
         })),
@@ -250,9 +247,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -266,9 +261,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -283,9 +276,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -309,8 +300,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true
+                    cash: true
                 };
             })
         })),
@@ -332,9 +322,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -351,9 +339,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    right: true,
-                    left: true
+                    cash: true
                 };
             })
         })),
@@ -371,8 +357,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    cash: true,
-                    left: true
+                    cash: true
                 };
             }),
             onPurchase() {
@@ -488,6 +473,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 },
                 enabled: rebirth.upgs.one.bought,
                 description: "RP UPG 1"
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {
+                    return Decimal.max(rebirth.points.value, 0).add(1).log(3).add(1);
+                },
+                enabled: rebirth.upgs.nine.bought,
+                description: "RP UPG 9"
             }))
         ]),
         machine: {
@@ -534,18 +526,42 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 ])
             },
             cash: {
-                cash: createSequentialModifier(() => [])
+                cash: createSequentialModifier(() => [
+                    createMultiplicativeModifier(() => ({
+                        multiplier: 2.25,
+                        enabled: rebirth.upgs.eleven.bought,
+                        description: "RP UPG 11"
+                    }))
+                ])
             },
             neut: {
-                cash: createSequentialModifier(() => []),
-                rp: createSequentialModifier(() => [])
+                cash: createSequentialModifier(() => [
+                    createMultiplicativeModifier(() => ({
+                        multiplier: 1.5,
+                        enabled: rebirth.upgs.eleven.bought,
+                        description: "RP UPG 11"
+                    }))
+                ]),
+                rp: createSequentialModifier(() => [
+                    createMultiplicativeModifier(() => ({
+                        multiplier: 1.5,
+                        enabled: rebirth.upgs.eleven.bought,
+                        description: "RP UPG 11"
+                    }))
+                ])
             },
             rp: {
-                rp: createSequentialModifier(() => [])
+                rp: createSequentialModifier(() => [
+                    createMultiplicativeModifier(() => ({
+                        multiplier: 2.25,
+                        enabled: rebirth.upgs.eleven.bought,
+                        description: "RP UPG 11"
+                    }))
+                ])
             }
         }
     };
-    
+
     const machineAutos: any = {
         c: createClickable(() => ({
             onClick() {
@@ -634,7 +650,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 ))
             }
         }))
-    }
+    };
 
     const machineClickables = {
         cash: createClickable(() => ({
@@ -729,12 +745,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 </div>
                             ) : null}
                             <Spacer></Spacer>
-                            <Row>
-                                {renderCol(upgs.one, upgs.five, upgs.nine)}
-                                {renderCol(upgs.two, upgs.six, upgs.ten)}
-                                {renderCol(upgs.three, upgs.seven, upgs.eleven)}
-                                {renderCol(upgs.four, upgs.eight, upgs.twelve)}
-                            </Row>
+                            <Column>
+                                {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
+                                {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
+                                {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
+                            </Column>
                         </>
                     ))
                 }))
@@ -785,9 +800,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                         <td style="width: 150px;">
                                             {render(machineClickables.cash)}
                                         </td>
-                                        <td style="width: 50px;">
-                                            {render(machineAutos.c)}
-                                        </td>
+                                        <td style="width: 50px;">{render(machineAutos.c)}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -807,9 +820,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <br />
                                         </td>
                                         <td>{render(machineClickables.neut)}</td>
-                                        <td style="width: 50px;">
-                                            {render(machineAutos.n)}
-                                        </td>
+                                        <td style="width: 50px;">{render(machineAutos.n)}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -826,9 +837,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <br />
                                         </td>
                                         <td>{render(machineClickables.rp)}</td>
-                                        <td style="width: 50px;">
-                                            {render(machineAutos.r)}
-                                        </td>
+                                        <td style="width: 50px;">{render(machineAutos.r)}</td>
                                     </tr>
                                 </table>
                             </div>

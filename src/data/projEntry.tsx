@@ -14,8 +14,6 @@ import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import Node from "components/Node.vue";
-import { persistent } from "game/persistence";
-import { setupAutoClick } from "features/clickables/clickable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

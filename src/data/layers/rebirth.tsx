@@ -12,7 +12,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol, renderRow } from "util/vue";
+import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal, createResetButton } from "../common";
 import cash from "./cash";
 import { noPersist } from "game/persistence";
@@ -23,7 +23,6 @@ import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
 import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
-import Row from "components/layout/Row.vue";
 import settings from "game/settings";
 import { createRepeatable } from "features/repeatable";
 import Formula from "game/formulas/formulas";
@@ -61,14 +60,20 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 cost: 1
             })),
             display: {
-                description: "Double cash generation for each Rebirth upgrade owned"
+                description: "Double cash generation for each Rebirth upgrade owned. Caps at ×100"
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true
+                    rebirth: true
                 };
-            })
+            }),
+            style() {
+                return {
+                    "border-bottom-left-radius": upgs.six.bought.value === true
+                        ? "0"
+                        : "var(--border-radius) !important"
+                };
+            }
         })),
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
@@ -80,9 +85,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true,
-                    left: true
+                    rebirth: true
                 };
             })
         })),
@@ -96,9 +99,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true,
-                    left: true
+                    rebirth: true
                 };
             })
         })),
@@ -112,15 +113,14 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    left: true
+                    rebirth: true
                 };
             }),
             style() {
                 return {
-                    "border-top-right-radius": "var(--border-radius)",
-                    "border-bottom-right-radius":
-                        upgs.six.bought.value === true ? "0" : "var(--border-radius)"
+                    "border-bottom-right-radius": upgs.six.bought.value === true
+                        ? "0"
+                        : "var(--border-radius) !important"
                 };
             }
         })),
@@ -134,8 +134,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true
+                    rebirth: true
                 };
             }),
             onPurchase() {
@@ -152,9 +151,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: upgs.five.bought.value,
-                    left: true
+                    rebirth: true
                 };
             })
         })),
@@ -164,28 +161,89 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 cost: 250000
             })),
             display: {
-                description: "Increase maximum machine modes by 1"
+                description: "Increase maximum machine modes enabled by one"
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true
+                    rebirth: true
                 };
             })
         })),
         eight: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1.5e6
+                cost: 1e6
             })),
             display: {
-                description: "Automate cash upgrades 9-12"
+                description: "Automate the next four cash upgrades"
             },
             classes: computed(() => {
                 return {
-                    rebirth: true,
-                    right: true,
-                    left: true
+                    rebirth: true
+                };
+            })
+        })),
+        nine: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 5e6
+            })),
+            display: {
+                description: "Boost cash gain based on RP",
+                effectDisplay: jsx(() => (
+                    <>×{format(Decimal.max(points.value, 0).add(1).log(3).add(1))}</>
+                ))
+            },
+            classes: computed(() => {
+                return {
+                    rebirth: true
+                };
+            }),
+            style: computed(() => {
+                return {
+                    "border-top-left-radius":
+                        upgs.six.bought.value !== true
+                            ? "var(--border-radius) !important"
+                            : "0 !important"
+                };
+            })
+        })),
+        ten: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(cash.points),
+                cost: 2e14
+            })),
+            display: {
+                description: "Boost RP gain based on Cash",
+                effectDisplay: jsx(() => (
+                    <>×{format(Decimal.max(cash.points.value, 0).add(1).log(1e4).add(1))}</>
+                ))
+            },
+            classes: computed(() => {
+                return {
+                    cash: true
+                };
+            })
+        })),
+        eleven: createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: 1e10
+            })),
+            display: {
+                description:
+                    "Improve all currently unlocked machine modes, increase maximum machine modes enabled by one again, and unlock the next reset layer."
+            },
+            classes: {
+                rebirth: true,
+                wide: true
+            },
+            style: computed(() => {
+                return {
+                    "border-top-right-radius":
+                        upgs.six.bought.value !== true
+                            ? "var(--border-radius) !important"
+                            : "0 !important"
                 };
             })
         }))
@@ -197,7 +255,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 createCostRequirement(() => ({
                     resource: noPersist(points),
                     cost: Formula.variable(buys.one.amount)
-                        .step(1e5, c => c.pow(2))
+                        .step(35, c => c.pow(2))
                         .pow_base(2)
                         .mul(15000)
                 }))
@@ -224,7 +282,6 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: {
                 rebirth: true,
-                left: true,
                 wide: true
             }
         })),
@@ -233,7 +290,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 createCostRequirement(() => ({
                     resource: noPersist(points),
                     cost: Formula.variable(buys.two.amount)
-                        .step(10, c => c.pow(5))
+                        .step(10, c => c.pow(3))
+                        .pow_base(1.5)
+                        .sub(1)
                         .pow_base(8)
                         .mul(100000)
                 }))
@@ -254,13 +313,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             },
             classes: {
                 rebirth: true,
-                left: true,
                 wide: true
-            },
-            style() {
-                return {
-                    "border-bottom-right-radius": "var(--border-radius)"
-                };
             }
         }))
     };
@@ -318,8 +371,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                         buys.one.amount.value
                     );
                 },
-                description: "Rebirth BUY 1",
+                description: "RP BUY 1",
                 enabled: upgs.six.bought
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier() {
+                    return Decimal.max(cash.points.value, 0).add(1).log(1e4).add(1);
+                },
+                description: "RP UPG 10",
+                enabled: upgs.ten.bought
             })),
             createMultiplicativeModifier(() => ({
                 multiplier: 0,
@@ -366,8 +426,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
             <>
                 {cash.upgs.eight.bought.value === true
                     ? Decimal.gte(cash.points.value, 100000)
-                        ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP,
-                    next at ${formatWhole(conversion.nextAt.value)} cash`
+                        ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP` +
+                          (Decimal.gte(conversion.actualGain.value, 1e3)
+                              ? ""
+                              : `next at ${formatWhole(conversion.nextAt.value)} cash`)
                         : `Reach ${formatWhole(100000)} cash to Rebirth`
                     : 'Purchase Cash UPG 8 "Repitition" to Rebirth'}
             </>
@@ -380,7 +442,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
         },
         classes: computed(() => {
             return {
-                rebirth: true
+                rebirth: true,
+                halfwide: true
             };
         })
     }));
@@ -421,15 +484,12 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
                 <Spacer></Spacer>
                 {render(resetButton)}
-                <Row>
-                    {renderCol(upgs.one, upgs.five, upgs.seven)}
-                    {renderCol(upgs.two, upgs.six, upgs.eight)}
-                    <Column>
-                        {renderRow(upgs.three, upgs.four)}
-                        {render(buys.one)}
-                        {render(buys.two)}
-                    </Column>
-                </Row>
+                <Column>
+                    {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
+                    {renderRow(upgs.five, upgs.six, buys.one)}
+                    {renderRow(upgs.seven, upgs.eight, buys.two)}
+                    {renderRow(upgs.nine, upgs.ten, upgs.eleven)}
+                </Column>
             </>
         )),
         treeNode,

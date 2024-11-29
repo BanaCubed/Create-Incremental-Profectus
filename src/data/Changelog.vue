@@ -15,6 +15,7 @@
                     <li class="feature">Breakdown Modals</li>
                     <li class="feature">Help Menu</li>
                     <li class="feature">Save Bank</li>
+                    <li class="feature">Auto Machine</li>
                     <li class="feature">Universal Time</li>
                     <li class="fix">Fixed multiple NaN bugs</li>
                     <li class="fix">Fixed multiple typos</li>
