@@ -27,6 +27,7 @@ import settings from "game/settings";
 import { createRepeatable } from "features/repeatable";
 import Formula from "game/formulas/formulas";
 import Column from "components/layout/Column.vue";
+import srebirth from "./super";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -50,7 +51,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
     }));
 
     const reset = createReset(() => ({
-        thingsToReset: (): Record<string, any>[] => [layer]
+        thingsToReset: (): Record<string, any>[] => [points, oomps, upgs, buys]
     }));
 
     const upgs: any = {
@@ -69,9 +70,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
             }),
             style() {
                 return {
-                    "border-bottom-left-radius": upgs.six.bought.value === true
-                        ? "0"
-                        : "var(--border-radius) !important"
+                    "border-bottom-left-radius":
+                        upgs.six.bought.value === true ? "0" : "var(--border-radius) !important"
                 };
             }
         })),
@@ -118,9 +118,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
             }),
             style() {
                 return {
-                    "border-bottom-right-radius": upgs.six.bought.value === true
-                        ? "0"
-                        : "var(--border-radius) !important"
+                    "border-bottom-right-radius":
+                        upgs.six.bought.value === true ? "0" : "var(--border-radius) !important"
                 };
             }
         })),
@@ -298,7 +297,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 }))
             ],
             display: {
-                description: "Increase previous buyable's effect base",
+                description: "Increase previous buyable's effect's base",
                 showAmount: false,
                 effectDisplay: jsx(() => (
                     <>
@@ -387,6 +386,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 enabled() {
                     return cash.upgs.eight.bought.value !== true;
                 }
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {
+                    return Decimal.max(srebirth.points.value, 0).add(1).pow(1.55);
+                },
+                enabled() {
+                    return Decimal.gte(main.progression.value, 3.9);
+                },
+                description: "SRP Effect"
             }))
         ]),
         rpCash: createSequentialModifier(() => [
@@ -429,7 +437,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                         ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP` +
                           (Decimal.gte(conversion.actualGain.value, 1e3)
                               ? ""
-                              : `next at ${formatWhole(conversion.nextAt.value)} cash`)
+                              : `, next at ${formatWhole(conversion.nextAt.value)} cash`)
                         : `Reach ${formatWhole(100000)} cash to Rebirth`
                     : 'Purchase Cash UPG 8 "Repitition" to Rebirth'}
             </>
@@ -479,7 +487,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             <>
                 <br></br>
                 You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}
-                <br></br>Multiplying cash gain by x
+                <br></br>Multiplying cash gain by ×
                 {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
                 {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
                 <Spacer></Spacer>

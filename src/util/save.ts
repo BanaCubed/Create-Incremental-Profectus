@@ -20,6 +20,7 @@ export function setupInitialStore(player: Partial<Player> = {}): Player {
             timePlayed: 0,
             keepGoing: false,
             modID: projInfo.id,
+            devSpeed: 1,
             modVersion: projInfo.versionNumber,
             layers: {}
         },

@@ -32,7 +32,7 @@ const state = reactive<Partial<Settings>>({
     active: "",
     saves: [],
     showTPS: true,
-    theme: Themes.Nordic,
+    theme: Themes.Paper,
     unthrottled: false,
     alignUnits: false,
     notation: 3,

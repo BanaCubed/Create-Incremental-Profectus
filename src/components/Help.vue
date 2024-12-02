@@ -35,6 +35,7 @@ import { coerceComponent, render } from "util/vue";
 import { computed, ref, toRefs, unref } from "vue";
 import rebirth from "data/layers/rebirth";
 import { main } from "data/projEntry";
+import srebirth from "data/layers/super";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
@@ -136,8 +137,31 @@ const formulaTabs = createTabFamily({
                         <span>RP Gain       ($/100,000)<sup>0.5</sup><br /></span>
                         <span>RP Effect     (log<sub>10</sub>(RP+1)+1)<sup>2</sup><br /></span>
                         { rebirth.upgs.one.bought.value ? <span>RP UPG 3       2<sup>Upgrades</sup><br /></span> : null }
+                        { rebirth.upgs.nine.bought.value ? <span>RP UPG 9       log<sub>3</sub>(RP+1)+1<br /></span> : null }
+                        { rebirth.upgs.ten.bought.value ? <span>RP UPG 10      log<sub>10,000</sub>($+1)+1<br /></span> : null }
                         { rebirth.upgs.six.bought.value ? <span>RP BUY 1       1.25<sup>Amount</sup> (Base)<br /></span> : null }
                         { rebirth.upgs.six.bought.value ? <span>RP BUY 2       0.05×Amount<br /></span> : null }
+                    </span>
+                </>
+            )),
+        })),
+    }),
+    super: () => ({
+        display: 'Super',
+        glowColor: srebirth.color,
+        visibility() {
+            return Decimal.gte(main.progression.value, 3.9);
+        },
+        tab: createTab(() => ({
+            display: jsx(() => (
+                <>
+                    <br />
+                    <span>
+                        <h2>Super Rebirth</h2> <br /><br />
+                        SRP is a shortening of Rebirth Points <br /> <br />
+                        <span>SRP Gain        log<sub>100</sub>(RP/1e14)<sup>3</sup><br /></span>
+                        <span>SRP to Cash    (SRP+1)<sup>2.25</sup><br /></span>
+                        <span>SRP to RP      (SRP+1)<sup>1.55</sup><br /></span>
                     </span>
                 </>
             )),
@@ -156,9 +180,9 @@ const tabs = createTabFamily({
                     <span>
                         <h2>Welcome</h2> <br />
                         Welcome to the Help Modal! <br />
-                        This Modal contains three main tabs: <br />
+                        This Modal contains two main tabs: <br />
                         - General <br />
-                        - Guides <br />
+                        {/* - Guides <br /> */}
                         - Formulae <br /><br /><br />
                         <h2>Hotkeys</h2> <br />
                         {infoComponents.map(render)}
@@ -167,18 +191,18 @@ const tabs = createTabFamily({
             )),
         })),
     }),
-    guide: () => ({
-        display: 'Guides',
-        glowColor: 'var(--accent2)',
-        tab: createTab(() => ({
-            display: jsx(() => (
-                <>
-                    <br />
-                    {render(guideTabs)}
-                </>
-            )),
-        })),
-    }),
+    // guide: () => ({
+    //     display: 'Guides',
+    //     glowColor: 'var(--accent2)',
+    //     tab: createTab(() => ({
+    //         display: jsx(() => (
+    //             <>
+    //                 <br />
+    //                 {render(guideTabs)}
+    //             </>
+    //         )),
+    //     })),
+    // }),
     formula: () => ({
         display: 'Formulae',
         glowColor: 'var(--accent3)',

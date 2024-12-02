@@ -46,7 +46,7 @@ export type LayerData<T> = {
 
 const player = reactive<Player>({
     id: "",
-    devSpeed: null,
+    devSpeed: 1,
     name: "",
     tabs: [],
     time: -1,

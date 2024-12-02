@@ -91,7 +91,7 @@ export default {
             "--highlighted": "#434c5e",
             "--bought": "#5CAA58",
             "--outline": "#333c4a",
-            "--border-radius": "4px"
+            "--border-radius": "7px"
         },
         floatingTabs: false
     } as Theme,
@@ -100,20 +100,13 @@ export default {
         ...defaultTheme,
         variables: {
             ...defaultTheme.variables,
-            "--foreground": "#D8DEE9",
-            "--background": "#2E3440",
+            "--background": "#2a323d",
             "--feature-foreground": "#000",
-            "--raised-background": "#3B4252",
-            "--points": "#E5E9F0",
+            "--raised-background": "#333c4a",
             "--highlighted": "#434c5e",
-            "--bought": "#8FBCBB",
-            "--danger": "#D08770",
-            "--link": "#88C0D0",
-            "--outline": "#3B4252",
-            "--accent1": "#B48EAD",
-            "--accent2": "#A3BE8C",
-            "--accent3": "#EBCB8B",
-            "--border-radius": "4px"
+            "--bought": "#5CAA58",
+            "--outline": "#333c4a",
+            "--border-radius": "7px"
         },
         floatingTabs: false
     } as Theme,

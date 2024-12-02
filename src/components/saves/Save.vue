@@ -90,6 +90,7 @@ import { computeComponent } from "util/vue";
 import { main } from "data/projEntry";
 import cash from "data/layers/cash";
 import rebirth from "data/layers/rebirth";
+import srebirth from "data/layers/super";
 
 const _props = defineProps<{
     save: LoadablePlayerData;
@@ -119,8 +120,10 @@ const progressDisplay = computeComponent(
             return '?-? // Progress Unknown'
         } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
             return `1-1 // Cash // ${formatWhole((save.value?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
-        } else {
+        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
             return `1-2 // Rebirth // ${formatWhole((save.value?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
+        } else {
+            return `1-3 // Super Rebirth // ${formatWhole((save.value?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
         }
     })
 );
@@ -161,6 +164,16 @@ function changeName() {
     align-items: center;
     min-height: 30px;
     border-radius: var(--border-radius);
+}
+
+.save:not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.save:not(:last-child) {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 }
 
 .save.active {

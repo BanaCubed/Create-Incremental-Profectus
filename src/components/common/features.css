@@ -37,7 +37,8 @@
     cursor: default;
 }
 
-.rebirth.can { background-color: #e60039; }
+.super.can   { background-color: #d65029; }
+.rebirth.can { background-color: #c60029; }
 .cash.can    { background-color: #0b8000; }
 
 .upgrade.left,  .clickable.left  { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }
@@ -47,3 +48,6 @@
 .halfwide { width: 160px !important; }
 .tall     { min-height: 240px !important; }
 .halftall { min-height: 160px !important; }
+
+.wide180  { width: 180px !important; }
+.wide270  { width: 270px !important; }

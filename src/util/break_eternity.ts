@@ -62,6 +62,7 @@ const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
 const defaultNotationThresholds: Decimal[][] = [
+    /* [COMMA,         SCIENTIFIC,       LOGARITHMIC,           STANDARD] */
     [new Decimal(1e4), new Decimal(1e9), new Decimal("1e1000"), new Decimal("1e9")],
     [new Decimal(1e4), new Decimal(1e306), new Decimal("1e10000"), new Decimal("1e4")],
     [new Decimal(1e4), new Decimal(1e9), new Decimal(1e9), new Decimal("1e9")],
@@ -105,10 +106,10 @@ export function formatLog(num: DecimalSource, precision = 2): string {
     return (
         "e" +
         e
-            .mul(10 ** precision)
+            .mul(10 ** (precision + 1))
             .trunc()
-            .div(10 ** precision)
-            .toStringWithDecimalPlaces(precision)
+            .div(10 ** (precision + 1))
+            .toStringWithDecimalPlaces(precision + 1)
     );
 }
 
@@ -230,11 +231,11 @@ export function formatStan(num: DecimalSource, precision = 2): string {
     const e = Decimal.log(num, 1000).floor().toNumber() - 1;
     num = Decimal.div(num, Decimal.pow(1000, e + 1));
     num = num
-        .mul(10 ** precision)
+        .mul(10 ** (precision - num.log10().floor().toNumber() + 1))
         .trunc()
-        .div(10 ** precision);
+        .div(10 ** (precision - num.log10().floor().toNumber() + 1));
     return (
-        num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber()) +
+        num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber() + 1) +
         " " +
         standardSuffixes[e]
     );

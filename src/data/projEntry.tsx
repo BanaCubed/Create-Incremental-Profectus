@@ -14,6 +14,7 @@ import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import Node from "components/Node.vue";
+import srebirth from "./layers/super";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -24,13 +25,21 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
     const progression = createResource(0, "progress");
 
     const tree = createTree(() => ({
-        nodes: [[cash.treeNode], [rebirth.treeNode]],
+        nodes: [[cash.treeNode], [rebirth.treeNode], [srebirth.treeNode]],
         branches: [
             {
                 startNode: rebirth.treeNode,
                 endNode: cash.treeNode,
                 visibility:
                     cash.upgs.eight.bought.value === true || Decimal.gte(progression.value, 0.9)
+                        ? 1
+                        : 0
+            },
+            {
+                startNode: srebirth.treeNode,
+                endNode: rebirth.treeNode,
+                visibility:
+                    rebirth.upgs.eleven.bought.value === true || Decimal.gte(progression.value, 3.9)
                         ? 1
                         : 0
             }
@@ -96,7 +105,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, rebirth, cash];
+): Array<GenericLayer> => [main, rebirth, cash, srebirth];
 
 /**
  * A computed ref whose value is true whenever the game is over.

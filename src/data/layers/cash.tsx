@@ -11,7 +11,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol, renderRow } from "util/vue";
+import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format } from "util/bignum";
@@ -26,13 +26,13 @@ import {
 } from "game/modifiers";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
-import Row from "components/layout/Row.vue";
 import rebirth from "./rebirth";
 import { createTab } from "features/tabs/tab";
 import { createTabFamily } from "features/tabs/tabFamily";
 import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
 import Column from "components/layout/Column.vue";
+import srebirth from "./super";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -80,13 +80,25 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     });
     globalBus.on("update", diff => {
         points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-        if (Decimal.gt(autoMachine.c.value, 0.5) && machine.value.includes(0) !== true) {
+        if (
+            Decimal.gt(autoMachine.c.value, 0.5) &&
+            machine.value.includes(0) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
             machineClickables.cash.onClick();
         }
-        if (Decimal.gt(autoMachine.n.value, 0.5) && machine.value.includes(1) !== true) {
+        if (
+            Decimal.gt(autoMachine.n.value, 0.5) &&
+            machine.value.includes(1) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
             machineClickables.neut.onClick();
         }
-        if (Decimal.gt(autoMachine.r.value, 0.5) && machine.value.includes(2) !== true) {
+        if (
+            Decimal.gt(autoMachine.r.value, 0.5) &&
+            machine.value.includes(2) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
             machineClickables.rp.onClick();
         }
     });
@@ -228,6 +240,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return {
                     cash: true
                 };
+            }),
+            style: computed(() => {
+                return {
+                    "border-bottom-left-radius":
+                        rebirth.upgs.four.bought.value === true
+                            ? "0"
+                            : "var(--border-radius) !important"
+                };
             })
         })),
         six: createUpgrade(() => ({
@@ -277,6 +297,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             classes: computed(() => {
                 return {
                     cash: true
+                };
+            }),
+            style: computed(() => {
+                return {
+                    "border-bottom-right-radius":
+                        rebirth.upgs.four.bought.value === true
+                            ? "0"
+                            : "var(--border-radius) !important"
                 };
             })
         })),
@@ -441,7 +469,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     return Decimal.max(rebirth.points.value, 0).add(1).log(10).add(1).pow(2);
                 },
                 enabled() {
-                    return upgs.eight.bought.value || Decimal.gte(main.progression.value, 0.9);
+                    return Decimal.gte(main.progression.value, 0.9);
                 },
                 description: "RP Effect"
             })),
@@ -480,6 +508,15 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 },
                 enabled: rebirth.upgs.nine.bought,
                 description: "RP UPG 9"
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier(): any {
+                    return Decimal.max(srebirth.points.value, 0).add(1).pow(2.25);
+                },
+                enabled() {
+                    return Decimal.gte(main.progression.value, 3.9);
+                },
+                description: "SRP Effect"
             }))
         ]),
         machine: {
@@ -911,6 +948,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     render(tabs)
                 ) : (
                     <>
+                        <br></br>
                         You have <ResourceVue resource={points} color={color} /> Cash
                         {render(modals.cashGain)}
                         {Decimal.gt(pointGain.value, 0) ? (
@@ -920,12 +958,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             </div>
                         ) : null}
                         <Spacer></Spacer>
-                        <Row>
-                            {renderCol(upgs.one, upgs.five, upgs.nine)}
-                            {renderCol(upgs.two, upgs.six, upgs.ten)}
-                            {renderCol(upgs.three, upgs.seven, upgs.eleven)}
-                            {renderCol(upgs.four, upgs.eight, upgs.twelve)}
-                        </Row>
+                        <Column>
+                            {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
+                            {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
+                            {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
+                        </Column>
                     </>
                 )}
             </>
