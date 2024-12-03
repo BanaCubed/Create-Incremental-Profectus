@@ -311,8 +311,8 @@ registerSettingField(
         <Select
             title={jsx(() => (
                 <span class="option-title">
-                    Show achievements
-                    <desc>Select which achievements to display based on criterias.</desc>
+                    Show milestones
+                    <desc>Select which milestones to display based on criterias.</desc>
                 </span>
             ))}
             options={msDisplayOptions}

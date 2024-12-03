@@ -159,9 +159,9 @@ const formulaTabs = createTabFamily({
                     <span>
                         <h2>Super Rebirth</h2> <br /><br />
                         SRP is a shortening of Rebirth Points <br /> <br />
-                        <span>SRP Gain        log<sub>100</sub>(RP/1e14)<sup>3</sup><br /></span>
-                        <span>SRP to Cash    (SRP+1)<sup>2.25</sup><br /></span>
-                        <span>SRP to RP      (SRP+1)<sup>1.55</sup><br /></span>
+                        <span>SRP Gain        log<sub>100</sub>(RP/1e14)<sup>2.4</sup><br /></span>
+                        <span>SRP to Cash    (SRP+1)<sup>1.75</sup><br /></span>
+                        <span>SRP to RP      (SRP+1)<sup>1.25</sup><br /></span>
                     </span>
                 </>
             )),
@@ -184,6 +184,8 @@ const tabs = createTabFamily({
                         - General <br />
                         {/* - Guides <br /> */}
                         - Formulae <br /><br /><br />
+                        <h2>Notes</h2><br />
+                        When a buyable spends nothing, it always buys max<br /><br /><br />
                         <h2>Hotkeys</h2> <br />
                         {infoComponents.map(render)}
                     </span>

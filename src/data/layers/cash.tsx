@@ -148,13 +148,27 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
 
     const reset = createReset(() => ({
         thingsToReset: (): Record<string, any>[] => [
-            upgs,
             effects,
             points,
             best,
             total,
             oomps,
-            machine
+            machine,
+            srebirth.achs.three.earned.value === true
+                ? Decimal.gt(rebirth.points.value, 0)
+                    ? null
+                    : [
+                        upgs.four,
+                        upgs.five,
+                        upgs.six,
+                        upgs.seven,
+                        upgs.eight,
+                        upgs.nine,
+                        upgs.ten,
+                        upgs.eleven,
+                        upgs.twelve
+                    ]
+                : upgs
         ]
     }));
 
@@ -162,7 +176,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         one: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 0
+                cost: 0,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Begin generating 1 cash/s",
@@ -177,7 +194,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 10
+                cost: 10,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Quadruple cash gain"
@@ -191,7 +211,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         three: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 50
+                cost: 50,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on cash",
@@ -210,7 +233,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         four: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 300
+                cost: 300,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Quadruple cash gain again"
@@ -224,7 +250,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         five: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1600
+                cost: 1600,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on cash again",
@@ -253,7 +282,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         six: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 5500
+                cost: 5500,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on cash, yet again",
@@ -274,7 +306,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         seven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 17000
+                cost: 17000,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Raise previous boosts ^1.2"
@@ -288,7 +323,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         eight: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 200000
+                cost: 200000,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Unlock Rebirth",
@@ -311,7 +349,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         nine: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 80e6
+                cost: 80e6,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on cash, yet another time",
@@ -335,7 +376,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         ten: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 7e8
+                cost: 7e8,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on cash, for the last time",
@@ -357,7 +401,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         eleven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1e10
+                cost: 1e10,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Double RP gain"
@@ -374,7 +421,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         twelve: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 2.5e10
+                cost: 2.5e10,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Unlock The Machine",
@@ -511,7 +561,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             createMultiplicativeModifier(() => ({
                 multiplier(): any {
-                    return Decimal.max(srebirth.points.value, 0).add(1).pow(2.25);
+                    return Decimal.max(srebirth.points.value, 0).add(1).pow(1.75);
                 },
                 enabled() {
                     return Decimal.gte(main.progression.value, 3.9);
@@ -772,7 +822,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 tab: createTab(() => ({
                     display: jsx(() => (
                         <>
-                            <br></br>
+                            <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
@@ -781,7 +831,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
-                            <Spacer></Spacer>
+                            <Spacer />
                             <Column>
                                 {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
                                 {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
@@ -800,7 +850,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 tab: createTab(() => ({
                     display: jsx(() => (
                         <>
-                            <br></br>
+                            <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
@@ -809,10 +859,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
-                            <Spacer></Spacer>
+                            <Spacer />
                             <h2>The Machine</h2>
                             {render(modals.machine)}
-                            <br></br>
+                            <br />
                             <sup style="color: var(--highlighted)">
                                 Currently {machineDisplay()}
                             </sup>
@@ -948,7 +998,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     render(tabs)
                 ) : (
                     <>
-                        <br></br>
+                        <br />
                         You have <ResourceVue resource={points} color={color} /> Cash
                         {render(modals.cashGain)}
                         {Decimal.gt(pointGain.value, 0) ? (
@@ -957,7 +1007,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 <Node id="oomps" />
                             </div>
                         ) : null}
-                        <Spacer></Spacer>
+                        <Spacer />
                         <Column>
                             {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
                             {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}

@@ -12,8 +12,8 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderRow } from "util/vue";
-import { createLayerTreeNode, createResetButton } from "../common";
+import { render, renderCol, renderRow } from "util/vue";
+import { createCollapsibleAchievements, createLayerTreeNode, createResetButton } from "../common";
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
 import { computed, unref } from "vue";
@@ -24,6 +24,7 @@ import settings from "game/settings";
 import Column from "components/layout/Column.vue";
 import rebirth from "./rebirth";
 import { createAchievement } from "features/achievements/achievement";
+import { setupAutoPurchase } from "features/upgrades/upgrade";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -42,7 +43,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
     });
 
     const conversion = createCumulativeConversion(() => ({
-        formula: x => x.div(1e14).log(100).pow(3).mul(pointGain),
+        formula: x => x.div(1e14).log(100).pow(2.4).mul(pointGain),
         baseResource: rebirth.points,
         gainResource: noPersist(points)
     }));
@@ -53,12 +54,33 @@ const layer = createLayer(id, function (this: BaseLayer) {
 
     const effects = {};
 
+    setupAutoPurchase(
+        rebirth,
+        () => {
+            return achs.one.earned.value === true;
+        },
+        [rebirth.upgs.one]
+    );
+    setupAutoPurchase(
+        rebirth,
+        () => {
+            return achs.two.earned.value === true;
+        },
+        [rebirth.upgs.two]
+    );
+    setupAutoPurchase(
+        rebirth,
+        () => {
+            return achs.three.earned.value === true;
+        },
+        [rebirth.upgs.three]
+    );
+
     const achs = {
         one: createAchievement(() => ({
             display: {
                 effectDisplay:
-                    "Automate an RP upgrade for each SRP milestone, and remove RP UPG 1's limit",
-                optionsDisplay: "options display placeholder",
+                    "Automate an RP upgrade for each SRP milestone, and pre-SR upgrades no longer spend currencies",
                 requirement: "1 SRP"
             },
             requirements: [
@@ -66,15 +88,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(points.value, 1);
                 })
             ],
-            small: true,
-            classes: {
-                wide180: true
-            }
         })),
         two: createAchievement(() => ({
             display: {
                 effectDisplay: "RP buyables no longer spend RP",
-                optionsDisplay: "options display placeholder",
                 requirement: "3 SRP"
             },
             requirements: [
@@ -82,24 +99,18 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(points.value, 3);
                 })
             ],
-            small: true
         })),
         three: createAchievement(() => ({
             display: {
                 effectDisplay:
-                    "Cash upgrades are no longer reset on Rebirth, keep a Cash Upgrade on Super Rebirth per SRP milestone, and keep one RP upgrade per milestone after this one",
-                optionsDisplay: "options display placeholder",
-                requirement: "8 SRP"
+                    "Cash upgrades are no longer reset on Rebirth, keep a Cash Upgrade on SR per SRP milestone, and keep one RP upgrade per milestone after this one",
+                requirement: "10 SRP"
             },
             requirements: [
                 createBooleanRequirement(() => {
-                    return Decimal.gte(points.value, 8);
+                    return Decimal.gte(points.value, 10);
                 })
             ],
-            small: true,
-            classes: {
-                wide270: true
-            }
         }))
     };
 
@@ -154,11 +165,11 @@ const layer = createLayer(id, function (this: BaseLayer) {
     }));
 
     const hotkey = createHotkey(() => ({
-        description: "Rebirth for RP",
-        key: "r",
+        description: "Super Rebirth for SRP",
+        key: "s",
         onPress: resetButton.onClick,
         enabled() {
-            return Decimal.gte(main.progression.value, 0.9);
+            return Decimal.gte(main.progression.value, 3.9);
         }
     }));
 
@@ -172,17 +183,14 @@ const layer = createLayer(id, function (this: BaseLayer) {
             <>
                 <br />
                 You have <ResourceVue resource={points} color={color} /> SRP, multiplying:
-                <br /> Cash gain ×{format(Decimal.max(points.value, 0).add(1).pow(2.25))}
+                <br /> Cash gain ×{format(Decimal.max(points.value, 0).add(1).pow(1.75))}
                 <br />
-                RP gain ×{format(Decimal.max(points.value, 0).add(1).pow(1.55))}
+                RP gain ×{format(Decimal.max(points.value, 0).add(1).pow(1.25))}
                 {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />
-                SRP MILESTONES
-                <br />
-                EFFECTS CURRENTLY UNIMPLEMENTED
-                <Column>{renderRow(achs.one, achs.two, achs.three)}</Column>
+                {renderCol(achs.one, achs.two, achs.three)}
             </>
         )),
         treeNode,

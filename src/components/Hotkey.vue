@@ -63,7 +63,7 @@ watchEffect(() => {
     user-select: none;
     transition: transform 0s, box-shadow 0s;
 }
-.key:active {
+.key:active { /* why */
     transform: translateY(0.1em);
     box-shadow: none;
 }

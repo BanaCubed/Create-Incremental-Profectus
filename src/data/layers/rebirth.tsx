@@ -58,7 +58,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         one: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1
+                cost: 1,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Double cash generation for each Rebirth upgrade owned. Caps at ×100"
@@ -67,18 +70,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 return {
                     rebirth: true
                 };
-            }),
-            style() {
-                return {
-                    "border-bottom-left-radius":
-                        upgs.six.bought.value === true ? "0" : "var(--border-radius) !important"
-                };
-            }
+            })
         })),
         two: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 3
+                cost: 3,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Automate the first four Cash upgrades"
@@ -92,7 +92,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         three: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 10
+                cost: 10,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Automate the next four Cash upgrades"
@@ -106,7 +109,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         four: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 50
+                cost: 50,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Unlock the next four Cash upgrades"
@@ -115,18 +121,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 return {
                     rebirth: true
                 };
-            }),
-            style() {
-                return {
-                    "border-bottom-right-radius":
-                        upgs.six.bought.value === true ? "0" : "var(--border-radius) !important"
-                };
-            }
+            })
         })),
         five: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 2000
+                cost: 2000,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Unlock Auto Machine"
@@ -143,7 +146,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         six: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 25000
+                cost: 25000,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Unlock Rebirth Buyables"
@@ -157,7 +163,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         seven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 250000
+                cost: 250000,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Increase maximum machine modes enabled by one"
@@ -171,7 +180,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         eight: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1e6
+                cost: 1e6,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Automate the next four cash upgrades"
@@ -185,7 +197,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         nine: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 5e6
+                cost: 5e6,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost cash gain based on RP",
@@ -197,20 +212,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 return {
                     rebirth: true
                 };
-            }),
-            style: computed(() => {
-                return {
-                    "border-top-left-radius":
-                        upgs.six.bought.value !== true
-                            ? "var(--border-radius) !important"
-                            : "0 !important"
-                };
             })
         })),
         ten: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(cash.points),
-                cost: 2e14
+                cost: 2e14,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description: "Boost RP gain based on Cash",
@@ -227,7 +237,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
         eleven: createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
-                cost: 1e10
+                cost: 1e10,
+                requiresPay() {
+                    return srebirth.achs.one.earned.value !== true;
+                }
             })),
             display: {
                 description:
@@ -236,15 +249,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             classes: {
                 rebirth: true,
                 wide: true
-            },
-            style: computed(() => {
-                return {
-                    "border-top-right-radius":
-                        upgs.six.bought.value !== true
-                            ? "var(--border-radius) !important"
-                            : "0 !important"
-                };
-            })
+            }
         }))
     };
 
@@ -256,7 +261,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     cost: Formula.variable(buys.one.amount)
                         .step(35, c => c.pow(2))
                         .pow_base(2)
-                        .mul(15000)
+                        .mul(15000),
+                    requiresPay() {
+                        return srebirth.achs.two.earned.value !== true;
+                    }
                 }))
             ],
             display: {
@@ -293,7 +301,10 @@ const layer = createLayer(id, function (this: BaseLayer) {
                         .pow_base(1.5)
                         .sub(1)
                         .pow_base(8)
-                        .mul(100000)
+                        .mul(100000),
+                    requiresPay() {
+                        return srebirth.achs.two.earned.value !== true;
+                    }
                 }))
             ],
             display: {
@@ -381,20 +392,20 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 enabled: upgs.ten.bought
             })),
             createMultiplicativeModifier(() => ({
-                multiplier: 0,
-                description: "Unable to Rebirth",
-                enabled() {
-                    return cash.upgs.eight.bought.value !== true;
-                }
-            })),
-            createMultiplicativeModifier(() => ({
                 multiplier(): any {
-                    return Decimal.max(srebirth.points.value, 0).add(1).pow(1.55);
+                    return Decimal.max(srebirth.points.value, 0).add(1).pow(1.25);
                 },
                 enabled() {
                     return Decimal.gte(main.progression.value, 3.9);
                 },
                 description: "SRP Effect"
+            })),
+            createMultiplicativeModifier(() => ({
+                multiplier: 0,
+                description: "Unable to Rebirth",
+                enabled() {
+                    return cash.upgs.eight.bought.value !== true;
+                }
             }))
         ]),
         rpCash: createSequentialModifier(() => [
@@ -485,17 +496,18 @@ const layer = createLayer(id, function (this: BaseLayer) {
         effects,
         display: jsx(() => (
             <>
-                <br></br>
+                <br />
                 You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}
-                <br></br>Multiplying cash gain by ×
+                <br />Multiplying cash gain by ×
                 {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
                 {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
-                <Spacer></Spacer>
+                <Spacer />
                 {render(resetButton)}
+                <Spacer />
+                {renderRow(buys.one, buys.two)}
                 <Column>
                     {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
-                    {renderRow(upgs.five, upgs.six, buys.one)}
-                    {renderRow(upgs.seven, upgs.eight, buys.two)}
+                    {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
                     {renderRow(upgs.nine, upgs.ten, upgs.eleven)}
                 </Column>
             </>
