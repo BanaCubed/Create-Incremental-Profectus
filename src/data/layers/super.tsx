@@ -111,6 +111,33 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(points.value, 10);
                 })
             ],
+        })),
+        four: createAchievement(() => ({
+            display: {
+                effectDisplay:
+                    "Unlock a Cash Buyable, and automate an RP buyable for each milestone after this one",
+                requirement: "25 SRP"
+            },
+            requirements: [
+                createBooleanRequirement(() => {
+                    return Decimal.gte(points.value, 25);
+                })
+            ],
+        })),
+        five: createAchievement(() => ({
+            display: {
+                effectDisplay:
+                    "Unlock the first SR challenge",
+                requirement: "50 SRP"
+            },
+            requirements: [
+                createBooleanRequirement(() => {
+                    return Decimal.gte(points.value, 50);
+                })
+            ],
+            onComplete() {
+                main.progression.value = Decimal.max(main.progression.value, 5);
+            }
         }))
     };
 
@@ -190,7 +217,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />
-                {renderCol(achs.one, achs.two, achs.three)}
+                {renderCol(achs.one, achs.two, achs.three, achs.four, achs.five)}
             </>
         )),
         treeNode,
