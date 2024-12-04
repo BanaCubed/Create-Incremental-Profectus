@@ -158,16 +158,16 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 ? Decimal.gt(rebirth.points.value, 0)
                     ? null
                     : [
-                        upgs.four,
-                        upgs.five,
-                        upgs.six,
-                        upgs.seven,
-                        upgs.eight,
-                        upgs.nine,
-                        upgs.ten,
-                        upgs.eleven,
-                        upgs.twelve
-                    ]
+                          upgs.four,
+                          upgs.five,
+                          upgs.six,
+                          upgs.seven,
+                          upgs.eight,
+                          upgs.nine,
+                          upgs.ten,
+                          upgs.eleven,
+                          upgs.twelve
+                      ]
                 : upgs
         ]
     }));

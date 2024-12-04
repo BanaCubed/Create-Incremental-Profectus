@@ -12,7 +12,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol, renderRow } from "util/vue";
+import { render, renderCol } from "util/vue";
 import { createCollapsibleAchievements, createLayerTreeNode, createResetButton } from "../common";
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";
@@ -21,7 +21,6 @@ import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
 import { createBooleanRequirement } from "game/requirements";
 import settings from "game/settings";
-import Column from "components/layout/Column.vue";
 import rebirth from "./rebirth";
 import { createAchievement } from "features/achievements/achievement";
 import { setupAutoPurchase } from "features/upgrades/upgrade";
@@ -87,7 +86,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 createBooleanRequirement(() => {
                     return Decimal.gte(points.value, 1);
                 })
-            ],
+            ]
         })),
         two: createAchievement(() => ({
             display: {
@@ -98,7 +97,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 createBooleanRequirement(() => {
                     return Decimal.gte(points.value, 3);
                 })
-            ],
+            ]
         })),
         three: createAchievement(() => ({
             display: {
@@ -111,6 +110,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(points.value, 10);
                 })
             ],
+            visibility(): any {
+                return achs.one.earned.value === true;
+            }
         })),
         four: createAchievement(() => ({
             display: {
@@ -123,11 +125,13 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(points.value, 25);
                 })
             ],
+            visibility(): any {
+                return achs.two.earned.value === true;
+            }
         })),
         five: createAchievement(() => ({
             display: {
-                effectDisplay:
-                    "Unlock the first SR challenge",
+                effectDisplay: "Unlock the first SR challenge",
                 requirement: "50 SRP"
             },
             requirements: [
@@ -137,6 +141,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
             ],
             onComplete() {
                 main.progression.value = Decimal.max(main.progression.value, 5);
+            },
+            visibility(): any {
+                return achs.three.earned.value === true;
             }
         }))
     };
@@ -200,6 +207,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
         }
     }));
 
+    const achDisp = createCollapsibleAchievements(achs);
+
     return {
         name,
         color,
@@ -217,14 +226,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />
-                {renderCol(achs.one, achs.two, achs.three, achs.four, achs.five)}
+                {render(achDisp.display)}
             </>
         )),
         treeNode,
         hotkey,
         minimizable: false,
         achs,
-        best
+        best,
+        achDisp
     };
 });
 

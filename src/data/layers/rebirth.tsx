@@ -498,7 +498,8 @@ const layer = createLayer(id, function (this: BaseLayer) {
             <>
                 <br />
                 You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}
-                <br />Multiplying cash gain by ×
+                <br />
+                Multiplying cash gain by ×
                 {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
                 {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
                 <Spacer />
