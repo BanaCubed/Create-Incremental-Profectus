@@ -12,7 +12,7 @@ import { addTooltip } from "features/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { BaseLayer, createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol } from "util/vue";
+import { render } from "util/vue";
 import { createCollapsibleAchievements, createLayerTreeNode, createResetButton } from "../common";
 import { noPersist } from "game/persistence";
 import Decimal, { format, formatWhole } from "util/bignum";

@@ -14,7 +14,7 @@ import type { DecimalSource } from "util/bignum";
 import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
-import Decimal, { format, formatWhole } from "util/bignum";
+import Decimal, { format } from "util/bignum";
 import { computed, unref } from "vue";
 import { createUpgrade } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
@@ -33,8 +33,6 @@ import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
-import { createRepeatable } from "features/repeatable";
-import Formula from "game/formulas/formulas";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -481,7 +479,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         //         wide: true
         //     }
         // })),
-    }
+    };
 
     const effects: any = {
         cash: createSequentialModifier(() => [
