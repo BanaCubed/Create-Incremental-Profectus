@@ -106,10 +106,10 @@ export function formatLog(num: DecimalSource, precision = 2): string {
     return (
         "e" +
         e
-            .mul(10 ** (precision + 1))
+            .mul(10 ** precision)
             .trunc()
-            .div(10 ** (precision + 1))
-            .toStringWithDecimalPlaces(precision + 1)
+            .div(10 ** precision)
+            .toStringWithDecimalPlaces(precision)
     );
 }
 

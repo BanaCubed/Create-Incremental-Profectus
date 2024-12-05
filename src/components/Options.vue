@@ -44,6 +44,9 @@ import { computed, ref, toRefs } from "vue";
 import Select from "./fields/Select.vue";
 import Toggle from "./fields/Toggle.vue";
 import FeedbackButton from "./fields/FeedbackButton.vue";
+import Hotkey from "./Hotkey.vue";
+import { createHotkey } from "features/hotkey";
+import { main } from "data/projEntry";
 
 settings.notation = settings.notation || 0;
 settings.language = settings.language || 'en';
@@ -140,7 +143,7 @@ const autosaveTitle = jsx(() => (
 const isPausedTitle = jsx(() => (
     <span class="option-title">
         Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Stop everything from moving.</desc>
+        <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
     </span>
 ));
 const notationTitle = jsx(() => (

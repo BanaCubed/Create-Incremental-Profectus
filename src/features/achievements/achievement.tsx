@@ -181,7 +181,7 @@ export function createAchievement<T extends AchievementOptions>(
                 }
                 toast.info(
                     <div>
-                        <h3>Achievement earned!</h3>
+                        <h3>Milestone earned!</h3>
                         <div>
                             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                             {/* @ts-ignore */}
@@ -311,8 +311,8 @@ registerSettingField(
         <Select
             title={jsx(() => (
                 <span class="option-title">
-                    Show achievements
-                    <desc>Select which achievements to display based on criterias.</desc>
+                    Show milestones
+                    <desc>Select which milestones to display based on criterias.</desc>
                 </span>
             ))}
             options={msDisplayOptions}

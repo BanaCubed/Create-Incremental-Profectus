@@ -407,8 +407,8 @@ export function createCollapsibleAchievements(achievements: Record<string, Gener
                     content={collapsedContent}
                     display={
                         collapseAchievements.value
-                            ? "Show other completed achievements"
-                            : "Hide other completed achievements"
+                            ? "Show other completed milestones"
+                            : "Hide other completed milestones"
                     }
                     v-show={unref(hasCollapsedContent)}
                 />
