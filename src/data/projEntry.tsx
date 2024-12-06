@@ -1,7 +1,8 @@
 import { jsx } from "features/feature";
-import { createResource } from "features/resources/resource";
 import type { GenericTree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
+import Node from "components/Node.vue";
+import { createResource } from "features/resources/resource";
 import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
@@ -13,7 +14,6 @@ import rebirth from "./layers/rebirth";
 import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
-import Node from "components/Node.vue";
 import srebirth from "./layers/super";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -26,6 +26,8 @@ export interface Settings {
     language: string;
     /** Whether or not a new layer replaces the old one. */
     appendLayers: boolean;
+    /** Whether or not to show a video game health warning after playing excessively. */
+    showHealthWarning: boolean;
 }
 
 const state = reactive<Partial<Settings>>({
@@ -37,7 +39,8 @@ const state = reactive<Partial<Settings>>({
     alignUnits: false,
     notation: 3,
     language: "en",
-    appendLayers: false
+    appendLayers: false,
+    showHealthWarning: true
 });
 
 watch(
@@ -65,14 +68,17 @@ declare global {
 export default window.settings = state as Settings;
 /** A function that erases all player settings, including all saves. */
 export const hardResetSettings = (window.hardResetSettings = () => {
-    const settings = {
+    // Only partial because of any properties that are only added during the loadSettings event.
+    const settings: Partial<Settings> = {
         active: "",
         saves: [],
         showTPS: true,
         theme: Themes.Nordic,
         alignUnits: false,
         notation: 3,
-        appendLayers: false
+        appendLayers: false,
+        unthrottled: false,
+        showHealthWarning: true
     };
     globalBus.emit("loadSettings", settings);
     Object.assign(state, settings);
