@@ -31,7 +31,7 @@ import player from "game/player";
 import { computeComponent, computeOptionalComponent, processedPropType, unwrapRef } from "util/vue";
 import { PropType, Ref, computed, defineComponent, onErrorCaptured, ref, toRefs, unref } from "vue";
 import Context from "./Context.vue";
-import ErrorVue from "./Error.vue";
+import ErrorVue from "./modals/Error.vue";
 
 export default defineComponent({
     components: { Context, ErrorVue },

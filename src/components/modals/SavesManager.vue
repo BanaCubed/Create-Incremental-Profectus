@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "components/Modal.vue";
+import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
 import type { Player } from "game/player";
 import player, { stringifySave } from "game/player";
@@ -83,7 +83,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import Draggable from "vuedraggable";
 import Select from "../fields/Select.vue";
 import Text from "../fields/Text.vue";
-import Save from "./Save.vue";
+import Save from "../modals/Save.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
 
 export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };

@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="tsx">
-import Modal from "components/Modal.vue";
+import Modal from "components/modals/Modal.vue";
 import type Changelog from "data/Changelog.vue";
 import projInfo from "data/projInfo.json";
 import { jsx } from "features/feature";

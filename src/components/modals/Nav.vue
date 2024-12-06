@@ -88,7 +88,7 @@ import { computed, ref } from "vue";
 import Info from "./Info.vue";
 import Help from "./Help.vue";
 import Options from "./Options.vue";
-import SavesManager from "./saves/SavesManager.vue";
+import SavesManager from "./SavesManager.vue";
 import player from "game/player";
 import { format, formatTime } from "util/bignum";
 

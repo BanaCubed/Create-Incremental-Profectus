@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "components/Modal.vue";
+import Modal from "components/modals/Modal.vue";
 import { stringifySave } from "game/player";
 import settings from "game/settings";
 import LZString from "lz-string";

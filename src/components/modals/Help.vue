@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="tsx">
-import Modal from "components/Modal.vue";
+import Modal from "components/modals/Modal.vue";
 import type Changelog from "data/Changelog.vue";
 import cash from "data/layers/cash";
 import Tooltip from "features/tooltips/Tooltip.vue";
