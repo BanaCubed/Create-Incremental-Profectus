@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="tsx">
-import Modal from "components/Modal.vue";
+import Modal from "./Modal.vue";
 import projInfo from "data/projInfo.json";
 import { save } from "util/save";
 import rawThemes from "data/themes";
@@ -41,10 +41,10 @@ import settings, { settingFields } from "game/settings";
 import { camelToTitle, Direction } from "util/common";
 import { coerceComponent, render } from "util/vue";
 import { computed, ref, toRefs } from "vue";
-import Select from "./fields/Select.vue";
-import Toggle from "./fields/Toggle.vue";
-import FeedbackButton from "./fields/FeedbackButton.vue";
-import Hotkey from "./Hotkey.vue";
+import Select from "../fields/Select.vue";
+import Toggle from "../fields/Toggle.vue";
+import FeedbackButton from "../fields/FeedbackButton.vue";
+import Hotkey from "../Hotkey.vue";
 import { createHotkey } from "features/hotkey";
 import { main } from "data/projEntry";
 

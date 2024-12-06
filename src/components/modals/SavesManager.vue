@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "components/Modal.vue";
+import Modal from "./Modal.vue";
 import projInfo from "data/projInfo.json";
 import type { Player } from "game/player";
 import player, { stringifySave } from "game/player";
