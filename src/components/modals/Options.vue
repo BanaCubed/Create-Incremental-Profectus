@@ -12,9 +12,9 @@
         <template v-slot:body>
             <div v-if="isTab('behaviour')">
                 <Toggle :title="unthrottledTitle" v-model="unthrottled" />
-                <!-- <Toggle :title="appendTitle" v-model="appendLayers" /> --> <!-- I can't get this to work -->
                 <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
                 <Toggle :title="offlineProdTitle" v-model="offlineProd" />
+                <Toggle :title="showHealthWarningTitle" v-model="showHealthWarning" v-if="!projInfo.disableHealthWarning" />
                 <Toggle :title="autosaveTitle" v-model="autosave" />
                 <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="tsx">
-import Modal from "./Modal.vue";
+import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
 import { save } from "util/save";
 import rawThemes from "data/themes";
@@ -105,7 +105,7 @@ const settingFieldsComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
 });
 
-const { showTPS, notation, language, unthrottled, alignUnits, appendLayers } = toRefs(settings);
+const { showTPS, notation, language, unthrottled, alignUnits, appendLayers, showHealthWarning } = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -132,6 +132,12 @@ const appendTitle = jsx(() => (
     <span class="option-title">
         Append Layers
         <desc>Whether opening a layer appends it to previous layers or replaces them.</desc>
+    </span>
+));
+const showHealthWarningTitle = jsx(() => (
+    <span class="option-title">
+        Show videogame addiction warning
+        <desc>Show a helpful warning after playing for a long time about video game addiction and encouraging you to take a break.</desc>
     </span>
 ));
 const autosaveTitle = jsx(() => (

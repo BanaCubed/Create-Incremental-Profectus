@@ -1,8 +1,8 @@
 import { LoadablePlayerData } from "components/modals/SavesManager.vue";
 import player, { Player, stringifySave } from "game/player";
 import settings from "game/settings";
-import { GalaxyApi, initGalaxy } from "unofficial-galaxy-sdk";
 import LZString from "lz-string";
+import { GalaxyApi, initGalaxy } from "unofficial-galaxy-sdk";
 import { ref } from "vue";
 import { decodeSave, loadSave, save, setupInitialStore } from "./save";
 
@@ -173,10 +173,10 @@ function syncSaves(
                 const parsedLocalSave = JSON.parse(decodeSave(localSave) ?? "");
                 const slot = availableSlots.values().next().value;
                 galaxy.value
-                    ?.save(slot, localSave, parsedLocalSave.name)
+                    ?.save(slot || 4, localSave, parsedLocalSave.name)
                     .then(() => syncedSaves.value.push(parsedLocalSave.id))
                     .catch(console.error);
-                availableSlots.delete(slot);
+                availableSlots.delete(slot || 4);
             }
         } catch (e) {}
     });
