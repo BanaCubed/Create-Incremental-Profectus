@@ -16,7 +16,7 @@
 
 <script setup lang="tsx">
 import "@fontsource/roboto-mono";
-import Error from "components/modals/Error.vue";
+import Error from "components/Error.vue";
 import CloudSaveResolver from "components/modals/CloudSaveResolver.vue";
 import { jsx } from "features/feature";
 import state from "game/state";
