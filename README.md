@@ -4,9 +4,7 @@ Wow, such game
 
 ## Contributing
 
-Languages can be added/expanded in [`src/data/languages`](src/data/languages/)
-If you add a new language, add the language to `langOptions` in [`src/components/Options.vue`](src/components/Options.vue)
-(The languages system is still under construction)
+A language selection system is currently being worked on (will definitely be out for v1.1)
 
 # Profectus
 
