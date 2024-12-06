@@ -85,10 +85,10 @@ import { Direction } from "util/common";
 import { galaxy, syncedSaves } from "util/galaxy";
 import type { ComponentPublicInstance } from "vue";
 import { computed, ref } from "vue";
-import Info from "./Info.vue";
-import Help from "./Help.vue";
-import Options from "./Options.vue";
-import SavesManager from "./SavesManager.vue";
+import Info from "./modals/Info.vue";
+import Help from "components/modals/Help.vue";
+import Options from "./modals/Options.vue";
+import SavesManager from "./modals/SavesManager.vue";
 import player from "game/player";
 import { format, formatTime } from "util/bignum";
 
