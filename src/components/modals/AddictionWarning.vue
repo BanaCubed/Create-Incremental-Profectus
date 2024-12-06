@@ -25,14 +25,8 @@
                     (<a style="display: inline" href="tel:1-800-662-4357">1-800-662-HELP</a>)
                 </span>
                 <br />
-                <a href="https://www.reddit.com/r/StopGaming/">r/StopGaming</a>
+                <a href="https://www.reddit.com/r/StopGaming/" target="_blank">r/StopGaming</a>
             </p>
-        </template>
-        <template v-slot:footer>
-            <div class="vga-footer">
-                <button @click="neverShow" class="button">Never show this again</button>
-                <button @click="isOpen = false" class="button">Close</button>
-            </div>
         </template>
     </Modal>
     <SavesManager ref="savesManager" />
@@ -66,6 +60,11 @@ function neverShow() {
 .vga-modal-header {
     padding-top: 10px;
     margin-left: 10px;
+    display: flex;
+    margin: -20px;
+    margin-bottom: 0;
+    background: var(--raised-background);
+    align-items: center;
 }
 
 .vga-footer {
