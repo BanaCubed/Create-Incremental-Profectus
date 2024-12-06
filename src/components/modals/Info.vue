@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="tsx">
+import Modal from "./Modal.vue";
 import type Changelog from "data/Changelog.vue";
 import projInfo from "data/projInfo.json";
 import { jsx } from "features/feature";
@@ -81,7 +82,6 @@ import { infoComponents } from "game/settings";
 import { formatTime } from "util/bignum";
 import { coerceComponent, render } from "util/vue";
 import { computed, ref, toRefs, unref } from "vue";
-import Modal from "./Modal.vue";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
