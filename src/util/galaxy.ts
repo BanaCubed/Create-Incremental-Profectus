@@ -1,4 +1,4 @@
-import { LoadablePlayerData } from "components/saves/SavesManager.vue";
+import { LoadablePlayerData } from "components/modals/SavesManager.vue";
 import player, { Player, stringifySave } from "game/player";
 import settings from "game/settings";
 import { GalaxyApi, initGalaxy } from "unofficial-galaxy-sdk";

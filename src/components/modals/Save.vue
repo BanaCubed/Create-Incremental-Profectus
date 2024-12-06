@@ -83,7 +83,7 @@ import { computed, ref, toRefs, unref, watch } from "vue";
 import DangerButton from "../fields/DangerButton.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Text from "../fields/Text.vue";
-import type { LoadablePlayerData } from "./SavesManager.vue";
+import type { LoadablePlayerData } from "../modals/SavesManager.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
 import Decimal, { formatWhole } from "util/break_eternity";
 import { computeComponent } from "util/vue";

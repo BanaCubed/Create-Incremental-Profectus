@@ -29,7 +29,7 @@ import { getFirstFeature, renderColJSX, renderJSX } from "util/vue";
 import type { ComputedRef, Ref } from "vue";
 import { computed, ref, unref } from "vue";
 import "./common.css";
-import Modal from "components/Modal.vue";
+import Modal from "components/modals/Modal.vue";
 
 /** An object that configures a {@link ResetButton} */
 export interface ResetButtonOptions extends ClickableOptions {
@@ -129,7 +129,7 @@ export function createResetButton<T extends ClickableOptions & ResetButtonOption
                         )}
                     </b>{" "}
                     {resetButton.conversion.gainResource.displayName}
-                    {unref(resetButton?.showNextAt) != null ? (
+                    {unref(true) != null ? (
                         <div>
                             <br />
                             {unref(resetButton.conversion.buyMax) ? "Next:" : "Req:"}{" "}
