@@ -173,10 +173,10 @@ function syncSaves(
                 const parsedLocalSave = JSON.parse(decodeSave(localSave) ?? "");
                 const slot = availableSlots.values().next().value;
                 galaxy.value
-                    ?.save(slot || 4, localSave, parsedLocalSave.name)
+                    ?.save(slot, localSave, parsedLocalSave.name)
                     .then(() => syncedSaves.value.push(parsedLocalSave.id))
                     .catch(console.error);
-                availableSlots.delete(slot || 4);
+                availableSlots.delete(slot);
             }
         } catch (e) {}
     });

@@ -299,6 +299,14 @@ function editSave(id: string, newName: string) {
     display: flex;
     margin-top: 20px;
 }
+
+.header {
+    margin: -20px;
+    margin-bottom: 0;
+    padding: 10px;
+    padding-bottom: 10px;
+    background: var(--raised-background);
+}
 </style>
 
 <style>
@@ -312,13 +320,5 @@ function editSave(id: string, newName: string) {
 
 .presets .vue-select[aria-expanded="true"] vue-dropdown {
     visibility: hidden;
-}
-
-.header {
-    margin: -20px;
-    margin-bottom: 0;
-    padding: 10px;
-    padding-bottom: 10px;
-    background: var(--raised-background);
 }
 </style>
