@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "components/modals/Modal.vue";
 import { hasWon } from "data/projEntry";
 import projInfo from "data/projInfo.json";
 import player from "game/player";
@@ -45,6 +44,7 @@ import { formatTime } from "util/bignum";
 import { loadSave, newSave } from "util/save";
 import { computed, toRef } from "vue";
 import Toggle from "../fields/Toggle.vue";
+import Modal from "./Modal.vue";
 
 const { title, logo, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 

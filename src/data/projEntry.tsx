@@ -1,22 +1,25 @@
 import { jsx } from "features/feature";
-import { createResource } from "features/resources/resource";
 import type { GenericTree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
+import Node from "components/Node.vue";
+import Spacer from "components/layout/Spacer.vue";
+import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
+import { globalBus } from "game/events";
 import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
 import type { Player } from "game/player";
 import player from "game/player";
 import Decimal, { format, formatTime } from "util/bignum";
 import { render } from "util/vue";
-import { computed } from "vue";
+import { computed, toRaw } from "vue";
 import rebirth from "./layers/rebirth";
 import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
-import Node from "components/Node.vue";
 import srebirth from "./layers/super";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { DecimalSource } from "util/bignum";
 
 /**
  * @hidden
