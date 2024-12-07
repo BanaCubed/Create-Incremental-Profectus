@@ -200,6 +200,10 @@ const alignModifierUnitsTitle = jsx(() => (
     border-bottom-color: transparent;
 }
 
+.option-tabs button:hover {
+    border-bottom-color: color(from var(--foreground) srgb r g b / 0.3);
+}
+
 .option-title .tooltip-container {
     display: inline;
     margin-left: 5px;

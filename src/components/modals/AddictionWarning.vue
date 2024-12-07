@@ -29,7 +29,6 @@
             </p>
         </template>
     </Modal>
-    <SavesManager ref="savesManager" />
 </template>
 
 <script setup lang="ts">

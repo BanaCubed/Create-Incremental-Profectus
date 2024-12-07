@@ -62,18 +62,11 @@
                 <span class="material-icons">info</span>
             </Tooltip>
         </div>
-        <div @click="help?.open()">
-            <Tooltip display="Help" :direction="Direction.Right">
-                <span class="material-icons">help</span>
-            </Tooltip>
-        </div>
         <div style="flex-grow: 1;"></div>
     </div>
-    <Help ref="help" :changelog="changelog" />
     <Info ref="info" :changelog="changelog" />
     <SavesManager ref="savesManager" />
     <Options ref="options" />
-    <Changelog ref="changelog" />
 </template>
 
 <script setup lang="ts">
@@ -86,13 +79,11 @@ import { galaxy, syncedSaves } from "util/galaxy";
 import type { ComponentPublicInstance } from "vue";
 import { computed, ref } from "vue";
 import Info from "./modals/Info.vue";
-import Help from "components/modals/Help.vue";
 import Options from "./modals/Options.vue";
 import SavesManager from "./modals/SavesManager.vue";
 import player from "game/player";
 import { format, formatTime } from "util/bignum";
 
-const help = ref<ComponentPublicInstance<typeof Help> | null>(null);
 const info = ref<ComponentPublicInstance<typeof Info> | null>(null);
 const savesManager = ref<ComponentPublicInstance<typeof SavesManager> | null>(null);
 const options = ref<ComponentPublicInstance<typeof Options> | null>(null);
@@ -148,7 +139,7 @@ const needsSync = computed(
     box-shadow: 0 0 10px 10px var(--background);
 }
 
-.overlay-nav > * {
+.overlay-nav > *:has(*) {
     height: 50px;
     width: 50px;
     display: flex;
