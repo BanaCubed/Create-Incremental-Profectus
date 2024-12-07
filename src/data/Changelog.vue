@@ -140,7 +140,7 @@ li::before {
 }
 
 .fix::before {
-    content: "Bugfix";
+    content: "Fix";
     background: var(--accent2);
 }
 
