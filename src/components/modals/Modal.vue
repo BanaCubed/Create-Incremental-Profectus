@@ -106,8 +106,7 @@ defineExpose({ isOpen, nodes });
     display: flex;
     flex-direction: column;
     overflow: clip;
-    box-shadow: 0 12px 12px 6px rgba(0, 0, 0, 0.3);
-    mix-blend-mode: soft-light;
+    box-shadow: 0 12px 24px 6px rgba(0, 0, 0, 0.35);
 }
 
 .modal-header {
@@ -144,6 +143,6 @@ defineExpose({ isOpen, nodes });
 .modal-enter-from .modal-container,
 .modal-leave-active .modal-container {
     filter: blur(15px);
-    transform: scale(1.05);
+    /* transform: scale(1.05); */
 }
 </style>
