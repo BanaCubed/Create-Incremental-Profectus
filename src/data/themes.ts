@@ -71,12 +71,8 @@ const defaultTheme: Theme = {
 
 /** An enum of all available themes and their internal IDs. The keys are their display names. */
 export enum Themes {
-    Classic = "classic",
     Paper = "paper",
     Nordic = "nordic",
-    Aqua = "aqua",
-    Cryo = "cryo",
-    Cubic = "cubic"
 }
 
 /** A dictionary of all available themes. */
@@ -110,47 +106,4 @@ export default {
         },
         floatingTabs: false
     } as Theme,
-    cubic: {
-        ...defaultTheme,
-        variables: {
-            ...defaultTheme.variables,
-            "--background": "#030425",
-            "--feature-foreground": "#000002",
-            "--raised-background": "#031455",
-            "--highlighted": "#666668",
-            "--bought": "#5CAA58",
-            "--outline": "#222344",
-            "--border-radius": "0px",
-            "--modal-border": "4px solid #222344"
-        },
-        floatingTabs: false
-    } as Theme,
-    classic: defaultTheme,
-    aqua: {
-        ...defaultTheme,
-        variables: {
-            ...defaultTheme.variables,
-            "--foreground": "#bfdfff",
-            "--background": "#001f3f",
-            "--tooltip-background": "rgba(0, 15, 31, 0.75)",
-            "--raised-background": "#001f3f",
-            "--points": "#dfefff",
-            "--locked": "#c4a7b3",
-            "--outline": "#bfdfff",
-            "--highlighted": "#06c"
-        }
-    } as Theme,
-    cryo: {
-        ...defaultTheme,
-        variables: {
-            ...defaultTheme.variables,
-            "--foreground": "#0391a3",
-            "--background": "#e6e6f2",
-            "--feature-foreground": "#002626",
-            "--tooltip-background": "#aaaaf2",
-            "--raised-background": "#aaaaf2",
-            "--points": "#4555bf"
-        },
-        floatingTabs: false
-    } as Theme
 } as Record<Themes, Theme>;

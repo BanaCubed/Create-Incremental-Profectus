@@ -79,8 +79,10 @@ defineExpose({ isOpen, nodes });
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.35);
     transition: opacity 0.3s ease;
+    backdrop-filter: blur(10px);
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 100%);
 }
 
 .modal-wrapper {
@@ -93,7 +95,7 @@ defineExpose({ isOpen, nodes });
 .modal-container {
     width: 640px;
     max-width: 95vw;
-    max-height: 95vh;
+    max-height: calc(100vh - 30px);
     background-color: var(--background);
     padding: 20px;
     border-radius: var(--border-radius);
@@ -104,7 +106,7 @@ defineExpose({ isOpen, nodes });
     display: flex;
     flex-direction: column;
     overflow: clip;
-    box-shadow: 0 10px 30px 15px #00000088;
+    box-shadow: 0 12px 24px 6px rgba(0, 0, 0, 0.35);
 }
 
 .modal-header {
@@ -140,7 +142,7 @@ defineExpose({ isOpen, nodes });
 
 .modal-enter-from .modal-container,
 .modal-leave-active .modal-container {
-    -webkit-transform: scale(0.9);
-    transform: scale(0.9);
+    filter: blur(15px);
+    /* transform: scale(1.05); */
 }
 </style>

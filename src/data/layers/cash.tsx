@@ -14,7 +14,7 @@ import type { DecimalSource } from "util/bignum";
 import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
-import Decimal, { format } from "util/bignum";
+import Decimal, { format, formatWhole } from "util/bignum";
 import { computed, unref } from "vue";
 import { createUpgrade } from "features/upgrades/upgrade";
 import { createCostRequirement } from "game/requirements";
@@ -33,6 +33,8 @@ import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
+import { createRepeatable } from "features/repeatable";
+import Formula from "game/formulas/formulas";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -445,40 +447,40 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
     };
 
     const buys: any = {
-        // one: createRepeatable(() => ({
-        //     requirements: [
-        //         createCostRequirement(() => ({
-        //             resource: noPersist(points),
-        //             cost: Formula.variable(buys.one.amount)
-        //                 .step(100, c => c.pow(1.25))
-        //                 .pow_base(10)
-        //                 .mul(1000),
-        //         }))
-        //     ],
-        //     display: {
-        //         description: "Boost RP gain slightly",
-        //         showAmount: false,
-        //         effectDisplay: jsx(() => (
-        //             <>
-        //                 ×
-        //                 {format(
-        //                     Decimal.pow(2,
-        //                         buys.one.amount.value
-        //                     )
-        //                 )}
-        //                 <br />
-        //                 Amount: {formatWhole(buys.one.amount.value)}
-        //             </>
-        //         ))
-        //     },
-        //     visibility() {
-        //         return srebirth.achs.four.earned.value === true ? 0 : 2;
-        //     },
-        //     classes: {
-        //         cash: true,
-        //         wide: true
-        //     }
-        // })),
+        one: createRepeatable(() => ({
+            requirements: [
+                createCostRequirement(() => ({
+                    resource: noPersist(points),
+                    cost: Formula.variable(buys.one.amount)
+                        .step(100, c => c.pow(2))
+                        .pow_base(10)
+                        .mul(1000),
+                }))
+            ],
+            display: {
+                description: "Boost RP gain slightly",
+                showAmount: false,
+                effectDisplay: jsx(() => (
+                    <>
+                        ×
+                        {format(
+                            Decimal.pow(1.1,
+                                buys.one.amount.value
+                            )
+                        )}
+                        <br />
+                        Amount: {formatWhole(buys.one.amount.value)}
+                    </>
+                ))
+            },
+            visibility() {
+                return srebirth.achs.four.earned.value === true ? 0 : 2;
+            },
+            classes: {
+                cash: true,
+                wide: true
+            }
+        })),
     };
 
     const effects: any = {

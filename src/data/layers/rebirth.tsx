@@ -468,7 +468,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
     }));
 
     const hotkey = createHotkey(() => ({
-        description: "Rebirth for RP",
+        description: "Rebirth",
         key: "r",
         onPress: resetButton.onClick,
         enabled() {

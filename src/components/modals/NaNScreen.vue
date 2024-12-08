@@ -3,6 +3,7 @@
         <template v-slot:header>
             <div class="nan-modal-header">
                 <h2>NaN value detected!</h2>
+                <h4>{{ path }}<span v-if="previous"> // {{ format(previous) }} -> NaN</span></h4>
             </div>
         </template>
         <template v-slot:body>
@@ -105,8 +106,11 @@ function ignore() {
 
 <style scoped>
 .nan-modal-header {
-    padding: 10px 0;
-    margin-left: 10px;
+    margin: -20px;
+    padding: 10px;
+    margin-bottom: 0;
+    background: var(--raised-background);
+    align-items: center;
 }
 
 .nan-footer {
@@ -115,7 +119,9 @@ function ignore() {
 }
 
 .nan-footer button {
-    margin: 0 10px;
+    margin: 4px 4px;
+    padding: 4px;
+    flex-grow: 1;
 }
 
 .nan-modal-discord-link {
@@ -126,5 +132,22 @@ function ignore() {
 .nan-modal-discord {
     margin: 0;
     margin-right: 4px;
+}
+
+a::before {
+    content: "> " attr(href);
+    position: relative;
+    font-size: 0.6em;
+    text-align: left;
+    left: 20px;
+    color: var(--highlighted);
+    width: 0;
+    white-space: nowrap;
+    text-shadow: none !important;
+    top: 14px;
+}
+
+a {
+    margin-bottom: 12px;
 }
 </style>

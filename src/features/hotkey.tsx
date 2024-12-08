@@ -137,6 +137,8 @@ registerInfoComponent(
         }
         return (
             <div>
+                <br />
+                <h3>Hotkeys</h3>
                 <div style="column-count: 2">
                     {keys.map(hotkey => (
                         <div>

@@ -61,8 +61,16 @@ export function regularFormat(num: DecimalSource, precision: number): string {
 const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
+/**
+ * 2d array of Decimals defining thresholds for notation limits, meant to be used within {@link format()}
+ *
+ * Use case should be `defaultNotationThresholds[NOTATION SETTING][WANTED THRESHOLD]`
+ *
+ * Thresholds are Comma, Scientific, Logarithmic, Standard.
+ * And should be checked in order of Logarithmic, Scientific, Standard, Comma using `Decimal.gte()`.
+ * @constant
+ */
 const defaultNotationThresholds: Decimal[][] = [
-    /* [COMMA,         SCIENTIFIC,       LOGARITHMIC,           STANDARD] */
     [new Decimal(1e4), new Decimal(1e9), new Decimal("1e1000"), new Decimal("1e9")],
     [new Decimal(1e4), new Decimal(1e306), new Decimal("1e10000"), new Decimal("1e4")],
     [new Decimal(1e4), new Decimal(1e9), new Decimal(1e9), new Decimal("1e9")],
@@ -70,6 +78,13 @@ const defaultNotationThresholds: Decimal[][] = [
     [new Decimal(1e4), new Decimal(1e9), new Decimal(1e60), new Decimal("1e9")]
 ];
 
+/**
+ * Formats an inputted number, taking the notation options from `settings.notation`.
+ * @param {DecimalSource} num The value to format
+ * @param {number} precision Amount of digits to include past the decimal point
+ * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
+ * @returns {string} Formatted version of num
+ */
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -78,9 +93,11 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
         return "NaN";
     }
+    // Likely to eventually benefit from becoming a parameter
     if (num.sign < 0) {
         return "-" + format(num.neg(), precision);
     }
+    // Benefitial to put something here that catches numbers above some arbitrary value (like eee10) to prevent lag
     if (num.mag === Number.POSITIVE_INFINITY) {
         return "Infinity";
     }
@@ -97,10 +114,14 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         return commaFormat(num, 0);
     }
     return regularFormat(num, precision);
-    console.log("Number formatting error occured!!");
-    return "ERROR";
 }
 
+/**
+ * Formats a value in the form e0, e0.30, e1.00, e10.00
+ * @param {DecimalSource} num
+ * @param {number} precision
+ * @returns {string}
+ */
 export function formatLog(num: DecimalSource, precision = 2): string {
     const e = Decimal.log10(num);
     return (
@@ -239,6 +260,98 @@ export function formatStan(num: DecimalSource, precision = 2): string {
         " " +
         standardSuffixes[e]
     );
+}
+
+/**
+ * 2d array of strings.
+ *
+ * Main array contains different patterns.
+ *
+ * Internal arrays contain:
+ *
+ * 0 - tetrational support.
+ *
+ * 1 - zero for digits (e.g. z -> a~).
+ *
+ * 2+ - actual digits.
+ */
+const patterns: string[][] = [
+    [
+        "A",
+        "~",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z"
+    ],
+    [
+        "Ω",
+        "ϟ",
+        "α",
+        "β",
+        "γ",
+        "δ",
+        "ε",
+        "ζ",
+        "η",
+        "θ",
+        "ι",
+        "κ",
+        "λ",
+        "μ",
+        "ν",
+        "ξ",
+        "ο",
+        "π",
+        "ρ",
+        "σ",
+        "τ",
+        "υ",
+        "φ",
+        "χ",
+        "ψ",
+        "ω"
+    ]
+];
+export function formatPattern(
+    num: DecimalSource,
+    base = 1000,
+    pattern: string[] = patterns[0],
+    precision = 2
+): string {
+    const exp = Decimal.log(num, base).floor();
+    const suffixBase = pattern.length - 1;
+    if (exp.gte(Decimal.pow(suffixBase, 5))) {
+        return pattern[0] + format(Decimal.slog(num, base), precision);
+    }
+    const string = Decimal.div(num, Decimal.pow(base, exp))
+        .mul(10 ** precision)
+        .trunc()
+        .div(10 ** precision)
+        .toStringWithDecimalPlaces(precision);
+    return string;
 }
 
 export function formatWhole(num: DecimalSource): string {

@@ -4,6 +4,7 @@
             <div class="header">
                 <h2>Settings</h2>
                 <div class="option-tabs">
+                    <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button>
                     <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behaviour</button>
                     <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
                 </div>
@@ -20,10 +21,18 @@
             </div>
             <div v-if="isTab('appearance')">
                 <Select :title="notationTitle" :options="notationsOptions" v-model="notation" />
-                <!-- <Select :title="langTitle" :options="langOptions" v-model="language" /> -->
                 <component :is="settingFieldsComponent" />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
+            </div>
+            <div v-if="isTab('lang')" islang>
+                <table>
+                    <tr>
+                        <td><div class="lang" lang="EN" v-bind:class="{active: settings.language === 'en'}" onclick="settings.language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
             </div>
         </template>
     </Modal>
@@ -48,11 +57,11 @@ import Hotkey from "../Hotkey.vue";
 import { createHotkey } from "features/hotkey";
 import { main } from "data/projEntry";
 
-settings.notation = settings.notation || 0;
-settings.language = settings.language || 'en';
+settings.notation = settings.notation ?? 0;
+settings.language = settings.language ?? 'en';
 
 const isOpen = ref(false);
-const currentTab = ref("behaviour");
+const currentTab = ref("lang");
 
 function isTab(tab: string): boolean {
     return tab == currentTab.value;
@@ -91,13 +100,6 @@ const notationsOptions = [
     {
         label: "Mixed Logarithmic",
         value: 4,
-    },
-];
-
-const langOptions = [
-    {
-        label: "English",
-        value: 'en',
     },
 ];
 
@@ -179,6 +181,65 @@ const alignModifierUnitsTitle = jsx(() => (
 </script>
 
 <style>
+.lang {
+    width: 160px;
+    height: 90px;
+    background-color: var(--background);
+    margin: 5px;
+    border-radius: var(--border-radius);
+    /* border: 4px solid rgba(255, 255, 255, 0.25); */
+    padding: 46px 10px 0px 0px;
+    box-sizing: border-box;
+    text-align: right;
+    position: relative;
+    overflow: clip;
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+    box-shadow: var(--shadows);
+    cursor: pointer;
+}
+
+[islang] table {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.langPortion {
+    font-size: 0.6rem;
+}
+
+.lang:hover:not(.active) {
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0.3), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+}
+
+.lang.active {
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0.3), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
+    cursor: default;
+}
+
+[islang] table>tr>td {
+    width: 170px;
+    height: 100px;
+    box-sizing: border-box;
+    padding: 0;
+}
+
+.lang span {
+    z-index: 20;
+    position: relative;
+}
+
+.lang::before {
+    content: attr(lang);
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, 50%) rotate(-15deg);
+    font-size: 80px;
+    font-family: monospace;
+    color: rgb(from var(--highlighted) r g b / 0.3);
+    transition: all 0.5s ease-in-out;
+}
+
 .option-tabs {
     border-bottom: 4px solid var(--outline);
     margin: -10px;
@@ -198,6 +259,10 @@ const alignModifierUnitsTitle = jsx(() => (
 
 .option-tabs button:not(.selected) {
     border-bottom-color: transparent;
+}
+
+.option-tabs button:hover {
+    border-bottom-color: color(from var(--foreground) srgb r g b / 0.3);
 }
 
 .option-title .tooltip-container {
