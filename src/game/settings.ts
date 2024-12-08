@@ -28,6 +28,8 @@ export interface Settings {
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
     showHealthWarning: boolean;
+    /** Whether or not to show a video game health warning after playing excessively. */
+    e: boolean;
 }
 
 const state = reactive<Partial<Settings>>({
@@ -40,7 +42,8 @@ const state = reactive<Partial<Settings>>({
     notation: 3,
     language: "en",
     appendLayers: false,
-    showHealthWarning: true
+    showHealthWarning: true,
+    e: false,
 });
 
 watch(
@@ -78,7 +81,8 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         notation: 3,
         appendLayers: false,
         unthrottled: false,
-        showHealthWarning: true
+        showHealthWarning: true,
+        e: false,
     };
     globalBus.emit("loadSettings", settings);
     Object.assign(state, settings);

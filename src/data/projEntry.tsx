@@ -15,6 +15,7 @@ import cash from "./layers/cash";
 import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import srebirth from "./layers/super";
+import settings from "game/settings";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -51,8 +52,30 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         description: "Toggle Pause",
         key: "/",
         onPress() {
-            player.devSpeed = player.devSpeed === 1 ? 0 : 1;
+            player.devSpeed = (player.devSpeed ?? 1) <= 1e-3 ? 1 : 0;
         }
+    }));
+
+    const hotkeyEa = createHotkey(() => ({
+        description: "Accelerate Time",
+        key: "]",
+        onPress() {
+            player.devSpeed = (player.devSpeed ?? 1) * 1.5;
+        },
+        enabled() {
+            return settings.e === true
+        },
+    }));
+
+    const hotkeyEb = createHotkey(() => ({
+        description: "Decelerate Time",
+        key: "[",
+        onPress() {
+            player.devSpeed = (player.devSpeed ?? 1) / 1.5;
+        },
+        enabled() {
+            return settings.e === true
+        },
     }));
 
     return {
@@ -94,7 +117,9 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         )),
         tree,
         hotkey,
-        progression
+        progression,
+        hotkeyEa,
+        hotkeyEb
     };
 });
 

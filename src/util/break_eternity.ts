@@ -368,7 +368,7 @@ export function formatWhole(num: DecimalSource): string {
     return format(num, 0);
 }
 
-export function formatTime(seconds: DecimalSource): string {
+export function formatTime(seconds: DecimalSource, precise: boolean = false): string {
     if (Decimal.lt(seconds, 0)) {
         return "-" + formatTime(Decimal.neg(seconds));
     }
@@ -380,8 +380,20 @@ export function formatTime(seconds: DecimalSource): string {
     if (seconds < 60) {
         return format(seconds) + "s";
     } else if (seconds < 3600) {
+        if(precise) {
+            return formatWhole(Math.floor(seconds / 60)) + ":" + ((seconds % 60) < 10 ? '0' : '') + format(seconds % 60);
+        }
         return formatWhole(Math.floor(seconds / 60)) + "m " + format(seconds % 60) + "s";
     } else if (seconds < 86400) {
+        if(precise) {
+            return (
+                formatWhole(Math.floor(seconds / 3600)) +
+                ":" +
+                formatWhole(Math.floor(seconds / 60) % 60) +
+                ":" + ((seconds % 60) < 10 ? '0' : '') +
+                format(seconds % 60)
+            );
+        }
         return (
             formatWhole(Math.floor(seconds / 3600)) +
             "h " +
@@ -391,6 +403,17 @@ export function formatTime(seconds: DecimalSource): string {
             "s"
         );
     } else if (seconds < 31536000) {
+        if(precise) {
+            return (
+                formatWhole(Math.floor(seconds / 84600) % 365) +
+                "d " +
+                formatWhole(Math.floor(seconds / 3600) % 24) +
+                ":" + (((seconds / 60) % 60) < 10 ? '0' : '') +
+                formatWhole(Math.floor(seconds / 60) % 60) +
+                ":" + ((seconds % 60) < 10 ? '0' : '') +
+                format(seconds % 60)
+            );
+        }
         return (
             formatWhole(Math.floor(seconds / 84600) % 365) +
             "d " +
@@ -400,6 +423,19 @@ export function formatTime(seconds: DecimalSource): string {
             "m"
         );
     } else {
+        if(precise) {
+            return (
+                formatWhole(Math.floor(seconds / 31536000)) +
+                "y " +
+                formatWhole(Math.floor(seconds / 84600) % 365) +
+                "d " +
+                formatWhole(Math.floor(seconds / 3600) % 24) +
+                ":" + (((seconds / 60) % 60) < 10 ? '0' : '') +
+                formatWhole(Math.floor(seconds / 60) % 60) +
+                ":" + ((seconds % 60) < 10 ? '0' : '') +
+                format(seconds % 60)
+            );
+        }
         return (
             formatWhole(Math.floor(seconds / 31536000)) +
             "y " +

@@ -10,11 +10,10 @@
                     </h4>
                 </div>
                 <div class="option-tabs">
-                    <button :class="{selected: isTab('hotkeys')}" @click="setTab('hotkeys')">Info</button>
+                    <button :class="{selected: isTab('hotkeys')}" @click="setTab('hotkeys')">Misc</button>
                     <button :class="{selected: isTab('credits')}" @click="setTab('credits')">Credits</button>
                     <button :class="{selected: isTab('changelog')}" @click="setTab('changelog')">Changelog</button>
                     <button :class="{selected: isTab('links')}" @click="setTab('links')">Links</button>
-                    <button :class="{selected: isTab('formulas')}" @click="setTab('formulas')">Formulas</button>
                 </div>
             </div>
         </template>
@@ -130,35 +129,6 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="isTab('formulas')">
-                    <div>
-                        <h2>Unfinished</h2><br>
-                        
-                        <h2>Cash</h2> <br /><br />
-                        $ is a shortening of Cash <br /> <br />
-                        { cash.upgs.three.bought.value ? <span>Cash UPG 3     log<sub>5</sub>($+1)+1<br /></span> : null }
-                        { cash.upgs.five.bought.value ? <span>Cash UPG 5    (log<sub>8</sub>($+1)+1)<sup>0.8</sup><br /></span> : null }
-                        { cash.upgs.six.bought.value ? <span>Cash UPG 6    (log<sub>6</sub>($+1)+1)<sup>0.6</sup><br /></span> : null }
-                        { cash.upgs.nine.bought.value ? <span>Cash UPG 9    (log<sub>100,000</sub>($+1)+1)<sup>1.5</sup><br /></span> : null }
-                        { cash.upgs.ten.bought.value ? <span>Cash UPG 10    log<sub>100</sub>($+1)+1<br /></span> : null }
-                        
-                        <h2>Rebirth</h2> <br /><br />
-                        RP is a shortening of Rebirth Points <br /> <br />
-                        <span>RP Gain       ($/100,000)<sup>0.5</sup><br /></span>
-                        <span>RP Effect     (log<sub>10</sub>(RP+1)+1)<sup>2</sup><br /></span>
-                        { rebirth.upgs.one.bought.value ? <span>RP UPG 3       2<sup>Upgrades</sup><br /></span> : null }
-                        { rebirth.upgs.nine.bought.value ? <span>RP UPG 9       log<sub>3</sub>(RP+1)+1<br /></span> : null }
-                        { rebirth.upgs.ten.bought.value ? <span>RP UPG 10      log<sub>10,000</sub>($+1)+1<br /></span> : null }
-                        { rebirth.upgs.six.bought.value ? <span>RP BUY 1       1.25<sup>Amount</sup> (Base)<br /></span> : null }
-                        { rebirth.upgs.six.bought.value ? <span>RP BUY 2       0.05×Amount<br /></span> : null }
-                        
-                        <h2>Super Rebirth</h2> <br /><br />
-                        SRP is a shortening of Rebirth Points <br /> <br />
-                        <span>SRP Gain        log<sub>100</sub>(RP/1e14)<sup>2.4</sup><br /></span>
-                        <span>SRP to Cash    (SRP+1)<sup>1.75</sup><br /></span>
-                        <span>SRP to RP      (SRP+1)<sup>1.25</sup><br /></span>
-                    </div>
-                </div>
             </div>
         </template>
     </Modal>
@@ -167,6 +137,7 @@
 <script setup lang="tsx">
 import Modal from "./Modal.vue";
 import Changelog from "data/Changelog.vue";
+import cash from "data/layers/cash";
 import { main } from "data/projEntry";
 import projInfo from "data/projInfo.json";
 import { jsx } from "features/feature";
@@ -175,6 +146,7 @@ import { infoComponents } from "game/settings";
 import { formatTime, formatWhole } from "util/bignum";
 import { coerceComponent, render } from "util/vue";
 import { computed, ref, toRefs, unref } from "vue";
+import { layers } from "game/layers";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
@@ -183,7 +155,7 @@ const props = toRefs(_props);
 
 const isOpen = ref(false);
 
-const timePlayed = computed(() => formatTime(player.timePlayed));
+const timePlayed = computed(() => formatTime(player.timePlayed, true));
 
 const infoComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{infoComponents.map(render)}</>)));

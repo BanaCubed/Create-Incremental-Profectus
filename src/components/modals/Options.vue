@@ -2,7 +2,7 @@
     <Modal v-model="isOpen">
         <template v-slot:header>
             <div class="header">
-                <h2>Settings</h2>
+                <h2>{{ settings.e === true ? 's' : 'S' }}<span @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
                 <div class="option-tabs">
                     <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button>
                     <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behaviour</button>

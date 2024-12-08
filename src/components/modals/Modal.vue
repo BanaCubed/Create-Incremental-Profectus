@@ -143,6 +143,6 @@ defineExpose({ isOpen, nodes });
 .modal-enter-from .modal-container,
 .modal-leave-active .modal-container {
     filter: blur(15px);
-    /* transform: scale(1.05); */
+    transform: scale(1.15);
 }
 </style>
