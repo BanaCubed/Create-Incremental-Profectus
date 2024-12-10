@@ -63,8 +63,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
             player.devSpeed = (player.devSpeed ?? 1) * 1.5;
         },
         enabled() {
-            return settings.e === true
-        },
+            return settings.e === true;
+        }
     }));
 
     const hotkeyEb = createHotkey(() => ({
@@ -74,8 +74,8 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
             player.devSpeed = (player.devSpeed ?? 1) / 1.5;
         },
         enabled() {
-            return settings.e === true
-        },
+            return settings.e === true;
+        }
     }));
 
     return {
