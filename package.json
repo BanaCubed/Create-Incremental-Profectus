@@ -12,7 +12,9 @@
     "testw": "vitest",
     "serve": "vite preview --host",
     "lint": "eslint src --max-warnings 0",
-    "lint:fix": "eslint --fix --max-warnings 0 src"
+    "lint:fix": "eslint --fix --max-warnings 0 src",
+    "prefix": "vitest run",
+    "fix": "eslint --fix --max-warnings 0 src"
   },
   "dependencies": {
     "@fontsource/material-icons": "^4.5.4",

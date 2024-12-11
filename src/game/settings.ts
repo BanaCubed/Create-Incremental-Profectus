@@ -43,7 +43,7 @@ const state = reactive<Partial<Settings>>({
     language: "en",
     appendLayers: false,
     showHealthWarning: true,
-    e: false,
+    e: false
 });
 
 watch(
@@ -82,7 +82,7 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         appendLayers: false,
         unthrottled: false,
         showHealthWarning: true,
-        e: false,
+        e: false
     };
     globalBus.emit("loadSettings", settings);
     Object.assign(state, settings);

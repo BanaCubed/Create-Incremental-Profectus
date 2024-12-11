@@ -1,18 +1,14 @@
-# Contributing to Profectus
+# Contributing to Create Incremental
 
-Thank you for considering contributing to Profectus! We appreciate your interest in improving our project. Please take a moment to review the following guidelines to streamline the contribution process.
+Thank you for considering contributing to Create Incrementa! We appreciate your interest in improving our project. Please take a moment to review the following guidelines to streamline the contribution process.
 
 ## Getting Started
 
-For detailed instructions on setting up local development environment, please refer to the [Setup Guide](https://moddingtree.com/guide/getting-started/setup).
+For detailed instructions on setting up local development environment, please refer to the [Profectus Setup Guide](https://moddingtree.com/guide/getting-started/setup).
 
 ## Issue Reporting
 
-If you encounter a bug or have a suggestion for improvement, please open an issue on Incremental Social. Provide as much detail as possible, including an example repo or steps to reproduce the issue if applicable.
-
-## Contributing
-
-Make sure to open your PR on [Incremental Social](https://code.incremental.social/profectus/Profectus) - the GitHub repo is just a mirror!
+If you encounter a bug or have a suggestion for improvement, please open an issue on GitHub. Provide as much detail as possible, including steps to reproduce the issue if applicable.
 
 ### Code Review
 
@@ -26,6 +22,8 @@ Ensure that your changes pass all existing tests and, if applicable, add new tes
 
 We use ESLint and Prettier to enforce consistent code style throughout the project. Before submitting a PR, run `npm run lint:fix` to automatically fix any linting issues.
 
+Both `npm run lint:fix` and `npm run test` can be run by running `npm run fix`. This is recommended to do *before* committing.
+
 ## License
 
-By contributing to Profectus, you agree that your contributions will be licensed under the project's [LICENSE](./LICENSE).
+By contributing to Create Incremental, you agree that your contributions will be licensed under the project's [LICENSE](./LICENSE).
