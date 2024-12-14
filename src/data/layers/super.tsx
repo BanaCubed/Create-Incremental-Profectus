@@ -25,8 +25,6 @@ import rebirth from "./rebirth";
 import { createAchievement } from "features/achievements/achievement";
 import { setupAutoPurchase } from "features/upgrades/upgrade";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 const id = "super";
 const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Super";

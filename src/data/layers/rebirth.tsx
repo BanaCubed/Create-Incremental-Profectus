@@ -29,8 +29,6 @@ import Formula from "game/formulas/formulas";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 const id = "rebirth";
 const layer = createLayer(id, function (this: BaseLayer) {
     const name = "Rebirth";

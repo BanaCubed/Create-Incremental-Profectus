@@ -36,8 +36,6 @@ import srebirth from "./super";
 import { createRepeatable } from "features/repeatable";
 import Formula from "game/formulas/formulas";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
  * @returns string, to be used in the subtitle

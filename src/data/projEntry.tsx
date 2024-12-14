@@ -17,8 +17,6 @@ import ResourceVue from "features/resources/Resource.vue";
 import srebirth from "./layers/super";
 import settings from "game/settings";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
  * @hidden
  */

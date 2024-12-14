@@ -58,7 +58,7 @@
                         </div>
                         <div>
                             <a
-                                href="https://github.com/BanaCubed/Create-Incremental-Profectus/issues"
+                                href="https://github.com/BanaCubed/Create-Incremental/issues"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -68,7 +68,7 @@
                         </div><br>
                         <div>
                             <a
-                                href="https://raw.githack.com/BanaCubed/Create-Incremental/dev/index.html"
+                                href="https://raw.githack.com/BanaCubed/Create-Incremental/dev-pages/index.html"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -124,7 +124,7 @@
                                 target="_blank"
                             >
                                 <span class="material-icons info-modal-discord">discord</span>
-                                galaxy.click
+                                galaxy (+ ego)
                             </a>
                         </div>
                     </div>
