@@ -155,7 +155,7 @@ summary {
 }
 
 ul {
-    margin: var(--feature-margin) 0;
+    margin: var(--feature-margin) 15px var(--feature-margin) -15px;
     background: var(--raised-background);
     border: 2px solid rgba(0, 0, 0, 0.125);
     padding: 5px 5px 5px 15px;
