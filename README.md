@@ -6,6 +6,8 @@ Wow, such game
 
 A language selection system is currently being worked on (will definitely be out for v1.1)
 
+README beyond this point simply exists so that git doesn't get mad.
+
 # Profectus
 
 A game engine that grows with you

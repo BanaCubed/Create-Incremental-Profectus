@@ -20,6 +20,7 @@ module.exports = {
         "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
         "vue/script-setup-uses-vars": "warn",
         "vue/no-mutating-props": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "vue/multi-word-component-names": "off",
         "@typescript-eslint/strict-boolean-expressions": [
             "error",

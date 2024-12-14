@@ -72,7 +72,7 @@ const defaultTheme: Theme = {
 /** An enum of all available themes and their internal IDs. The keys are their display names. */
 export enum Themes {
     Paper = "paper",
-    Nordic = "nordic",
+    Nordic = "nordic"
 }
 
 /** A dictionary of all available themes. */
@@ -105,5 +105,5 @@ export default {
             "--border-radius": "7px"
         },
         floatingTabs: false
-    } as Theme,
+    } as Theme
 } as Record<Themes, Theme>;

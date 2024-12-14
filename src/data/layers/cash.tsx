@@ -36,8 +36,6 @@ import srebirth from "./super";
 import { createRepeatable } from "features/repeatable";
 import Formula from "game/formulas/formulas";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
  * @returns string, to be used in the subtitle
@@ -454,7 +452,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     cost: Formula.variable(buys.one.amount)
                         .step(100, c => c.pow(2))
                         .pow_base(10)
-                        .mul(1000),
+                        .mul(1000)
                 }))
             ],
             display: {
@@ -462,12 +460,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 showAmount: false,
                 effectDisplay: jsx(() => (
                     <>
-                        ×
-                        {format(
-                            Decimal.pow(1.1,
-                                buys.one.amount.value
-                            )
-                        )}
+                        ×{format(Decimal.pow(1.1, buys.one.amount.value))}
                         <br />
                         Amount: {formatWhole(buys.one.amount.value)}
                     </>
@@ -480,7 +473,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 cash: true,
                 wide: true
             }
-        })),
+        }))
     };
 
     const effects: any = {
