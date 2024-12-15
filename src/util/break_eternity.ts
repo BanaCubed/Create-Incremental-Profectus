@@ -401,6 +401,7 @@ export function formatTime(seconds: DecimalSource, precise = false): string {
             return (
                 formatWhole(Math.floor(seconds / 3600)) +
                 ":" +
+                ((seconds / 60) % 60 < 10 ? "0" : "") +
                 formatWhole(Math.floor(seconds / 60) % 60) +
                 ":" +
                 (seconds % 60 < 10 ? "0" : "") +
@@ -420,6 +421,7 @@ export function formatTime(seconds: DecimalSource, precise = false): string {
             return (
                 formatWhole(Math.floor(seconds / 84600) % 365) +
                 "d " +
+                ((seconds / 3600) % 24 < 10 ? "0" : "") +
                 formatWhole(Math.floor(seconds / 3600) % 24) +
                 ":" +
                 ((seconds / 60) % 60 < 10 ? "0" : "") +
@@ -442,8 +444,11 @@ export function formatTime(seconds: DecimalSource, precise = false): string {
             return (
                 formatWhole(Math.floor(seconds / 31536000)) +
                 "y " +
+                ((seconds / 84600) % 365 < 100 ? "0" : "") +
+                ((seconds / 84600) % 365 < 10 ? "0" : "") +
                 formatWhole(Math.floor(seconds / 84600) % 365) +
                 "d " +
+                ((seconds / 3600) % 24 < 10 ? "0" : "") +
                 formatWhole(Math.floor(seconds / 3600) % 24) +
                 ":" +
                 ((seconds / 60) % 60 < 10 ? "0" : "") +
