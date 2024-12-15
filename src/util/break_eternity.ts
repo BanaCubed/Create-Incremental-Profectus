@@ -87,6 +87,9 @@ const defaultNotationThresholds: Decimal[][] = [
  */
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
+    if (settings.insanePrecision) { precision += 3; }
+    if (settings.notation === 5) { return " " }
+    if (settings.notation === 6) { return Decimal.neq(num, 0) ? "YES" : "NO" }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
@@ -111,7 +114,7 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         return formatStan(num, precision);
     }
     if (num.gte(defaultNotationThresholds[settings.notation][0])) {
-        return commaFormat(num, 0);
+        return commaFormat(num, precision-2);
     }
     return regularFormat(num, precision);
 }
@@ -126,22 +129,26 @@ export function formatLog(num: DecimalSource, precision = 2): string {
     const e = Decimal.log10(num);
     return (
         "e" +
-        e
+        format(e
             .mul(10 ** precision)
             .trunc()
-            .div(10 ** precision)
-            .toStringWithDecimalPlaces(precision)
+            .div(10 ** precision))
     );
 }
 
 export function formatSci(num: DecimalSource, precision = 2): string {
-    const e = Decimal.log10(num).floor();
+    let e = Decimal.log10(num).floor();
+    if (settings.engineering) {
+        e = e.div(3)
+        precision -= e.mul(3).sub(e.floor().mul(3)).toNumber()
+        e = e.floor().mul(3)
+    }
     num = Decimal.div(num, Decimal.pow(10, e));
     num = num
         .mul(10 ** precision)
         .trunc()
         .div(10 ** precision);
-    return num.toStringWithDecimalPlaces(precision) + "e" + e.toStringWithDecimalPlaces(0);
+    return num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e);
 }
 
 const standardSuffixes = [
@@ -335,24 +342,24 @@ const patterns: string[][] = [
         "ω"
     ]
 ];
-export function formatPattern(
-    num: DecimalSource,
-    base = 1000,
-    pattern: string[] = patterns[0],
-    precision = 2
-): string {
-    const exp = Decimal.log(num, base).floor();
-    const suffixBase = pattern.length - 1;
-    if (exp.gte(Decimal.pow(suffixBase, 5))) {
-        return pattern[0] + format(Decimal.slog(num, base), precision);
-    }
-    const string = Decimal.div(num, Decimal.pow(base, exp))
-        .mul(10 ** precision)
-        .trunc()
-        .div(10 ** precision)
-        .toStringWithDecimalPlaces(precision);
-    return string;
-}
+// export function formatPattern(
+//     num: DecimalSource,
+//     base: number = 1000,
+//     pattern: string[] = patterns[0],
+//     precision: number = 2
+// ): string {
+//     const exp = Decimal.log(num, base).floor();
+//     const suffixBase = pattern.length - 1;
+//     if (exp.gte(Decimal.pow(suffixBase, 5))) {
+//         return pattern[0] + format(Decimal.slog(num, base), precision);
+//     }
+//     const string = Decimal.div(num, Decimal.pow(base, exp))
+//         .mul(10 ** precision)
+//         .trunc()
+//         .div(10 ** precision)
+//         .toStringWithDecimalPlaces(precision);
+//     return string;
+// }
 
 export function formatWhole(num: DecimalSource): string {
     num = new Decimal(num);
@@ -365,7 +372,7 @@ export function formatWhole(num: DecimalSource): string {
     if (num.lte(nearOne) && !num.eq(zero)) {
         return format(num);
     }
-    return format(num, 0);
+    return format(num, settings.insanePrecision?-3:0);
 }
 
 export function formatTime(seconds: DecimalSource, precise = false): string {

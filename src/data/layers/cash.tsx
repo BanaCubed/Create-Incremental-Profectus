@@ -38,9 +38,9 @@ import Formula from "game/formulas/formulas";
 
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
- * @returns string, to be used in the subtitle
+ * @returns {string} To be used in the subtitle
  */
-export function machineDisplay() {
+export function machineDisplay(): string {
     // Inactive case, also handles negative lengths if that happens
     if (layer.machine.value.length < 1) {
         return (
@@ -895,7 +895,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             <h2>The Machine</h2>
                             {render(modals.machine)}
                             <br />
-                            <sup style="color: var(--highlighted)">
+                            <sup style="opacity: 0.5;">
                                 Currently {machineDisplay()}
                             </sup>
                             <div style="background-color: rgba(102, 102, 102, 25%); width: 470px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
@@ -905,7 +905,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Cash Mode</h3>
                                             {render(modals.machineC)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(0) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -926,7 +926,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Neutral Mode</h3>
                                             {render(modals.machineN)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(1) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -946,7 +946,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Rebirth Mode</h3>
                                             {render(modals.machineR)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(2) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -1029,23 +1029,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 {Decimal.gte(main.progression.value, 1.9) ? (
                     render(tabs)
                 ) : (
-                    <>
-                        <br />
-                        You have <ResourceVue resource={points} color={color} /> Cash
-                        {render(modals.cashGain)}
-                        {Decimal.gt(pointGain.value, 0) ? (
-                            <div>
-                                ({oomps.value})
-                                <Node id="oomps" />
-                            </div>
-                        ) : null}
-                        <Spacer />
-                        <Column>
-                            {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
-                            {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
-                            {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
-                        </Column>
-                    </>
+                    render(unref(tabs.tabs.cash.tab))
                 )}
             </>
         )),

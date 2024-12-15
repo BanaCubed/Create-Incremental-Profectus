@@ -21,6 +21,8 @@
             </div>
             <div v-if="isTab('appearance')">
                 <Select :title="notationTitle" :options="notationsOptions" v-model="notation" />
+                <Toggle :title="engineeringTitle" v-model="engineering" />
+                <Toggle :title="insanePrecisionTitle" v-model="insanePrecision" />
                 <component :is="settingFieldsComponent" />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
@@ -28,7 +30,7 @@
             <div v-if="isTab('lang')" islang>
                 <table>
                     <tr>
-                        <td><div class="lang" lang="EN" v-bind:class="{active: settings.language === 'en'}" onclick="settings.language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
+                        <td><div class="lang" lang="EN" v-bind:class="{active: language === 'en'}" onclick="language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -101,13 +103,21 @@ const notationsOptions = [
         label: "Mixed Logarithmic",
         value: 4,
     },
+    {
+        label: "Blind",
+        value: 5,
+    },
+    {
+        label: "YES/NO",
+        value: 6,
+    },
 ];
 
 const settingFieldsComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
 });
 
-const { showTPS, notation, language, unthrottled, alignUnits, appendLayers, showHealthWarning } = toRefs(settings);
+const { showTPS, notation, language, unthrottled, alignUnits, engineering, insanePrecision } = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -130,16 +140,16 @@ const offlineProdTitle = jsx(() => (
         <desc>Simulate production that occurs while the game is closed.</desc>
     </span>
 ));
-const appendTitle = jsx(() => (
+const engineeringTitle = jsx(() => (
     <span class="option-title">
-        Append Layers
-        <desc>Whether opening a layer appends it to previous layers or replaces them.</desc>
+        Engineering Notation
+        <desc>Replace scientific notation with engineering notation.</desc>
     </span>
 ));
-const showHealthWarningTitle = jsx(() => (
+const insanePrecisionTitle = jsx(() => (
     <span class="option-title">
-        Show videogame addiction warning
-        <desc>Show a helpful warning after playing for a long time about video game addiction and encouraging you to take a break.</desc>
+        Increased Precision
+        <desc>Increase rendered decimal places on most numbers.</desc>
     </span>
 ));
 const autosaveTitle = jsx(() => (
@@ -157,7 +167,7 @@ const isPausedTitle = jsx(() => (
 const notationTitle = jsx(() => (
     <span class="option-title">
         Notation
-        <desc>How numbers are displayed.<br />Currently unfinished porting from β3.</desc>
+        <desc>How <i>most</i> numbers are displayed.<br />Currently unfinished porting from β3.</desc>
     </span>
 ));
 const langTitle = jsx(() => (

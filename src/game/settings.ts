@@ -20,6 +20,10 @@ export interface Settings {
     unthrottled: boolean;
     /** Whether to align modifiers to the unit. */
     alignUnits: boolean;
+    /** Whether to swap out scientific notations for engineering. */
+    engineering: boolean;
+    /** Whether to swap out scientific notations for engineering. */
+    insanePrecision: boolean;
     /** The default notation used to render numbers. */
     notation: number;
     /** Language most text in the game is written in. Does not affect code. */
@@ -28,7 +32,7 @@ export interface Settings {
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
     showHealthWarning: boolean;
-    /** Whether or not to show a video game health warning after playing excessively. */
+    /** E */
     e: boolean;
 }
 
@@ -39,6 +43,8 @@ const state = reactive<Partial<Settings>>({
     theme: Themes.Paper,
     unthrottled: false,
     alignUnits: false,
+    engineering: false,
+    insanePrecision: false,
     notation: 3,
     language: "en",
     appendLayers: false,
@@ -78,6 +84,8 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         showTPS: true,
         theme: Themes.Nordic,
         alignUnits: false,
+        engineering: false,
+        insanePrecision: false,
         notation: 3,
         appendLayers: false,
         unthrottled: false,
