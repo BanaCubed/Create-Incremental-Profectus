@@ -4,7 +4,7 @@ Wow, such game
 
 ## Contributing
 
-A language selection system is currently being worked on (will definitely be out for v1.1)
+A language selection system is currently being worked on (will likely be out for v1.1)
 
 README beyond this point simply exists so that git doesn't get mad.
 

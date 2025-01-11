@@ -117,16 +117,6 @@
                                 The Modding Tree
                             </a>
                         </div>
-                        <div>
-                            <a
-                                href="https://discord.gg/6FD2bYMqV9"
-                                class="info-modal-discord-link"
-                                target="_blank"
-                            >
-                                <span class="material-icons info-modal-discord">discord</span>
-                                galaxy (+ ego)
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

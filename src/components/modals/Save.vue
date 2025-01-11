@@ -159,7 +159,7 @@ function changeName() {
     border: solid 4px var(--outline);
     padding: 4px;
     background: var(--raised-background);
-    margin: var(--feature-margin);
+    margin: 0 10px;
     display: flex;
     align-items: center;
     min-height: 30px;

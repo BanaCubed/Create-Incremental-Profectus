@@ -895,9 +895,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             <h2>The Machine</h2>
                             {render(modals.machine)}
                             <br />
-                            <sup style="opacity: 0.5;">
-                                Currently {machineDisplay()}
-                            </sup>
+                            <sup style="opacity: 0.5;">Currently {machineDisplay()}</sup>
                             <div style="background-color: rgba(102, 102, 102, 25%); width: 470px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
                                 <table>
                                     <tr>
@@ -1026,11 +1024,9 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         tooltip,
         display: jsx(() => (
             <>
-                {Decimal.gte(main.progression.value, 1.9) ? (
-                    render(tabs)
-                ) : (
-                    render(unref(tabs.tabs.cash.tab))
-                )}
+                {Decimal.gte(main.progression.value, 1.9)
+                    ? render(tabs)
+                    : render(unref(tabs.tabs.cash.tab))}
             </>
         )),
         treeNode,

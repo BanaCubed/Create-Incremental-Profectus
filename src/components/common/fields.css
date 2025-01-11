@@ -2,10 +2,13 @@
 	display: flex;
 	position: relative;
 	min-height: 2em;
-	margin: 10px 0;
+	margin: 10px;
 	user-select: none;
 	justify-content: space-between;
 	align-items: center;
+    background-color: rgb(from var(--feature-foreground) r g b / 0.15);
+    border-radius: var(--border-radius);
+	padding: 10px;
 }
 
 .field > * {

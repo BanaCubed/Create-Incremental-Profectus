@@ -1,16 +1,18 @@
 <template>
-    <Modal v-model="isOpen">
+    <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
             <div class="header">
                 <h2>{{ settings.e === true ? 's' : 'S' }}<span @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
                 <div class="option-tabs">
-                    <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button>
+                    <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
                     <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behaviour</button>
+                    <button :class="{selected: isTab('saves')}" @click="setTab('saves')">Saves</button>
                     <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
+                    <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button>
                 </div>
             </div>
         </template>
-        <template v-slot:body>
+        <template #body="{ shown }">
             <div v-if="isTab('behaviour')">
                 <Toggle :title="unthrottledTitle" v-model="unthrottled" />
                 <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
@@ -19,15 +21,113 @@
                 <Toggle :title="autosaveTitle" v-model="autosave" />
                 <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
+            <div v-if="isTab('saves')">
+                <div v-if="showNotSyncedWarning" style="color: var(--danger)">
+                    Not all saves are synced! You may need to delete stale saves.
+                </div>
+                <Draggable
+                    :list="settings.saves"
+                    handle=".handle"
+                    v-if="shown"
+                    :itemKey="(save: string) => save"
+                >
+                    <template #item="{ element }">
+                        <Save
+                            :save="saves[element]"
+                            @open="openSave(element)"
+                            @export="exportSave(element)"
+                            @editName="(name: string) => editSave(element, name)"
+                            @duplicate="duplicateSave(element)"
+                            @delete="deleteSave(element)"
+                        />
+                    </template>
+                </Draggable>
+                <Text
+                    v-model="saveToImport"
+                    title="Import Save"
+                    placeholder="Paste your save here!"
+                    :class="{ importingFailed }"
+                />
+                <div class="field">
+                    <span class="field-title">Create Save</span>
+                    <div class="field-buttons">
+                        <button class="button" @click="openSave(newSave().id)">New Game</button>
+                        <!-- <Select
+                            v-if="Object.keys(bank).length > 0"
+                            :options="bank"
+                            :modelValue="selectedPreset"
+                            @update:modelValue="(preset: unknown) => newFromPreset(preset as string)"
+                            closeOnSelect
+                            placeholder="Select preset"
+                            class="presets"
+                        /> -->
+                    </div>
+                </div>
+            </div>
             <div v-if="isTab('appearance')">
-                <Select :title="notationTitle" :options="notationsOptions" v-model="notation" />
-                <Toggle :title="engineeringTitle" v-model="engineering" />
-                <Toggle :title="insanePrecisionTitle" v-model="insanePrecision" />
                 <component :is="settingFieldsComponent" />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
             </div>
-            <div v-if="isTab('lang')" islang>
+            <div v-if="isTab('notation')">
+
+                <span class="subtitle" style="margin-top: 5px;">Thresholds (checked from top down)</span>
+                <Select :options="thresholds" :title="logarithmicTitle" v-model="logarithmicThreshold" />
+                <Select :options="thresholds" :title="scientificTitle"  v-model="scientificThreshold"  />
+                <Select :options="thresholds" :title="standardTitle"    v-model="standardThreshold"    />
+
+                <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Modifiers</span>
+                <div class="notation-list">
+                    <Tooltip :display="engineeringTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>Engineering</span>
+                            <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    <Tooltip :display="precisionTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>Precision+ <span class="material-icons" style="font-size: 1em; display: inline-block; position: relative; top: 3px;">tune</span></span>
+                            <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    <Tooltip :display="lettersTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>Letters <span class="material-icons" style="font-size: 1em; display: inline-block; position: relative; top: 3px;">tune</span></span>
+                            <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    <Tooltip :display="blindTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>Blind Mode</span>
+                            <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    <Tooltip :display="yesnoTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>YES/NO</span>
+                            <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                </div>
+
+                <span class="subtitle" style="margin-top: 32px;" v-if="settings.letterNumbers || settings.insanePrecision">Modifier Configs</span>
+                <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
+                <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="0.5" v-model="precisionBonus" />
+                
+                <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
+                <div style="columns: 3; break-inside: unset; display: block; padding: 10px; margin-right: 10px; margin-left: 10px;" class="notation-modifier">
+                    <p>{{ format(1.234567890) }}</p>
+                    <p>{{ format(12.34567890) }}</p>
+                    <p>{{ format(123.4567890) }}</p>
+                    <p>{{ format(1234.567890) }}</p>
+                    <p>{{ format(12345.67890) }}</p>
+                    <p>{{ format(123456.7890) }}</p>
+                    <p>{{ format(1234567.890) }}</p>
+                    <p>{{ format(12345678.90) }}</p>
+                    <p>{{ format(123456789.0) }}</p>
+                </div>
+            </div>
+            <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
                 <table>
                     <tr>
                         <td><div class="lang" lang="EN" v-bind:class="{active: language === 'en'}" onclick="language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
@@ -43,27 +143,251 @@
 <script setup lang="tsx">
 import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
-import { save } from "util/save";
+import { galaxy, syncedSaves } from "util/galaxy";
 import rawThemes from "data/themes";
 import { jsx } from "features/feature";
 import Tooltip from "features/tooltips/Tooltip.vue";
-import player from "game/player";
+import player, { stringifySave } from "game/player";
+import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
 import { camelToTitle, Direction } from "util/common";
 import { coerceComponent, render } from "util/vue";
-import { computed, ref, toRefs } from "vue";
-import Select from "../fields/Select.vue";
+import { computed, ref, toRefs, nextTick, watch } from "vue";
+import Select, { SelectOption } from "../fields/Select.vue";
 import Toggle from "../fields/Toggle.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Hotkey from "../Hotkey.vue";
-import { createHotkey } from "features/hotkey";
+import Draggable from "vuedraggable";
+import {
+    clearCachedSave,
+    clearCachedSaves,
+    decodeSave,
+    getCachedSave,
+    getUniqueID,
+    loadSave,
+    newSave,
+    save
+} from "util/save";
+import type { Player } from "game/player";
 import { main } from "data/projEntry";
+import Text from "components/fields/Text.vue";
+import { Texture } from "@pixi/core";
+import Slider from "components/fields/Slider.vue";
+import { format } from "util/bignum";
+import Decimal from "util/bignum";
+import Save from "./Save.vue";
 
-settings.notation = settings.notation ?? 0;
+export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
+
 settings.language = settings.language ?? 'en';
 
+const importingFailed = ref(false);
+const saveToImport = ref("");
+const selectedPreset = ref<string | null>(null);
+
+let bankContext = import.meta.globEager("./../../../saves/*.txt", { as: "raw" });
+let bank = ref(
+    Object.keys(bankContext).reduce((acc: Array<{ label: string; value: string }>, curr) => {
+        acc.push({
+            // .slice(2, -4) strips the leading ./ and the trailing .txt
+            label: curr.split("/").slice(-1)[0].slice(0, -4),
+            // Have to perform this unholy cast because globEager's typing doesn't appear to know
+            // adding { as: "raw" } will make the object contain strings rather than modules
+            value: bankContext[curr] as unknown as string
+        });
+        return acc;
+    }, [])
+);
+
+watch(saveToImport, importedSave => {
+    if (importedSave) {
+        nextTick(() => {
+            try {
+                importedSave = decodeSave(importedSave) ?? "";
+                if (importedSave === "") {
+                    console.warn("Unable to determine preset encoding", importedSave);
+                    importingFailed.value = true;
+                    return;
+                }
+                const playerData = JSON.parse(importedSave);
+                if (typeof playerData !== "object") {
+                    importingFailed.value = true;
+                    return;
+                }
+                const id = getUniqueID();
+                playerData.id = id;
+                save(playerData);
+                saveToImport.value = "";
+                importingFailed.value = false;
+
+                settings.saves.push(id);
+            } catch (e) {
+                importingFailed.value = true;
+            }
+        });
+    } else {
+        importingFailed.value = false;
+    }
+});
+
+const showNotSyncedWarning = computed(
+    () => galaxy.value?.loggedIn === true && settings.saves.length < syncedSaves.value.length
+);
+
+const saves = computed(() =>
+    settings.saves.reduce((acc: Record<string, LoadablePlayerData>, curr: string) => {
+        acc[curr] = getCachedSave(curr);
+        return acc;
+    }, {})
+);
+
+function newFromPreset(preset: string) {
+    // Reset preset dropdown
+    selectedPreset.value = preset;
+    nextTick(() => {
+        selectedPreset.value = null;
+    });
+
+    preset = decodeSave(preset) ?? "";
+    if (preset === "") {
+        console.warn("Unable to determine preset encoding", preset);
+        return;
+    }
+    const playerData = JSON.parse(preset);
+    playerData.id = getUniqueID();
+    save(playerData as Player);
+
+    settings.saves.push(playerData.id);
+
+    openSave(playerData.id);
+}
+
+function editSave(id: string, newName: string) {
+    const currSave = saves.value[id];
+    if (currSave != null) {
+        currSave.name = newName;
+        if (player.id === id) {
+            player.name = newName;
+            save();
+        } else {
+            save(currSave as Player);
+            clearCachedSave(id);
+        }
+    }
+}
+
+function exportSave(id: string) {
+    let saveToExport;
+    if (player.id === id) {
+        saveToExport = stringifySave(player);
+    } else {
+        saveToExport = JSON.stringify(saves.value[id]);
+    }
+    switch (projInfo.exportEncoding) {
+        default:
+            console.warn(`Unknown save encoding: ${projInfo.exportEncoding}. Defaulting to lz`);
+        case "lz":
+            saveToExport = LZString.compressToUTF16(saveToExport);
+            break;
+        case "base64":
+            saveToExport = btoa(unescape(encodeURIComponent(saveToExport)));
+            break;
+        case "plain":
+            break;
+    }
+
+    // Put on clipboard. Using the clipboard API asks for permissions and stuff
+    const el = document.createElement("textarea");
+    el.value = saveToExport;
+    document.body.appendChild(el);
+    el.select();
+    el.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    document.body.removeChild(el);
+}
+
+function duplicateSave(id: string) {
+    if (player.id === id) {
+        save();
+    }
+
+    const playerData = { ...saves.value[id], id: getUniqueID() };
+    save(playerData as Player);
+
+    settings.saves.push(playerData.id);
+}
+
+function deleteSave(id: string) {
+    if (galaxy.value?.loggedIn === true) {
+        galaxy.value.getSaveList().then(list => {
+            const slot = Object.keys(list).find(slot => {
+                const content = list[slot as unknown as number].content;
+                try {
+                    if (JSON.parse(content).id === id) {
+                        return true;
+                    }
+                } catch (e) {
+                    return false;
+                }
+            });
+            if (slot != null) {
+                galaxy.value?.save(parseInt(slot), "", "").catch(console.error);
+            }
+        });
+    }
+    settings.saves = settings.saves.filter((save: string) => save !== id);
+    localStorage.removeItem(id);
+    clearCachedSave(id);
+}
+
+function openSave(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    saves.value[player.id]!.time = player.time;
+    save();
+    clearCachedSave(player.id);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    loadSave(saves.value[id]!);
+    // Delete cached version in case of opening it again
+    clearCachedSave(id);
+}
+
 const isOpen = ref(false);
-const currentTab = ref("lang");
+const currentTab = ref("behaviour");
+
+const thresholds: SelectOption[] = [
+    {
+        label: '1e3',
+        value: 0,
+    },
+    {
+        label: '1e6',
+        value: 1,
+    },
+    {
+        label: '1e9',
+        value: 2,
+    },
+    {
+        label: '1e12',
+        value: 3,
+    },
+    {
+        label: '1e36',
+        value: 4,
+    },
+    {
+        label: '1e100',
+        value: 5,
+    },
+    {
+        label: '1e306',
+        value: 6,
+    },
+    {
+        label: '1e1000',
+        value: 7,
+    },
+]
 
 function isTab(tab: string): boolean {
     return tab == currentTab.value;
@@ -72,52 +396,29 @@ function isTab(tab: string): boolean {
 function setTab(tab: string) {
     currentTab.value = tab;
 }
-
-defineExpose({
-    isTab,
-    setTab,
-    save,
-    open() {
-        isOpen.value = true;
-    }
-});
-
-const notationsOptions = [
-    {
-        label: "Scientific",
-        value: 0,
-    },
-    {
-        label: "Standard",
-        value: 1,
-    },
-    {
-        label: "Logarithmic",
-        value: 2,
-    },
-    {
-        label: "Mixed Scientific",
-        value: 3,
-    },
-    {
-        label: "Mixed Logarithmic",
-        value: 4,
-    },
-    {
-        label: "Blind",
-        value: 5,
-    },
-    {
-        label: "YES/NO",
-        value: 6,
-    },
-];
+const down = Direction.Up; // Don't ask
 
 const settingFieldsComponent = computed(() => {
     return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
 });
 
-const { showTPS, notation, language, unthrottled, alignUnits, engineering, insanePrecision } = toRefs(settings);
+const { 
+    showTPS,
+    language,
+    unthrottled,
+    alignUnits,
+    engineering,
+    insanePrecision,
+    blindNumbers,
+    yesnoNumbers,
+    letterNumbers,
+    standardThreshold,
+    scientificThreshold,
+    logarithmicThreshold,
+    letters,
+    precisionBonus,
+    bigModal
+} = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -128,6 +429,49 @@ const isPaused = computed({
     }
 });
 
+const engineeringTooltip = jsx(() => (
+    <>Replaces Scientific with Engineering</>
+));
+const precisionTooltip = jsx(() => (
+    <>Multiplies decimal places [Configurable]</>
+));
+const lettersTooltip = jsx(() => (
+    <>Replaces Standard with Letters [Configurable]</>
+));
+const blindTooltip = jsx(() => (
+    <>Disables number rendering</>
+));
+const yesnoTooltip = jsx(() => (
+    <>Forces YES/NO notation</>
+));
+
+const standardTitle = jsx(() => (
+    <span class="option-title">
+        {settings.letterNumbers ? 'Letters' : 'Standard'}
+    </span>
+));
+const scientificTitle = jsx(() => (
+    <span class="option-title">
+        {settings.engineering ? 'Engineering' : 'Scientific'}
+    </span>
+));
+const lettersTitle = jsx(() => (
+    <span class="option-title">
+        Letters Config
+        <desc>Letters used in letters notation.</desc>
+    </span>
+));
+const precisionTitle = jsx(() => (
+    <span class="option-title">
+        Precision+ Config
+        <desc>Decimal places multiplier.</desc>
+    </span>
+));
+const logarithmicTitle = jsx(() => (
+    <span class="option-title">
+        Logarithmic
+    </span>
+));
 const unthrottledTitle = jsx(() => (
     <span class="option-title">
         Unthrottled
@@ -138,18 +482,6 @@ const offlineProdTitle = jsx(() => (
     <span class="option-title">
         Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
         <desc>Simulate production that occurs while the game is closed.</desc>
-    </span>
-));
-const engineeringTitle = jsx(() => (
-    <span class="option-title">
-        Engineering Notation
-        <desc>Replace scientific notation with engineering notation.</desc>
-    </span>
-));
-const insanePrecisionTitle = jsx(() => (
-    <span class="option-title">
-        Increased Precision
-        <desc>Increase rendered decimal places on most numbers.</desc>
     </span>
 ));
 const autosaveTitle = jsx(() => (
@@ -164,16 +496,10 @@ const isPausedTitle = jsx(() => (
         <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
     </span>
 ));
-const notationTitle = jsx(() => (
+const bigModalTitle = jsx(() => (
     <span class="option-title">
-        Notation
-        <desc>How <i>most</i> numbers are displayed.<br />Currently unfinished porting from β3.</desc>
-    </span>
-));
-const langTitle = jsx(() => (
-    <span class="option-title">
-        Language
-        <desc>The language the game uses.<br />The game was developed in English.</desc>
+        Larger Modals
+        <desc>Makes modals bigger. Might have visual bugs.</desc>
     </span>
 ));
 const showTPSTitle = jsx(() => (
@@ -188,9 +514,79 @@ const alignModifierUnitsTitle = jsx(() => (
         <desc>Align numbers to the beginning of the unit in modifier view.</desc>
     </span>
 ));
+
+defineExpose({
+    isTab,
+    setTab,
+    save,
+    open() {
+        isOpen.value = true;
+    },
+    format,
+    Decimal
+});
 </script>
 
 <style>
+.notation-thresholds {
+    width: 75%;
+}
+
+.notation-thresholds>tr>td:first-child {
+    width: 60%;
+}
+
+.notation-thresholds>tr>td:last-child {
+    width: 40%;
+}
+
+.notation-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: stretch;
+    margin-left: 10px
+}
+
+.notation-list>div {
+    break-inside: avoid;
+    margin: 0 10px 0 0;
+    flex-grow: 1;
+}
+
+.notation-modifier {
+    display: flex;
+    break-inside: avoid;
+    padding: 0 10px;
+    background-color: rgb(from var(--feature-foreground) r g b / 0.15);
+    border-radius: var(--border-radius);
+    margin: 0 0 10px;
+    min-width: 200px;
+}
+
+.notation-modifier>span {
+    flex-grow: 1;
+    display: inline-block
+}
+
+.notation-modifier>label {
+    max-width: 40px;
+    max-height: 52px;
+    display: inline;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 13.333px;
+    position: relative;
+    width: 100%;
+    text-align: center;
+    display: block;
+    opacity: 0.6;
+}
+
 .lang {
     width: 160px;
     height: 90px;

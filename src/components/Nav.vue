@@ -23,28 +23,6 @@
                 </li>
             </ul>
         </div>
-        <div>
-            <a href="https://forums.moddingtree.com/" target="_blank">
-                <Tooltip display="Forums" :direction="Direction.Down" yoffset="5px">
-                    <span class="material-icons">forum</span>
-                </Tooltip>
-            </a>
-        </div>
-        <div @click="info?.open()">
-            <Tooltip display="Info" :direction="Direction.Down" class="info">
-                <span class="material-icons">info</span>
-            </Tooltip>
-        </div>
-        <div @click="savesManager?.open()">
-            <Tooltip display="Saves" :direction="Direction.Down" xoffset="-20px">
-                <span class="material-icons" :class="{ needsSync }">library_books</span>
-            </Tooltip>
-        </div>
-        <div @click="options?.open()">
-            <Tooltip display="Settings" :direction="Direction.Down" xoffset="-66px">
-                <span class="material-icons">settings</span>
-            </Tooltip>
-        </div>
     </div>
     <div v-else class="overlay-nav" v-bind="$attrs">
         <div @click="options?.open()">
@@ -52,15 +30,24 @@
                 <span class="material-icons">settings</span>
             </Tooltip>
         </div>
-        <div @click="savesManager?.open()">
-            <Tooltip display="Saves" :direction="Direction.Right">
-                <span class="material-icons" :class="{ needsSync }">library_books</span>
-            </Tooltip>
-        </div>
         <div @click="info?.open()">
             <Tooltip display="Info" :direction="Direction.Right">
                 <span class="material-icons">info</span>
             </Tooltip>
+        </div>
+        <div class="discord">
+            <span @click="openDiscord" class="material-icons">discord</span>
+            <ul class="discord-links">
+                <li v-if="discordLink">
+                    <a :href="discordLink" target="_blank">{{ discordName }}</a>
+                </li>
+                <li>
+                    <a href="https://discord.gg/yJ4fjnjU54" target="_blank">Profectus & Friends</a>
+                </li>
+                <li>
+                    <a href="https://discord.gg/F3xveHV" target="_blank">The Modding Tree</a>
+                </li>
+            </ul>
         </div>
         <div style="flex-grow: 1;"></div>
     </div>

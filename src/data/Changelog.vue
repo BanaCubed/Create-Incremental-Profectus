@@ -68,6 +68,7 @@
             <ul>
                 <li class="breaking">Ported to Profectus</li>
                 <li class="breaking">Fully rebalanced existing content</li>
+                <li class="feature">Many Notation Options</li>
                 <li class="feature">Breakdown Modals</li>
                 <li class="feature">Help Menu</li>
                 <li class="feature">This Changelog</li>
@@ -181,7 +182,7 @@ li::before {
 }
 
 .feature::before {
-    content: "auto_awesome";
+    content: "add_circle";
     background: var(--accent1);
 }
 

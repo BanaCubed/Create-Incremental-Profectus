@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "vite",
-    "fix": "eslint --fix --max-warnings 0 src",
     "host": "vite --host",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -13,8 +12,7 @@
     "testw": "vitest",
     "serve": "vite preview --host",
     "lint": "eslint src --max-warnings 0",
-    "lint:fix": "eslint --fix --max-warnings 0 src",
-    "prefix": "vitest run"
+    "lint:fix": "eslint --fix --max-warnings 0 src"
   },
   "dependencies": {
     "@fontsource/material-icons": "^4.5.4",

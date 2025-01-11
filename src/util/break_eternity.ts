@@ -61,25 +61,19 @@ export function regularFormat(num: DecimalSource, precision: number): string {
 const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
-/**
- * 2d array of Decimals defining thresholds for notation limits, meant to be used within {@link format()}
- *
- * Use case should be `defaultNotationThresholds[NOTATION SETTING][WANTED THRESHOLD]`
- *
- * Thresholds are Comma, Scientific, Logarithmic, Standard.
- * And should be checked in order of Logarithmic, Scientific, Standard, Comma using `Decimal.gte()`.
- * @constant
- */
-const defaultNotationThresholds: Decimal[][] = [
-    [new Decimal(1e4), new Decimal(1e9), new Decimal("1e1000"), new Decimal("1e9")],
-    [new Decimal(1e4), new Decimal(1e306), new Decimal("1e10000"), new Decimal("1e4")],
-    [new Decimal(1e4), new Decimal(1e9), new Decimal(1e9), new Decimal("1e9")],
-    [new Decimal(1e4), new Decimal(1e36), new Decimal("1e1000"), new Decimal("1e6")],
-    [new Decimal(1e4), new Decimal(1e9), new Decimal(1e60), new Decimal("1e9")]
+const thresholds = [
+    new Decimal(1e3),
+    new Decimal(1e6),
+    new Decimal(1e9),
+    new Decimal(1e12),
+    new Decimal(1e36),
+    new Decimal(1e100),
+    new Decimal(1e306),
+    new Decimal("1e1000")
 ];
 
 /**
- * Formats an inputted number, taking the notation options from `settings.notation`.
+ * Formats an inputted number, taking the notation options from `settings`.
  * @param {DecimalSource} num The value to format
  * @param {number} precision Amount of digits to include past the decimal point
  * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
@@ -87,9 +81,18 @@ const defaultNotationThresholds: Decimal[][] = [
  */
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
-    if (settings.insanePrecision) { precision += 3; }
-    if (settings.notation === 5) { return " " }
-    if (settings.notation === 6) { return Decimal.neq(num, 0) ? "YES" : "NO" }
+    if (precision < 0) {
+        precision = 0;
+    }
+    if (settings.insanePrecision) {
+        precision *= settings.precisionBonus;
+    }
+    if (settings.blindNumbers) {
+        return " ";
+    }
+    if (settings.yesnoNumbers) {
+        return Decimal.neq(num, 0) ? "YES" : "NO";
+    }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
@@ -104,17 +107,17 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     if (num.mag === Number.POSITIVE_INFINITY) {
         return "Infinity";
     }
-    if (num.gte(defaultNotationThresholds[settings.notation][2])) {
+    if (num.gte(thresholds[settings.logarithmicThreshold])) {
         return formatLog(num, precision);
     }
-    if (num.gte(defaultNotationThresholds[settings.notation][1])) {
+    if (num.gte(thresholds[settings.scientificThreshold])) {
         return formatSci(num, precision);
     }
-    if (num.gte(defaultNotationThresholds[settings.notation][3])) {
-        return formatStan(num, precision);
+    if (num.gte(thresholds[settings.standardThreshold])) {
+        return settings.letterNumbers ? formatLet(num, precision) : formatStan(num, precision);
     }
-    if (num.gte(defaultNotationThresholds[settings.notation][0])) {
-        return commaFormat(num, precision-2);
+    if (num.gte(1000)) {
+        return commaFormat(num, 0);
     }
     return regularFormat(num, precision);
 }
@@ -129,19 +132,21 @@ export function formatLog(num: DecimalSource, precision = 2): string {
     const e = Decimal.log10(num);
     return (
         "e" +
-        format(e
-            .mul(10 ** precision)
-            .trunc()
-            .div(10 ** precision))
+        format(
+            e
+                .mul(10 ** precision)
+                .trunc()
+                .div(10 ** precision)
+        )
     );
 }
 
 export function formatSci(num: DecimalSource, precision = 2): string {
     let e = Decimal.log10(num).floor();
     if (settings.engineering) {
-        e = e.div(3)
-        precision -= e.mul(3).sub(e.floor().mul(3)).toNumber()
-        e = e.floor().mul(3)
+        e = e.div(3);
+        precision -= e.mul(3).sub(e.floor().mul(3)).toNumber();
+        e = e.floor().mul(3);
     }
     num = Decimal.div(num, Decimal.pow(10, e));
     num = num
@@ -256,6 +261,9 @@ const standardSuffixes = [
     "UCe"
 ];
 export function formatStan(num: DecimalSource, precision = 2): string {
+    if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
+        return formatSci(num, precision);
+    }
     const e = Decimal.log(num, 1000).floor().toNumber() - 1;
     num = Decimal.div(num, Decimal.pow(1000, e + 1));
     num = num
@@ -269,97 +277,56 @@ export function formatStan(num: DecimalSource, precision = 2): string {
     );
 }
 
-/**
- * 2d array of strings.
- *
- * Main array contains different patterns.
- *
- * Internal arrays contain:
- *
- * 0 - tetrational support.
- *
- * 1 - zero for digits (e.g. z -> a~).
- *
- * 2+ - actual digits.
- */
-const patterns: string[][] = [
-    [
+export function formatLet(
+    num: DecimalSource,
+    precision = 2,
+    letters: string[] = [
         "A",
-        "~",
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z"
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z"
     ],
-    [
-        "Ω",
-        "ϟ",
-        "α",
-        "β",
-        "γ",
-        "δ",
-        "ε",
-        "ζ",
-        "η",
-        "θ",
-        "ι",
-        "κ",
-        "λ",
-        "μ",
-        "ν",
-        "ξ",
-        "ο",
-        "π",
-        "ρ",
-        "σ",
-        "τ",
-        "υ",
-        "φ",
-        "χ",
-        "ψ",
-        "ω"
-    ]
-];
-// export function formatPattern(
-//     num: DecimalSource,
-//     base: number = 1000,
-//     pattern: string[] = patterns[0],
-//     precision: number = 2
-// ): string {
-//     const exp = Decimal.log(num, base).floor();
-//     const suffixBase = pattern.length - 1;
-//     if (exp.gte(Decimal.pow(suffixBase, 5))) {
-//         return pattern[0] + format(Decimal.slog(num, base), precision);
-//     }
-//     const string = Decimal.div(num, Decimal.pow(base, exp))
-//         .mul(10 ** precision)
-//         .trunc()
-//         .div(10 ** precision)
-//         .toStringWithDecimalPlaces(precision);
-//     return string;
-// }
+    base: DecimalSource = 1000
+): string {
+    letters = settings.letters.length < 2 ? letters : Array.from(settings.letters);
+    const e = Decimal.log(num, base).floor().toNumber();
+    let suffix = "";
+    let _num = e;
+    while (_num > 0) {
+        suffix = letters[(_num - 1) % letters.length] + suffix;
+        _num = Math.floor((_num - 1) / letters.length);
+    }
+    num = Decimal.div(num, Decimal.pow(base, e));
+    num = num
+        .mul(10 ** (precision - num.log10().floor().toNumber() + 1))
+        .trunc()
+        .div(10 ** (precision - num.log10().floor().toNumber() + 1));
+    return (
+        num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber() + 1) + " " + suffix
+    );
+}
 
 export function formatWhole(num: DecimalSource): string {
     num = new Decimal(num);
@@ -372,7 +339,7 @@ export function formatWhole(num: DecimalSource): string {
     if (num.lte(nearOne) && !num.eq(zero)) {
         return format(num);
     }
-    return format(num, settings.insanePrecision?-3:0);
+    return format(num, 0);
 }
 
 export function formatTime(seconds: DecimalSource, precise = false): string {
