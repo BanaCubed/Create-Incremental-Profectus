@@ -17,8 +17,8 @@ export function exponentialFormat(num: DecimalSource, precision: number, mantiss
     const eString = e.gte(1e9)
         ? format(e, Math.max(Math.max(precision, 3), projInfo.defaultDecimalsShown))
         : e.gte(10000)
-        ? commaFormat(e, 0)
-        : e.toStringWithDecimalPlaces(0);
+          ? commaFormat(e, 0)
+          : e.toStringWithDecimalPlaces(0);
     if (mantissa) {
         return m.toStringWithDecimalPlaces(precision) + "e" + eString;
     } else {
@@ -116,7 +116,7 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     if (num.gte(thresholds[settings.standardThreshold])) {
         return settings.letterNumbers ? formatLet(num, precision) : formatStan(num, precision);
     }
-    if (num.gte(1000)) {
+    if (num.gte(10000)) {
         return commaFormat(num, 0);
     }
     return regularFormat(num, precision);

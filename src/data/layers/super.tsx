@@ -4,13 +4,12 @@
  */
 import { main } from "data/projEntry";
 import { createCumulativeConversion } from "features/conversion";
-import { jsx } from "features/feature";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
 import { createResource, trackBest, trackOOMPS } from "features/resources/resource";
-import { addTooltip } from "features/tooltips/tooltip";
+import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
-import { BaseLayer, createLayer } from "game/layers";
+import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render } from "util/vue";
 import { createCollapsibleAchievements, createLayerTreeNode, createResetButton } from "../common";
@@ -23,10 +22,12 @@ import { createBooleanRequirement } from "game/requirements";
 import settings from "game/settings";
 import rebirth from "./rebirth";
 import { createAchievement } from "features/achievements/achievement";
-import { setupAutoPurchase } from "features/upgrades/upgrade";
+import { setupAutoPurchase } from "features/clickables/upgrade";
+
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 
 const id = "super";
-const layer = createLayer(id, function (this: BaseLayer) {
+const layer = createLayer(id, () => {
     const name = "Super";
     const color = "#d65029";
     const points = createResource<DecimalSource>(0, "SRP", 0, false);
@@ -51,27 +52,15 @@ const layer = createLayer(id, function (this: BaseLayer) {
 
     const effects = {};
 
-    setupAutoPurchase(
-        rebirth,
-        () => {
-            return achs.one.earned.value === true;
-        },
-        [rebirth.upgs.one]
-    );
-    setupAutoPurchase(
-        rebirth,
-        () => {
-            return achs.two.earned.value === true;
-        },
-        [rebirth.upgs.two]
-    );
-    setupAutoPurchase(
-        rebirth,
-        () => {
-            return achs.three.earned.value === true;
-        },
-        [rebirth.upgs.three]
-    );
+    setupAutoPurchase(rebirth, () => {
+        return achs.one.earned.value === true;
+    }, [rebirth.upgs.one]);
+    setupAutoPurchase(rebirth, () => {
+        return achs.two.earned.value === true;
+    }, [rebirth.upgs.two]);
+    setupAutoPurchase(rebirth, () => {
+        return achs.three.earned.value === true;
+    }, [rebirth.upgs.three]);
 
     const achs = {
         one: createAchievement(() => ({
@@ -161,32 +150,32 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 : 2;
         }
     }));
-    const tooltip = addTooltip(treeNode, {
+    const tooltip = addTooltip(treeNode, () => ({
         display: createResourceTooltip(points),
         pinnable: true
-    });
+    }));
 
     const resetButton = createResetButton(() => ({
         conversion,
         tree: main.tree,
         treeNode,
-        display: jsx(() => (
+        display: () => (
             <>
                 {rebirth.upgs.eleven.bought.value === true
                     ? Decimal.gte(rebirth.points.value, 1e16)
-                        ? `Super Rebirth for ${formatWhole(conversion.actualGain.value)} SRP` +
-                          (Decimal.gte(conversion.actualGain.value, 1e3)
+                        ? `Super Rebirth for ${formatWhole(unref(conversion.actualGain))} SRP` +
+                          (Decimal.gte(unref(conversion.actualGain), 1e3)
                               ? ""
-                              : `, next at ${formatWhole(conversion.nextAt.value)} RP`)
+                              : `, next at ${formatWhole(unref(conversion.nextAt))} RP`)
                         : `Reach ${formatWhole(1e16)} cash to Super Rebirth`
                     : 'Purchase RP UPG 11 "Continuity" to Super Rebirth'}
             </>
-        )),
+        ),
         onClick() {
             main.progression.value = Decimal.max(main.progression.value, 4);
         },
         canClick(): boolean {
-            return Decimal.gte(conversion.actualGain.value, 1) && rebirth.upgs.eleven.bought.value;
+            return Decimal.gte(unref(conversion.actualGain), 1) && rebirth.upgs.eleven.bought.value;
         },
         classes: computed(() => {
             return {
@@ -199,7 +188,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
     const hotkey = createHotkey(() => ({
         description: "Super Rebirth",
         key: "s",
-        onPress: resetButton.onClick,
+        onPress() {
+            resetButton.onClick?.();
+        },
         enabled() {
             return Decimal.gte(main.progression.value, 3.9);
         }
@@ -213,7 +204,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
         points,
         tooltip,
         effects,
-        display: jsx(() => (
+        display: () => (
             <>
                 <br />
                 You have <ResourceVue resource={points} color={color} /> SRP, multiplying:
@@ -224,9 +215,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />
-                {render(achDisp.display)}
+                {render(unref(achDisp.display))}
             </>
-        )),
+        ),
         treeNode,
         hotkey,
         minimizable: false,

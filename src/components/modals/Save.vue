@@ -64,7 +64,7 @@
             <div v-if="currentTime" class="time" @click="emit('open')" :disabled="readonly">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
-            <div v-if="progressDisplay"><component :is="progressDisplay" @click="emit('open')" :disabled="readonly" /></div>
+            <div v-if="progressDisplay" @click="emit('open')">{{ progressDisplay }}</div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />
@@ -76,20 +76,16 @@
 </template>
 
 <script setup lang="ts">
-import Tooltip from "features/tooltips/Tooltip.vue";
 import player, { LayerData } from "game/player";
 import { Direction } from "util/common";
-import { galaxy, syncedSaves } from "util/galaxy";
 import { LoadablePlayerData } from "util/save";
 import { computed, ref, watch } from "vue";
 import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import DangerButton from "../fields/DangerButton.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Text from "../fields/Text.vue";
-import type { LoadablePlayerData } from "../modals/SavesManager.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
-import Decimal, { formatWhole } from "util/break_eternity";
-import { computeComponent } from "util/vue";
+import Decimal, { formatWhole } from "util/bignum";
 import { main } from "data/projEntry";
 import cash from "data/layers/cash";
 import rebirth from "data/layers/rebirth";
@@ -117,19 +113,17 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
     second: "numeric"
 });
 
-const progressDisplay = computeComponent(
-    computed(() => {
-    	if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
-            return '?-? // Progress Unknown'
-        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
-            return `1-1 // Cash // ${formatWhole((save.value?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
-        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
-            return `1-2 // Rebirth // ${formatWhole((save.value?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
-        } else {
-            return `1-3 // Super Rebirth // ${formatWhole((save.value?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
-        }
-    })
-);
+const progressDisplay = computed(() => {
+    if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
+        return '?-? // Progress Unknown'
+    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
+        return `1-1 // Cash // ${formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
+    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
+        return `1-2 // Rebirth // ${formatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
+    } else {
+        return `1-3 // Super Rebirth // ${formatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
+    }
+});
 
 const isEditing = ref(false);
 const isConfirming = ref(false);

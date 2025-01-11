@@ -49,7 +49,7 @@ const { start, stop } = setupHoldToClick(() => emits("hold"));
 .treeNode {
     height: 100px;
     width: 100px;
-    border: 2px solid rgba(0, 0, 0, 0.125);
+    border: none;
     border-radius: 50%;
     padding: 0;
     margin: 0 10px 0 10px;
@@ -67,6 +67,11 @@ const { start, stop } = setupHoldToClick(() => emits("hold"));
     font-size: 60px;
     color: rgba(255, 255, 255, 0.25);
     display: flex;
+    position: absolute;
+    top: 0;
+    Left: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 .treeNode > * {

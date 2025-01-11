@@ -18,8 +18,6 @@
                 <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
                 <Toggle :title="offlineProdTitle" v-model="offlineProd" />
                 <!-- <Toggle :title="showHealthWarningTitle" v-model="showHealthWarning" v-if="!projInfo.disableHealthWarning" /> -->
-                <Toggle :title="autosaveTitle" v-model="autosave" />
-                <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
             <div v-if="isTab('saves')">
                 <div v-if="showNotSyncedWarning" style="color: var(--danger)">
@@ -63,9 +61,10 @@
                         /> -->
                     </div>
                 </div>
+                <Toggle :title="autosaveTitle" v-model="autosave" />
+                <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
             <div v-if="isTab('appearance')">
-                <Select :title="themeTitle" :options="themes" v-model="theme" />
                 <SettingFields />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
@@ -111,31 +110,24 @@
                     </Tooltip>
                 </div>
 
-                <span class="subtitle" style="margin-top: 32px;" v-if="settings.letterNumbers || settings.insanePrecision">Modifier Configs</span>
+                <span class="subtitle" style="margin-top: 32px;">Modifier Configs</span>
+                <span class="subtitle" style="opacity: 0.4; font-size: 0.6em;" v-if="!settings.letterNumbers && !settings.insanePrecision">No active modifiers have configs</span>
                 <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
                 <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="0.5" v-model="precisionBonus" />
                 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
-                <div style="columns: 3; break-inside: unset; display: block; padding: 10px; margin-right: 10px; margin-left: 10px;" class="notation-modifier">
-                    <p>{{ format(1.234567890) }}</p>
-                    <p>{{ format(12.34567890) }}</p>
-                    <p>{{ format(123.4567890) }}</p>
-                    <p>{{ format(1234.567890) }}</p>
-                    <p>{{ format(12345.67890) }}</p>
-                    <p>{{ format(123456.7890) }}</p>
-                    <p>{{ format(1234567.890) }}</p>
-                    <p>{{ format(12345678.90) }}</p>
-                    <p>{{ format(123456789.0) }}</p>
+                <div style="columns: 2; break-inside: unset; display: block; padding: 10px; margin-right: 10px; margin-left: 10px; text-align: left" class="notation-modifier">
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
+                    <p>&nbsp;Thousand - {{ format("1e3") }}</p>
+                    <p>&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
+                    <p>&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
+                    <p>&nbsp;Trillion - {{ format("1e12") }}</p>
+                    <p>Decillion - {{ format("1e33") }}</p>
+                    <p>&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
                 </div>
             </div>
             <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
-                <table>
-                    <tr>
-                        <td><div class="lang" lang="EN" v-bind:class="{active: language === 'en'}" onclick="language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>
             </div>
         </template>
     </Modal>
@@ -146,8 +138,6 @@ import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
 import { galaxy, syncedSaves } from "util/galaxy";
 import rawThemes from "data/themes";
-import { jsx } from "features/feature";
-import Tooltip from "features/tooltips/Tooltip.vue";
 import player, { stringifySave } from "game/player";
 import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
@@ -187,7 +177,7 @@ const importingFailed = ref(false);
 const saveToImport = ref("");
 const selectedPreset = ref<string | null>(null);
 
-let bankContext = import.meta.globEager("./../../../saves/*.txt", { as: "raw" });
+let bankContext = import.meta.glob("./../../../saves/*.txt", { query: "?raw", eager: true });
 let bank = ref(
     Object.keys(bankContext).reduce((acc: Array<{ label: string; value: string }>, curr) => {
         acc.push({
@@ -429,91 +419,62 @@ const isPaused = computed({
     }
 });
 
-const engineeringTooltip = jsx(() => (
-    <>Replaces Scientific with Engineering</>
-));
-const precisionTooltip = jsx(() => (
-    <>Multiplies decimal places [Configurable]</>
-));
-const lettersTooltip = jsx(() => (
-    <>Replaces Standard with Letters [Configurable]</>
-));
-const blindTooltip = jsx(() => (
-    <>Disables number rendering</>
-));
-const yesnoTooltip = jsx(() => (
-    <>Forces YES/NO notation</>
-));
-
-const standardTitle = jsx(() => (
+const engineeringTooltip = <>Replaces Scientific with Engineering</>;
+const precisionTooltip   = <>Multiplies decimal places [Configurable]</>;
+const lettersTooltip     = <>Replaces Standard with Letters [Configurable]</>;
+const blindTooltip       = <>Disables number rendering</>;
+const yesnoTooltip       = <>Forces YES/NO notation</>;
+const standardTitle = () => (
     <span class="option-title">
         {settings.letterNumbers ? 'Letters' : 'Standard'}
     </span>
-));
-const scientificTitle = jsx(() => (
+);
+const scientificTitle = () => (
     <span class="option-title">
         {settings.engineering ? 'Engineering' : 'Scientific'}
     </span>
-));
-const lettersTitle = jsx(() => (
-    <span class="option-title">
-        Letters Config
-        <desc>Letters used in letters notation.</desc>
-    </span>
-));
-const precisionTitle = jsx(() => (
-    <span class="option-title">
-        Precision+ Config
-        <desc>Decimal places multiplier.</desc>
-    </span>
-));
-const logarithmicTitle = jsx(() => (
+);
+const logarithmicTitle = () => (
     <span class="option-title">
         Logarithmic
     </span>
-));
-const unthrottledTitle = jsx(() => (
-    <span class="option-title">
-        Unthrottled
-        <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
-    </span>
-));
-const offlineProdTitle = jsx(() => (
-    <span class="option-title">
-        Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Simulate production that occurs while the game is closed.</desc>
-    </span>
-));
-const autosaveTitle = jsx(() => (
-    <span class="option-title">
-        Autosave<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Automatically save the game every second or when the game is closed.</desc>
-    </span>
-));
-const isPausedTitle = jsx(() => (
-    <span class="option-title">
-        Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
-    </span>
-));
-const bigModalTitle = jsx(() => (
-    <span class="option-title">
-        Larger Modals
-        <desc>Makes modals bigger. Might have visual bugs.</desc>
-    </span>
-));
-const showTPSTitle = jsx(() => (
-    <span class="option-title">
-        Show TPS
-        <desc>Show TPS meter at the bottom-left corner of the page.</desc>
-    </span>
-));
-const alignModifierUnitsTitle = jsx(() => (
-    <span class="option-title">
-        Align modifier units
-        <desc>Align numbers to the beginning of the unit in modifier view.</desc>
-    </span>
-));
+);
+const lettersTitle = <span class="option-title">
+    Letters Config
+    <desc>Letters used in letters notation.</desc>
+</span>;
+const precisionTitle = <span class="option-title">
+    Precision+ Config
+    <desc>Decimal places multiplier.</desc>
+</span>;
+const unthrottledTitle = <span class="option-title">
+    Unthrottled
+    <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
+</span>;
+const offlineProdTitle = <span class="option-title">
+    Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Simulate production that occurs while the game is closed.</desc>
+</span>;
+const autosaveTitle = <span class="option-title">
+    Autosave<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Automatically save the game every second or when the game is closed.</desc>
+</span>;
+const isPausedTitle = <span class="option-title">
+    Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
+</span>;
+const bigModalTitle = <span class="option-title">
+    Larger Modals
+    <desc>Makes modals bigger. Might have visual bugs.</desc>
+</span>;
+const showTPSTitle = <span class="option-title">
+    Show TPS
+    <desc>Show TPS meter at the bottom-left corner of the page.</desc>
+</span>;
+const alignModifierUnitsTitle = <span class="option-title">
+    Align modifier units
+    <desc>Align numbers to the beginning of the unit in modifier view.</desc>
+</span>;
 
 defineExpose({
     isTab,

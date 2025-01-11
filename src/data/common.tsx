@@ -16,17 +16,12 @@ import player from "game/player";
 import settings from "game/settings";
 import type { DecimalSource } from "util/bignum";
 import Decimal, { format, formatSmall, formatTime } from "util/bignum";
-import { WithRequired, camelToTitle } from "util/common";
-import type {
-    Computable,
-    GetComputableType,
-    GetComputableTypeWithDefault,
-    ProcessedComputable
-} from "util/computed";
-import { convertComputable, processComputable } from "util/computed";
-import { getFirstFeature, renderColJSX, renderJSX } from "util/vue";
-import type { ComputedRef, Ref } from "vue";
+import { WithRequired } from "util/common";
+import { MaybeGetter, processGetter } from "util/computed";
+import { render, Renderable, renderCol } from "util/vue";
+import type { ComputedRef, MaybeRef, MaybeRefOrGetter } from "vue";
 import { computed, ref, unref } from "vue";
+import { JSX } from "vue/jsx-runtime";
 import "./common.css";
 import Modal from "components/modals/Modal.vue";
 
@@ -508,23 +503,25 @@ export function isRendered(layer: BaseLayer, idOrFeature: string | { id: string 
 }
 
 export function createModifierModal(
-    title: Computable<string>,
+    title: string,
     sectionsFunc: () => Section[],
     fontSize?: string
 ) {
     const [modifiers, collapsed] = createCollapsibleModifierSections(sectionsFunc);
-    const computedTitle = convertComputable(title);
+    const computedTitle = title;
     deletePersistent(collapsed);
 
     const showModifiers = ref(false);
 
-    return jsx(() => (
+    return () => (
         <>
             <button
                 class="button"
                 style={{
                     display: "inline-block",
-                    fontSize: fontSize ?? "20px"
+                    fontSize: fontSize ?? "20px",
+                    border: "none",
+                    color: "var(--link)"
                 }}
                 onClick={() => (showModifiers.value = true)}
             >
@@ -539,7 +536,7 @@ export function createModifierModal(
                 }}
             />
         </>
-    ));
+    );
 }
 
 /**

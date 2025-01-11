@@ -21,7 +21,7 @@
             <div v-if="shown">
                 <div v-if="isTab('hotkeys')">
                     <div>Time Played: {{ timePlayed }}</div>
-                    <infoComponent />
+                    <InfoComponents />
                 </div>
                 <div v-if="isTab('credits')">
                     <div>Created by:<br>
@@ -133,7 +133,7 @@ import projInfo from "data/projInfo.json";
 import player from "game/player";
 import { infoComponents } from "game/settings";
 import { formatTime, formatWhole } from "util/bignum";
-import { coerceComponent, render } from "util/vue";
+import { render } from "util/vue";
 import { computed, ref, toRefs, unref } from "vue";
 import { layers } from "game/layers";
 

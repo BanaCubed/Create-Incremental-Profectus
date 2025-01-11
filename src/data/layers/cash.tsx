@@ -3,20 +3,19 @@
  * @hidden
  */
 import { main } from "data/projEntry";
-import { jsx } from "features/feature";
 import { createReset } from "features/reset";
 import Node from "components/Node.vue";
 import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
-import { addTooltip } from "features/tooltips/tooltip";
+import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
-import { BaseLayer, createLayer } from "game/layers";
+import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format, formatWhole } from "util/bignum";
 import { computed, unref } from "vue";
-import { createUpgrade } from "features/upgrades/upgrade";
+import { createUpgrade } from "features/clickables/upgrade";
 import { createCostRequirement } from "game/requirements";
 import { noPersist, persistent } from "game/persistence";
 import {
@@ -33,8 +32,10 @@ import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
-import { createRepeatable } from "features/repeatable";
+import { createRepeatable } from "features/clickables/repeatable";
 import Formula from "game/formulas/formulas";
+
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
@@ -67,7 +68,7 @@ export function machineDisplay(): string {
 }
 
 const id = "cash";
-const layer: any = createLayer(id, function (this: BaseLayer) {
+const layer: any = createLayer(id, () => {
     const points = createResource<DecimalSource>(0, "Cash", 2, false);
     const machine: any = persistent([]);
     const best = trackBest(points);
@@ -77,30 +78,6 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         // eslint-disable-next-line prefer-const
         let gain = effects.cash.apply(upgs.one.bought.value ? 1 : 0);
         return gain;
-    });
-    globalBus.on("update", diff => {
-        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-        if (
-            Decimal.gt(autoMachine.c.value, 0.5) &&
-            machine.value.includes(0) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.cash.onClick();
-        }
-        if (
-            Decimal.gt(autoMachine.n.value, 0.5) &&
-            machine.value.includes(1) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.neut.onClick();
-        }
-        if (
-            Decimal.gt(autoMachine.r.value, 0.5) &&
-            machine.value.includes(2) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.rp.onClick();
-        }
     });
     const oomps = trackOOMPS(points, pointGain);
 
@@ -141,10 +118,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             return unref(settings.appendLayers);
         })
     }));
-    const tooltip = addTooltip(treeNode, {
+    const tooltip = addTooltip(treeNode, () => ({
         display: createResourceTooltip(points),
         pinnable: true
-    });
+    }));
 
     const reset = createReset(() => ({
         thingsToReset: (): Record<string, any>[] => [
@@ -218,11 +195,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>×{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -257,13 +234,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash again",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}
                         </span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -289,13 +266,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, yet again",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}
                         </span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -356,13 +333,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, yet another time",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5))}
                         </span>
                     </>
-                ))
+                )
             },
             visibility() {
                 return rebirth.upgs.four.bought.value;
@@ -383,11 +360,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, for the last time",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>×{format(Decimal.max(0, points.value).add(1).log(1e2).add(1))}</span>
                     </>
-                ))
+                )
             },
             visibility() {
                 return rebirth.upgs.four.bought.value;
@@ -458,13 +435,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Boost RP gain slightly",
                 showAmount: false,
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         ×{format(Decimal.pow(1.1, buys.one.amount.value))}
                         <br />
                         Amount: {formatWhole(buys.one.amount.value)}
                     </>
-                ))
+                )
             },
             visibility() {
                 return srebirth.achs.four.earned.value === true ? 0 : 2;
@@ -702,13 +679,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.c.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         })),
         n: createClickable(() => ({
@@ -731,13 +708,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.n.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         })),
         r: createClickable(() => ({
@@ -760,13 +737,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.r.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         }))
     };
@@ -787,11 +764,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(0) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -811,11 +788,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(1) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -835,11 +812,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(2) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -852,7 +829,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 display: "Cash",
                 glowColor: color,
                 tab: createTab(() => ({
-                    display: jsx(() => (
+                    display: () => (
                         <>
                             <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
@@ -870,7 +847,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
                             </Column>
                         </>
-                    ))
+                    )
                 }))
             }),
             machine: () => ({
@@ -880,7 +857,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(main.progression.value, 1.9) ? 0 : 2;
                 },
                 tab: createTab(() => ({
-                    display: jsx(() => (
+                    display: () => (
                         <>
                             <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
@@ -959,7 +936,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 </table>
                             </div>
                         </>
-                    ))
+                    )
                 }))
             })
         },
@@ -1018,17 +995,42 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         ])
     };
 
+    globalBus.on("update", diff => {
+        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
+        if (
+            Decimal.gt(autoMachine.c.value, 0.5) &&
+            machine.value.includes(0) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.cash.onClick?.();
+        }
+        if (
+            Decimal.gt(autoMachine.n.value, 0.5) &&
+            machine.value.includes(1) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.neut.onClick?.();
+        }
+        if (
+            Decimal.gt(autoMachine.r.value, 0.5) &&
+            machine.value.includes(2) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.rp.onClick?.();
+        }
+    });
+
     return {
         name,
         color,
         tooltip,
-        display: jsx(() => (
+        display: () => (
             <>
                 {Decimal.gte(main.progression.value, 1.9)
                     ? render(tabs)
                     : render(unref(tabs.tabs.cash.tab))}
             </>
-        )),
+        ),
         treeNode,
         points,
         best,
