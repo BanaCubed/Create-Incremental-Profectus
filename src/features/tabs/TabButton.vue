@@ -1,52 +1,28 @@
 <template>
-    <button
-        v-if="isVisible(visibility)"
-        @click="selectTab"
-        class="tabButton"
-        :style="[
-            {
-                visibility: isHidden(visibility) ? 'hidden' : undefined
-            },
-            glowColorStyle,
-            unref(style) ?? {}
-        ]"
-        :class="{
-            active,
-            ...unref(classes)
-        }"
-    >
-        <component :is="component" />
+    <button @click="selectTab" class="tabButton" :style="glowColorStyle" :class="{ active }">
+        <Component />
     </button>
 </template>
 
-<script lang="ts">
-import type { CoercableComponent, StyleValue } from "features/feature";
-import { isHidden, isVisible, Visibility } from "features/feature";
+<script setup lang="ts">
+import themes from "data/themes";
 import { getNotifyStyle } from "game/notifications";
-import { computeComponent, processedPropType, unwrapRef } from "util/vue";
-import { computed, defineComponent, toRefs, unref } from "vue";
+import settings from "game/settings";
+import { MaybeGetter } from "util/computed";
+import { render, Renderable } from "util/vue";
+import { computed, MaybeRef, unref } from "vue";
 
-export default defineComponent({
-    props: {
-        visibility: {
-            type: processedPropType<Visibility | boolean>(Number, Boolean),
-            required: true
-        },
-        display: {
-            type: processedPropType<CoercableComponent>(Object, String, Function),
-            required: true
-        },
-        style: processedPropType<StyleValue>(String, Object, Array),
-        classes: processedPropType<Record<string, boolean>>(Object),
-        glowColor: processedPropType<string>(String),
-        active: Boolean,
-        floating: Boolean
-    },
-    emits: ["selectTab"],
-    setup(props, { emit }) {
-        const { display, glowColor, floating } = toRefs(props);
+const props = defineProps<{
+    display: MaybeGetter<Renderable>;
+    glowColor?: MaybeRef<string>;
+    active?: boolean;
+}>();
 
-        const component = computeComponent(display);
+const emit = defineEmits<{
+    selectTab: [];
+}>();
+
+const Component = () => render(props.display);
 
         const glowColorStyle = computed(() => {
             let color = unwrapRef(glowColor);
@@ -62,21 +38,9 @@ export default defineComponent({
             return { 'borderColor': `${props.active?color:'inherit'}`, 'borderBottomColor': `${props.active?color:'transparent'}`, 'boxShadow': `${props.active?'inset 0 -15px 10px -15px '+color:'none'}` };
         });
 
-        function selectTab() {
-            emit("selectTab");
-        }
-
-        return {
-            selectTab,
-            component,
-            glowColorStyle,
-            unref,
-            Visibility,
-            isVisible,
-            isHidden
-        };
-    }
-});
+function selectTab() {
+    emit("selectTab");
+}
 </script>
 
 <style scoped>

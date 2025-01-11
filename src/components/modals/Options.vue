@@ -65,7 +65,8 @@
                 </div>
             </div>
             <div v-if="isTab('appearance')">
-                <component :is="settingFieldsComponent" />
+                <Select :title="themeTitle" :options="themes" v-model="theme" />
+                <SettingFields />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
             </div>
@@ -151,10 +152,11 @@ import player, { stringifySave } from "game/player";
 import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
 import { camelToTitle, Direction } from "util/common";
-import { coerceComponent, render } from "util/vue";
+import { render } from "util/vue";
 import { computed, ref, toRefs, nextTick, watch } from "vue";
 import Select, { SelectOption } from "../fields/Select.vue";
 import Toggle from "../fields/Toggle.vue";
+import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Hotkey from "../Hotkey.vue";
 import Draggable from "vuedraggable";
@@ -398,9 +400,7 @@ function setTab(tab: string) {
 }
 const down = Direction.Up; // Don't ask
 
-const settingFieldsComponent = computed(() => {
-    return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
-});
+const SettingFields = () => settingFields.map(f => render(f));
 
 const { 
     showTPS,

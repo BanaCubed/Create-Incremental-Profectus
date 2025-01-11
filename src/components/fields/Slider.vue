@@ -24,7 +24,7 @@ const _props = defineProps<{
     max?: number;
     step?: number;
 }>();
-const props = toRefs(_props);
+
 const emit = defineEmits<{
     (e: "update:modelValue", value: number): void;
 }>();
@@ -33,7 +33,7 @@ const titleComponent = computeOptionalComponent(toRef(props, "title"), "span");
 
 const value = computed({
     get() {
-        return String(unref(props.modelValue) ?? 0);
+        return String(props.modelValue ?? 0);
     },
     set(value: string) {
         emit("update:modelValue", Number(value));

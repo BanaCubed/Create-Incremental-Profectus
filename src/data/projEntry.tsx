@@ -5,8 +5,8 @@ import Node from "components/Node.vue";
 import { createResource } from "features/resources/resource";
 import type { BaseLayer, GenericLayer } from "game/layers";
 import { createLayer } from "game/layers";
-import type { Player } from "game/player";
-import player from "game/player";
+import { noPersist } from "game/persistence";
+import player, { Player } from "game/player";
 import Decimal, { format, formatTime } from "util/bignum";
 import { render } from "util/vue";
 import { computed } from "vue";
@@ -23,6 +23,7 @@ import settings from "game/settings";
 export const main: any = createLayer("main", function (this: BaseLayer) {
     const progression = createResource(0, "progress");
 
+    // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
         nodes: [[cash.treeNode], [rebirth.treeNode], [srebirth.treeNode]],
         branches: [
@@ -76,6 +77,9 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         }
     }));
 
+    // Note: layers don't _need_ a reference to everything,
+    //  but I'd recommend it over trying to remember what does and doesn't need to be included.
+    // Officially all you need are anything with persistency or that you want to access elsewhere
     return {
         name: "Tree",
         links: tree.links,
@@ -128,7 +132,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, rebirth, cash, srebirth];
+): Array<Layer> => [main, rebirth, cash, srebirth];
 
 /**
  * A computed ref whose value is true whenever the game is over.

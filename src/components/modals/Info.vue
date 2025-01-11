@@ -130,7 +130,6 @@ import Changelog from "data/Changelog.vue";
 import cash from "data/layers/cash";
 import { main } from "data/projEntry";
 import projInfo from "data/projInfo.json";
-import { jsx } from "features/feature";
 import player from "game/player";
 import { infoComponents } from "game/settings";
 import { formatTime, formatWhole } from "util/bignum";
@@ -140,16 +139,15 @@ import { layers } from "game/layers";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
-const _props = defineProps<{ changelog: typeof Changelog | null }>();
-const props = toRefs(_props);
+const emits = defineEmits<{
+    (e: "openChangelog"): void;
+}>();
 
 const isOpen = ref(false);
 
 const timePlayed = computed(() => formatTime(player.timePlayed, true));
 
-const infoComponent = computed(() => {
-    return coerceComponent(jsx(() => (<>{infoComponents.map(render)}</>)));
-});
+const InfoComponents = () => infoComponents.map(f => render(f));
 
 const currentTab = ref("hotkeys");
 
