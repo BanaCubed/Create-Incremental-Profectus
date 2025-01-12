@@ -25,8 +25,8 @@ const emit = defineEmits<{
 const Component = () => render(props.display);
 
         const glowColorStyle = computed(() => {
-            let color = unwrapRef(glowColor);
-            if (unref(floating)) {
+            let color = unref(props.glowColor);
+            if (true) {
                 if (color == null || color === "") {
                     color = 'var(--highlighted)'
                 }

@@ -26,7 +26,11 @@ export const main: any = createLayer("main", () => {
 
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
-        nodes: [[noPersist(cash.treeNode)], [noPersist(rebirth.treeNode)], [noPersist(srebirth.treeNode)]],
+        nodes: [
+            [noPersist(cash.treeNode)],
+            [noPersist(rebirth.treeNode)],
+            [noPersist(srebirth.treeNode)]
+        ],
         branches: [
             {
                 startNode: noPersist(rebirth.treeNode),
