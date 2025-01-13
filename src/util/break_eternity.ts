@@ -62,6 +62,7 @@ const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
 const thresholds = [
+    new Decimal(1),
     new Decimal(1e3),
     new Decimal(1e6),
     new Decimal(1e9),

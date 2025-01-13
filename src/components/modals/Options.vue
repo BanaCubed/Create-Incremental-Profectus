@@ -348,36 +348,40 @@ const currentTab = ref("behaviour");
 
 const thresholds: SelectOption[] = [
     {
-        label: '1e3',
+        label: '1',
         value: 0,
     },
     {
-        label: '1e6',
+        label: '1e3',
         value: 1,
     },
     {
-        label: '1e9',
+        label: '1e6',
         value: 2,
     },
     {
-        label: '1e12',
+        label: '1e9',
         value: 3,
     },
     {
-        label: '1e36',
+        label: '1e12',
         value: 4,
     },
     {
-        label: '1e100',
+        label: '1e36',
         value: 5,
     },
     {
-        label: '1e306',
+        label: '1e100',
         value: 6,
     },
     {
-        label: '1e1000',
+        label: '1e306',
         value: 7,
+    },
+    {
+        label: '1e1000',
+        value: 8,
     },
 ]
 

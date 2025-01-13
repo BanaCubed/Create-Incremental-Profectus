@@ -44,17 +44,14 @@ button.bought,
     cursor: default;
 }
 
-.super.can   { background-color: #d65029; }
-.rebirth.can { background-color: #c60029; }
-.cash.can    { background-color: #0b8000; }
+.super   > button.can { background-color: #d65029; }
+.rebirth > button.can { background-color: #c60029; }
+.cash    > button.can { background-color: #0b8000; }
 
-.upgrade.left,  .clickable.left  { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }
-.upgrade.right, .clickable.right { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.wide     > button { width: 240px !important; }
+.halfwide > button { width: 160px !important; }
+.tall     > button { min-height: 240px !important; }
+.halftall > button { min-height: 160px !important; }
 
-.wide     { width: 240px !important; }
-.halfwide { width: 160px !important; }
-.tall     { min-height: 240px !important; }
-.halftall { min-height: 160px !important; }
-
-.wide180  { width: 180px !important; }
-.wide270  { width: 270px !important; }
+.wide180  > button { width: 180px !important; }
+.wide270  > button { width: 270px !important; }

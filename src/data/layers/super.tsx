@@ -27,7 +27,7 @@ import { setupAutoPurchase } from "features/clickables/upgrade";
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
 const id = "super";
-const layer = createLayer(id, () => {
+const layer: any = createLayer(id, () => {
     const name = "Super";
     const color = "#d65029";
     const points = createResource<DecimalSource>(0, "SRP", 0, false);
