@@ -447,8 +447,8 @@ const layer = createLayer(id, () => {
                         ? `Rebirth for ${formatWhole(unref(conversion.actualGain))} RP` +
                           (Decimal.gte(unref(conversion.actualGain), 1e3)
                               ? ""
-                              : `, next at ${formatWhole(unref(conversion.nextAt))} cash`)
-                        : `Reach ${formatWhole(100000)} cash to Rebirth`
+                              : `, next at ${formatWhole(unref(conversion.nextAt))} Cash`)
+                        : `Reach ${formatWhole(100000)} Cash to Rebirth`
                     : 'Purchase Cash UPG 8 "Repitition" to Rebirth'}
             </>
         ),

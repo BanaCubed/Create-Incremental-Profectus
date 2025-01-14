@@ -55,14 +55,7 @@ export function regularFormat(num: DecimalSource, precision: number): string {
     return num.toStringWithDecimalPlaces(precision);
 }
 
-const eeee1000 = new Decimal("eeee1000");
-const e100000 = new Decimal("e100000");
-const e1000 = new Decimal("e1000");
-const e9 = new Decimal(1e9);
-const e6 = new Decimal(1e6);
-const e3 = new Decimal(1e3);
 const nearOne = new Decimal(0.98);
-const thousandth = new Decimal(0.001);
 const zero = new Decimal(0);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -91,7 +84,7 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         precision = 0;
     }
     if (window.settings.insanePrecision) {
-        precision *= (window.settings.precisionBonus / 2) + 1;
+        precision *= window.settings.precisionBonus / 2 + 1;
     }
     if (window.settings.blindNumbers) {
         return " ";
@@ -120,7 +113,9 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         return formatSci(num, precision);
     }
     if (num.gte(thresholds[window.settings.standardThreshold])) {
-        return window.settings.letterNumbers ? formatLet(num, precision) : formatStan(num, precision);
+        return window.settings.letterNumbers
+            ? formatLet(num, precision)
+            : formatStan(num, precision);
     }
     if (num.gte(10000)) {
         return commaFormat(num, 0);
