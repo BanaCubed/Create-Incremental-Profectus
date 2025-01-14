@@ -71,8 +71,12 @@ const thresholds = [
     new Decimal("1e1000")
 ];
 
+// IMPORTANT!!
+// DO NOT ACCESS PLAYER SETTINGS FROM IMPORTED `settings`
+// INSTEAD ACCESS SETTINGS FROM GLOBALLY ACCESSABLE `window.settings`
+
 /**
- * Formats an inputted number, taking the notation options from `settings`.
+ * Formats an inputted number, taking the notation options from `window.settings`.
  * @param {DecimalSource} num The value to format
  * @param {number} precision Amount of digits to include past the decimal point
  * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
