@@ -111,7 +111,9 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         return "Infinity";
     }
     if (num.gte(thresholds[window.settings.logarithmicThreshold])) {
-        return formatLog(num, precision);
+        return window.settings.infinityNumbers
+            ? formatInf(num, precision)
+            : formatLog(num, precision);
     }
     if (num.gte(thresholds[window.settings.scientificThreshold])) {
         return formatSci(num, precision);
@@ -127,13 +129,7 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     return regularFormat(num, precision);
 }
 
-/**
- * Formats a value in the form e0, e0.30, e1.00, e10.00
- * @param {DecimalSource} num
- * @param {number} precision
- * @returns {string}
- */
-export function formatLog(num: DecimalSource, precision = 2): string {
+export function formatLog(num: DecimalSource, precision: number = 2): string {
     const e = Decimal.log10(num);
     return (
         "e" +
@@ -146,7 +142,20 @@ export function formatLog(num: DecimalSource, precision = 2): string {
     );
 }
 
-export function formatSci(num: DecimalSource, precision = 2): string {
+export function formatInf(num: DecimalSource, precision: number = 2, base: DecimalSource = Number.POSITIVE_INFINITY): string {
+    const e = Decimal.log(num, base);
+    return (
+        format(
+            e
+                .mul(10 ** precision)
+                .trunc()
+                .div(10 ** precision)
+        ) +
+        "∞"
+    );
+}
+
+export function formatSci(num: DecimalSource, precision: number = 2): string {
     let e = Decimal.log10(num).floor();
     if (window.settings.engineering) {
         e = e.div(3);
@@ -265,7 +274,7 @@ const standardSuffixes = [
     "Ce",
     "UCe"
 ];
-export function formatStan(num: DecimalSource, precision = 2): string {
+export function formatStan(num: DecimalSource, precision: number = 2): string {
     if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
         return formatSci(num, precision);
     }
@@ -284,7 +293,7 @@ export function formatStan(num: DecimalSource, precision = 2): string {
 
 export function formatLet(
     num: DecimalSource,
-    precision = 2,
+    precision: number = 2,
     letters: string[] = [
         "A",
         "B",
@@ -347,7 +356,7 @@ export function formatWhole(num: DecimalSource): string {
     return format(num, 0);
 }
 
-export function formatTime(seconds: DecimalSource, precise = false): string {
+export function formatTime(seconds: DecimalSource, precise: boolean = false): string {
     if (Decimal.lt(seconds, 0)) {
         return "-" + formatTime(Decimal.neg(seconds));
     }

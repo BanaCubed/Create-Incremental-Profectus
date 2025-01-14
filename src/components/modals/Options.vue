@@ -78,24 +78,32 @@
 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Modifiers</span>
                 <div class="notation-list">
+
+                        <div class="notation-modifier-title">
+                            <span>Partial Overrides</span>
+                        </div>
                     <Tooltip :display="engineeringTooltip" :direction="down">
                         <div class="notation-modifier">
                             <span>Engineering</span>
                             <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
                         </div>
                     </Tooltip>
-                    <Tooltip :display="precisionTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span>Precision+ <span class="material-icons" style="font-size: 1em; display: inline-block; position: relative; top: 3px;">tune</span></span>
-                            <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
                     <Tooltip :display="lettersTooltip" :direction="down">
                         <div class="notation-modifier">
-                            <span>Letters <span class="material-icons" style="font-size: 1em; display: inline-block; position: relative; top: 3px;">tune</span></span>
+                            <span class="configurable-notation-modifier">Letters</span>
                             <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
                         </div>
                     </Tooltip>
+                    <Tooltip :display="infinityTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span>Infinity</span>
+                            <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    
+                        <div class="notation-modifier-title">
+                            <span>Global Overrides</span>
+                        </div>
                     <Tooltip :display="blindTooltip" :direction="down">
                         <div class="notation-modifier">
                             <span>Blind Mode</span>
@@ -106,6 +114,16 @@
                         <div class="notation-modifier">
                             <span>YES/NO</span>
                             <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                        </div>
+                    </Tooltip>
+                    
+                        <div class="notation-modifier-title">
+                            <span>Actual Modifiers</span>
+                        </div>
+                    <Tooltip :display="precisionTooltip" :direction="down">
+                        <div class="notation-modifier">
+                            <span class="configurable-notation-modifier">Precision+</span>
+                            <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
                         </div>
                     </Tooltip>
                 </div>
@@ -410,7 +428,7 @@ const {
     logarithmicThreshold,
     letters,
     precisionBonus,
-    bigModal
+    infinityNumbers
 } = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
@@ -427,6 +445,7 @@ const precisionTooltip   = <>Multiplies decimal places [Configurable]</>;
 const lettersTooltip     = <>Replaces Standard with Letters [Configurable]</>;
 const blindTooltip       = <>Disables number rendering</>;
 const yesnoTooltip       = <>Forces YES/NO notation</>;
+const infinityTooltip    = <>Replaces Logarithmic with Infinity</>;
 const standardTitle = () => (
     <span class="option-title">
         {settings.letterNumbers ? 'Letters' : 'Standard'}
@@ -439,7 +458,7 @@ const scientificTitle = () => (
 );
 const logarithmicTitle = () => (
     <span class="option-title">
-        Logarithmic
+        {settings.infinityNumbers ? "Infinity" : "Logarithmic"}
     </span>
 );
 const lettersTitle = <span class="option-title">
@@ -492,6 +511,17 @@ defineExpose({
 </script>
 
 <style>
+.configurable-notation-modifier::after {
+    font-size: 1em;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    font-family: 'Material Icons';
+    content: 'tune';
+    font-weight: lighter;
+    left: 10px;
+}
+
 #notation-preview {
     columns: 2;
     break-inside: unset;
@@ -562,8 +592,27 @@ defineExpose({
     margin: 0;
 }
 
+.notation-modifier-title {
+    width: 400px;
+    margin-bottom: 5px !important;
+    font-size: 11.5px;
+    opacity: 0.6;
+    position: relative;
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.notation-modifier-title:not(:first-child) {
+    margin-top: 5px;
+}
+
+.notation-modifier-title:first-child {
+    margin-top: -10px;
+}
+
 .subtitle {
-    font-size: 13.333px;
+    font-size: 15px;
     position: relative;
     width: 100%;
     text-align: center;

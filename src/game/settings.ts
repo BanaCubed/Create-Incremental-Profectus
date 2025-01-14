@@ -31,6 +31,8 @@ export interface Settings {
     blindNumbers: boolean;
     /** Whether to swap out standard notation for letter notation. */
     letterNumbers: boolean;
+    /** Whether to swap out logarithmic notation for infinity notation. */
+    infinityNumbers: boolean;
     /** Replace formatted numbers with 'YES' or 'NO'. */
     yesnoNumbers: boolean;
     /** Index of minimum value to be formatted with standard notation. */
@@ -65,6 +67,7 @@ const state = reactive<Partial<Settings>>({
     insanePrecision: false,
     blindNumbers: false,
     letterNumbers: false,
+    infinityNumbers: false,
     yesnoNumbers: false,
     standardThreshold: 3,
     scientificThreshold: 5,
@@ -114,6 +117,7 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         insanePrecision: false,
         blindNumbers: false,
         letterNumbers: false,
+        infinityNumbers: false,
         yesnoNumbers: false,
         standardThreshold: 3,
         scientificThreshold: 5,
