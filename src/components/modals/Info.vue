@@ -68,7 +68,7 @@
                         </div><br>
                         <div>
                             <a
-                                href="https://raw.githack.com/BanaCubed/Create-Incremental/dev-pages/index.html"
+                                href="https://raw.githack.com/BanaCubed/Create-Incremental/beta-deploy/index.html"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
