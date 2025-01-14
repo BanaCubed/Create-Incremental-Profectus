@@ -63,6 +63,7 @@ function onUpdate(value: SelectOption) {
 .vue-select,
 .vue-dropdown {
     border-color: var(--outline);
+    border-width: 2px;
 }
 
 .vue-dropdown {

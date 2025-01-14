@@ -88,9 +88,11 @@ form {
 input {
     width: 50%;
     outline: none;
-    border: solid 1px var(--outline);
+    border: solid 2px var(--outline);
     background-color: unset;
     border-radius: var(--border-radius);
+    font-size: 16px;
+    height: 29.2px;
 }
 
 .fullWidth {

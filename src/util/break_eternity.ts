@@ -65,9 +65,9 @@ const thresholds = [
     new Decimal(1e6),
     new Decimal(1e9),
     new Decimal(1e12),
-    new Decimal(1e36),
+    new Decimal(1e33),
     new Decimal(1e100),
-    new Decimal(1e306),
+    new Decimal(1e303),
     new Decimal("1e1000")
 ];
 

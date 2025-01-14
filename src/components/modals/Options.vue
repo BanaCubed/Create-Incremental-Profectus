@@ -72,9 +72,9 @@
             <div v-if="isTab('notation')">
 
                 <span class="subtitle" style="margin-top: 5px;">Thresholds (checked from top down)</span>
-                <Select :options="thresholds" :title="logarithmicTitle" v-model="logarithmicThreshold" />
-                <Select :options="thresholds" :title="scientificTitle"  v-model="scientificThreshold"  />
-                <Select :options="thresholds" :title="standardTitle"    v-model="standardThreshold"    />
+                <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
+                <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
+                <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Modifiers</span>
                 <div class="notation-list">
@@ -131,18 +131,20 @@
                 <span class="subtitle" style="margin-top: 32px;">Modifier Configs</span>
                 <span class="subtitle" style="opacity: 0.4; font-size: 0.6em;" v-if="!settings.letterNumbers && !settings.insanePrecision">No active modifiers have configs</span>
                 <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
-                <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="1" v-model="precisionBonus" />
+                <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
                 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
                 <div class="notation-modifier" id="notation-preview">
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
-                    <p>&nbsp;Thousand - {{ format("1e3") }}</p>
-                    <p>&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
-                    <p>&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
-                    <p>&nbsp;Trillion - {{ format("1e12") }}</p>
-                    <p>Decillion - {{ format("1e33") }}</p>
-                    <p>&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
+                    <p>&nbsp;&nbsp;Thousand - {{ format("1e3") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
+                    <p>&nbsp;&nbsp;Trillion - {{ format("1e12") }}</p>
+                    <p>&nbsp;Decillion - {{ format("1e33") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;Googol - {{ format("1e100") }}</p>
+                    <p>Centillion - {{ format("1e303") }}</p>
+                    <p>&nbsp;&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
                 </div>
             </div>
             <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
@@ -363,6 +365,29 @@ function openSave(id: string) {
 const isOpen = ref(false);
 const currentTab = ref("behaviour");
 
+const thresholdsSimple: SelectOption[] = [
+    {
+        label: '1',
+        value: 0,
+    },
+    {
+        label: '1e3',
+        value: 1,
+    },
+    {
+        label: '1e6',
+        value: 2,
+    },
+    {
+        label: '1e9',
+        value: 3,
+    },
+    {
+        label: '1e12',
+        value: 4,
+    }
+]
+
 const thresholds: SelectOption[] = [
     {
         label: '1',
@@ -385,7 +410,7 @@ const thresholds: SelectOption[] = [
         value: 4,
     },
     {
-        label: '1e36',
+        label: '1e33',
         value: 5,
     },
     {
@@ -393,13 +418,28 @@ const thresholds: SelectOption[] = [
         value: 6,
     },
     {
-        label: '1e306',
+        label: '1e303',
         value: 7,
     },
     {
         label: '1e1000',
         value: 8,
     },
+]
+
+const precisionPlusOptions: SelectOption[] = [
+    {
+        label: '+1',
+        value: 1,
+    },
+    {
+        label: '+2',
+        value: 2,
+    },
+    {
+        label: '+3',
+        value: 3,
+    }
 ]
 
 function isTab(tab: string): boolean {
