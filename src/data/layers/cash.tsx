@@ -10,7 +10,7 @@ import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderCol, renderRow } from "util/vue";
+import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format, formatWhole } from "util/bignum";
@@ -34,7 +34,6 @@ import Column from "components/layout/Column.vue";
 import srebirth from "./super";
 import { createRepeatable } from "features/clickables/repeatable";
 import Formula from "game/formulas/formulas";
-import Row from "components/layout/Row.vue";
 
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
@@ -829,7 +828,9 @@ const layer: any = createLayer(id, () => {
                             <Column>
                                 {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
                                 {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
-                                {rebirth.upgs.four.bought.value ? renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve) : null}
+                                {rebirth.upgs.four.bought.value === true
+                                    ? renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)
+                                    : null}
                             </Column>
                         </>
                     )

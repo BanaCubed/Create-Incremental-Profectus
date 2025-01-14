@@ -1,9 +1,6 @@
 import projInfo from "data/projInfo.json";
-import settings from "game/settings";
 import type { DecimalSource } from "lib/break_eternity";
 import Decimal from "lib/break_eternity";
-
-export default Decimal;
 
 const decimalOne = new Decimal(1);
 
@@ -58,9 +55,17 @@ export function regularFormat(num: DecimalSource, precision: number): string {
     return num.toStringWithDecimalPlaces(precision);
 }
 
+const eeee1000 = new Decimal("eeee1000");
+const e100000 = new Decimal("e100000");
+const e1000 = new Decimal("e1000");
+const e9 = new Decimal(1e9);
+const e6 = new Decimal(1e6);
+const e3 = new Decimal(1e3);
 const nearOne = new Decimal(0.98);
+const thousandth = new Decimal(0.001);
 const zero = new Decimal(0);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const thresholds = [
     new Decimal(1),
     new Decimal(1e3),
@@ -82,69 +87,54 @@ const thresholds = [
  */
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
-    if (precision < 0) {
-        precision = 0;
-    }
-    if (settings.insanePrecision) {
-        precision *= settings.precisionBonus;
-    }
-    if (settings.blindNumbers) {
-        return " ";
-    }
-    if (settings.yesnoNumbers) {
-        return Decimal.neq(num, 0) ? "YES" : "NO";
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
     if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
         return "NaN";
     }
-    // Likely to eventually benefit from becoming a parameter
     if (num.sign < 0) {
         return "-" + format(num.neg(), precision);
     }
-    // Benefitial to put something here that catches numbers above some arbitrary value (like eee10) to prevent lag
     if (num.mag === Number.POSITIVE_INFINITY) {
         return "Infinity";
     }
-    if (num.gte(thresholds[settings.logarithmicThreshold])) {
-        return formatLog(num, precision);
-    }
-    if (num.gte(thresholds[settings.scientificThreshold])) {
-        return formatSci(num, precision);
-    }
-    if (num.gte(thresholds[settings.standardThreshold])) {
-        return settings.letterNumbers ? formatLet(num, precision) : formatStan(num, precision);
-    }
-    if (num.gte(10000)) {
+    if (num.gte(eeee1000)) {
+        const slog = num.slog();
+        if (slog.gte(e6)) {
+            return "F" + format(slog.floor());
+        } else {
+            return (
+                Decimal.pow(10, slog.sub(slog.floor())).toStringWithDecimalPlaces(3) +
+                "F" +
+                commaFormat(slog.floor(), 0)
+            );
+        }
+    } else if (num.gte(e100000)) {
+        return exponentialFormat(num, 0, false);
+    } else if (num.gte(e1000)) {
+        return exponentialFormat(num, 0);
+    } else if (num.gte(e9)) {
+        return exponentialFormat(num, precision);
+    } else if (num.gte(e3)) {
         return commaFormat(num, 0);
+    } else if (num.gte(thousandth) || !small) {
+        return regularFormat(num, precision);
+    } else if (num.eq(zero)) {
+        return (0).toFixed(precision);
     }
-    return regularFormat(num, precision);
-}
 
-/**
- * Formats a value in the form e0, e0.30, e1.00, e10.00
- * @param {DecimalSource} num
- * @param {number} precision
- * @returns {string}
- */
-export function formatLog(num: DecimalSource, precision = 2): string {
-    const e = Decimal.log10(num);
-    return (
-        "e" +
-        format(
-            e
-                .mul(10 ** precision)
-                .trunc()
-                .div(10 ** precision)
-        )
-    );
+    num = invertOOM(num);
+    if (num.lt(e1000)) {
+        const val = exponentialFormat(num, precision);
+        return val.replace(/([^(?:e|F)]*)$/, "-$1");
+    } else {
+        return format(num, precision) + "⁻¹";
+    }
 }
 
 export function formatSci(num: DecimalSource, precision = 2): string {
     let e = Decimal.log10(num).floor();
-    if (settings.engineering) {
+    if (false) {
         e = e.div(3);
         precision -= e.mul(3).sub(e.floor().mul(3)).toNumber();
         e = e.floor().mul(3);
@@ -311,7 +301,7 @@ export function formatLet(
     ],
     base: DecimalSource = 1000
 ): string {
-    letters = settings.letters.length < 2 ? letters : Array.from(settings.letters);
+    letters = 1 < 2 ? letters : Array.from("PLACEHOLDER");
     const e = Decimal.log(num, base).floor().toNumber();
     let suffix = "";
     let _num = e;
