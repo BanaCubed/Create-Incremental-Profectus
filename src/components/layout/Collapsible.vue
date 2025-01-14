@@ -40,6 +40,10 @@ const Content = () => render(props.content);
     transition-duration: 0s;
 }
 
+.collapsible-toggle:last-child {
+    margin-left: unset;
+}
+
 :deep(.collapsible-toggle + .table) {
     max-width: unset;
     width: calc(100% + 10px);

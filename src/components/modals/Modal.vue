@@ -13,7 +13,7 @@
                 v-bind="$attrs"
             >
                 <div class="modal-wrapper">
-                    <div class="modal-container" :class="{bigModal}" :width="width">
+                    <div class="modal-container" :width="width">
                         <div class="modal-header">
                             <!--
                                 @slot Modal Header
@@ -55,9 +55,7 @@
 import type { FeatureNode } from "game/layers";
 import { computed, ref } from "vue";
 import Context from "../Context.vue";
-import settings from "game/settings"
 
-const bigModal = computed(() => settings.bigModal);
 const props = defineProps<{
     modelValue: boolean;
     preventClosing?: boolean;
@@ -107,10 +105,9 @@ defineExpose({ isOpen, nodes });
 }
 
 .modal-container {
-    width: calc(0vw - -640px);
-    max-width: calc(100vw - 30px);
-    max-height: calc(100vh - 30px);
-    min-height: 0;
+    width: 640px;
+    max-width: 95vw;
+    max-height: 95vh;
     background-color: var(--background);
     padding: 20px;
     border-radius: var(--border-radius);
@@ -120,13 +117,6 @@ defineExpose({ isOpen, nodes });
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    overflow: clip;
-    box-shadow: 0 12px 24px 6px rgba(0, 0, 0, 0.35);
-}
-
-.modal-container.bigModal {
-    width: calc(100vw - 30px);
-    min-height: calc(100vh - 30px);
 }
 
 .modal-header {
@@ -138,7 +128,6 @@ defineExpose({ isOpen, nodes });
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    flex-grow: 1;
 }
 
 .modal-footer {
