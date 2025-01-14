@@ -87,54 +87,69 @@ const thresholds = [
  */
 export function format(num: DecimalSource, precision?: number, small?: boolean): string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
+    if (precision < 0) {
+        precision = 0;
+    }
+    if (window.settings.insanePrecision) {
+        precision *= window.settings.precisionBonus;
+    }
+    if (window.settings.blindNumbers) {
+        return " ";
+    }
+    if (window.settings.yesnoNumbers) {
+        return Decimal.neq(num, 0) ? "YES" : "NO";
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
     if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
         return "NaN";
     }
+    // Likely to eventually benefit from becoming a parameter
     if (num.sign < 0) {
         return "-" + format(num.neg(), precision);
     }
+    // Benefitial to put something here that catches numbers above some arbitrary value (like eee10) to prevent lag
     if (num.mag === Number.POSITIVE_INFINITY) {
         return "Infinity";
     }
-    if (num.gte(eeee1000)) {
-        const slog = num.slog();
-        if (slog.gte(e6)) {
-            return "F" + format(slog.floor());
-        } else {
-            return (
-                Decimal.pow(10, slog.sub(slog.floor())).toStringWithDecimalPlaces(3) +
-                "F" +
-                commaFormat(slog.floor(), 0)
-            );
-        }
-    } else if (num.gte(e100000)) {
-        return exponentialFormat(num, 0, false);
-    } else if (num.gte(e1000)) {
-        return exponentialFormat(num, 0);
-    } else if (num.gte(e9)) {
-        return exponentialFormat(num, precision);
-    } else if (num.gte(e3)) {
+    if (num.gte(thresholds[window.settings.logarithmicThreshold])) {
+        return formatLog(num, precision);
+    }
+    if (num.gte(thresholds[window.settings.scientificThreshold])) {
+        return formatSci(num, precision);
+    }
+    if (num.gte(thresholds[window.settings.standardThreshold])) {
+        return window.settings.letterNumbers ? formatLet(num, precision) : formatStan(num, precision);
+    }
+    if (num.gte(10000)) {
         return commaFormat(num, 0);
-    } else if (num.gte(thousandth) || !small) {
-        return regularFormat(num, precision);
-    } else if (num.eq(zero)) {
-        return (0).toFixed(precision);
     }
+    return regularFormat(num, precision);
+}
 
-    num = invertOOM(num);
-    if (num.lt(e1000)) {
-        const val = exponentialFormat(num, precision);
-        return val.replace(/([^(?:e|F)]*)$/, "-$1");
-    } else {
-        return format(num, precision) + "⁻¹";
-    }
+/**
+ * Formats a value in the form e0, e0.30, e1.00, e10.00
+ * @param {DecimalSource} num
+ * @param {number} precision
+ * @returns {string}
+ */
+export function formatLog(num: DecimalSource, precision = 2): string {
+    const e = Decimal.log10(num);
+    return (
+        "e" +
+        format(
+            e
+                .mul(10 ** precision)
+                .trunc()
+                .div(10 ** precision)
+        )
+    );
 }
 
 export function formatSci(num: DecimalSource, precision = 2): string {
     let e = Decimal.log10(num).floor();
-    if (false) {
+    if (window.settings.engineering) {
         e = e.div(3);
         precision -= e.mul(3).sub(e.floor().mul(3)).toNumber();
         e = e.floor().mul(3);
@@ -301,7 +316,7 @@ export function formatLet(
     ],
     base: DecimalSource = 1000
 ): string {
-    letters = 1 < 2 ? letters : Array.from("PLACEHOLDER");
+    letters = window.settings.letters.length < 2 ? letters : Array.from(window.settings.letters);
     const e = Decimal.log(num, base).floor().toNumber();
     let suffix = "";
     let _num = e;
