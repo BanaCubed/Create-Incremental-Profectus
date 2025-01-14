@@ -91,7 +91,7 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         precision = 0;
     }
     if (window.settings.insanePrecision) {
-        precision *= window.settings.precisionBonus;
+        precision *= (window.settings.precisionBonus / 2) + 1;
     }
     if (window.settings.blindNumbers) {
         return " ";

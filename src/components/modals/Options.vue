@@ -113,7 +113,7 @@
                 <span class="subtitle" style="margin-top: 32px;">Modifier Configs</span>
                 <span class="subtitle" style="opacity: 0.4; font-size: 0.6em;" v-if="!settings.letterNumbers && !settings.insanePrecision">No active modifiers have configs</span>
                 <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
-                <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="0.5" v-model="precisionBonus" />
+                <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="1" v-model="precisionBonus" />
                 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
                 <div style="columns: 2; break-inside: unset; display: block; padding: 10px; margin-right: 10px; margin-left: 10px; text-align: left" class="notation-modifier">
@@ -449,7 +449,7 @@ const lettersTitle = <span class="option-title">
 </span>;
 const precisionTitle = <span class="option-title">
     Precision+ Config
-    <desc>Decimal places multiplier.</desc>
+    <desc>Decimal places increase.</desc>
 </span>;
 const unthrottledTitle = <span class="option-title">
     Unthrottled
