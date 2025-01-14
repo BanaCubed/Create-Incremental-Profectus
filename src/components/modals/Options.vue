@@ -116,7 +116,7 @@
                 <Slider v-if="settings.insanePrecision" :title="precisionTitle" :min="1" :max="3" :step="1" v-model="precisionBonus" />
                 
                 <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
-                <div style="columns: 2; break-inside: unset; display: block; padding: 10px; margin-right: 10px; margin-left: 10px; text-align: left" class="notation-modifier">
+                <div class="notation-modifier" id="notation-preview">
                     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
                     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
                     <p>&nbsp;Thousand - {{ format("1e3") }}</p>
@@ -165,8 +165,7 @@ import { main } from "data/projEntry";
 import Text from "components/fields/Text.vue";
 import { Texture } from "@pixi/core";
 import Slider from "components/fields/Slider.vue";
-import { format } from "util/bignum";
-import Decimal from "util/bignum";
+import Decimal, { format } from "util/bignum";
 import Save from "./Save.vue";
 
 export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
@@ -493,6 +492,26 @@ defineExpose({
 </script>
 
 <style>
+#notation-preview {
+    columns: 2;
+    break-inside: unset;
+    display: block;
+    padding: 10px;
+    margin-left: 10px; margin-right: 10px;
+    text-align: left
+}
+
+#notation-preview > p {
+    width: 259.6px;
+    margin: auto
+}
+
+@media screen and (max-width: 600px) {
+    #notation-preview {
+        columns: 1;
+    }
+}
+
 .notation-thresholds {
     width: 75%;
 }
