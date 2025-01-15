@@ -72,67 +72,67 @@
             <div v-if="isTab('notation')">
 
                 <details open>
-                    <summary class="subtitle">Modifiers</summary>
-                    <div class="notation-list">
+                    <summary class="subtitle" style="margin-top: 12px;">Modifiers</summary>
+                    
+                    <details open>
+                        <summary class="notation-modifier-title">Unconditional Modifiers</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="precisionTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span class="configurable-notation-modifier">Precision+</span>
+                                    <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                    </details>
 
-                            <div class="notation-modifier-title">
-                                <span>Partial Overrides</span>
-                            </div>
-                        <Tooltip :display="engineeringTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span>Engineering</span>
-                                <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                        <Tooltip :display="lettersTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span class="configurable-notation-modifier">Letters</span>
-                                <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                        <Tooltip :display="infinityTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span>Infinity</span>
-                                <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                        
-                            <div class="notation-modifier-title">
-                                <span>Global Overrides</span>
-                            </div>
-                        <Tooltip :display="blindTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span>Blind Mode</span>
-                                <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                        <Tooltip :display="yesnoTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span>YES/NO</span>
-                                <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                        
-                            <div class="notation-modifier-title">
-                                <span>Actual Modifiers</span>
-                            </div>
-                        <Tooltip :display="precisionTooltip" :direction="down">
-                            <div class="notation-modifier">
-                                <span class="configurable-notation-modifier">Precision+</span>
-                                <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
-                            </div>
-                        </Tooltip>
-                    </div>
-                </details>
-
-                <details :open="settings.letterNumbers || settings.insanePrecision">
-                    <summary class="subtitle">Modifier Configs</summary>
-                    <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
-                    <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                    <details>
+                        <summary class="notation-modifier-title">Partial Overrides</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="engineeringTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Engineering</span>
+                                    <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="lettersTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span class="configurable-notation-modifier">Letters</span>
+                                    <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="infinityTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Infinity</span>
+                                    <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
+                    </details>
+                    
+                    <details>
+                        <summary class="notation-modifier-title">Full Overrides</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="blindTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Blind Mode</span>
+                                    <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="yesnoTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>YES/NO</span>
+                                    <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                    </details>
                 </details>
 
                 <details>
-                    <summary class="subtitle" style="margin-top: 5px;">Thresholds</summary>
+                    <summary class="subtitle">Thresholds</summary>
                     <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
                     <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
                     <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
@@ -456,7 +456,7 @@ function isTab(tab: string): boolean {
 function setTab(tab: string) {
     currentTab.value = tab;
 }
-const down = Direction.Up; // Don't ask
+const down = Direction.Up; // dont ask
 
 const SettingFields = () => settingFields.map(f => render(f));
 
@@ -488,9 +488,9 @@ const isPaused = computed({
 });
 
 const engineeringTooltip = <>Replaces Scientific with Engineering</>;
-const precisionTooltip   = <>Multiplies decimal places [Configurable]</>;
+const precisionTooltip   = <>Increases decimal places [Configurable]</>;
 const lettersTooltip     = <>Replaces Standard with Letters [Configurable]</>;
-const blindTooltip       = <>Disables number rendering</>;
+const blindTooltip       = <>Forces Blind notation</>;
 const yesnoTooltip       = <>Forces YES/NO notation</>;
 const infinityTooltip    = <>Replaces Logarithmic with Infinity</>;
 const standardTitle = () => (
@@ -557,6 +557,12 @@ defineExpose({
 });
 </script>
 
+<style lang="css" scoped>
+summary {
+    cursor: pointer;
+}
+</style>
+
 <style>
 .configurable-notation-modifier::after {
     font-size: 1em;
@@ -611,6 +617,14 @@ defineExpose({
     margin-left: 10px
 }
 
+.notation-list + div {
+    margin-top: 0px;
+}
+
+.notation-list + form {
+    margin-top: -10px;
+}
+
 .notation-list>div {
     break-inside: avoid;
     margin: 0 10px 0 0;
@@ -624,7 +638,7 @@ defineExpose({
     background-color: rgb(from var(--feature-foreground) r g b / 0.15);
     border-radius: var(--border-radius);
     margin: 0 0 10px;
-    min-width: 200px;
+    min-width: 150px;
 }
 
 .notation-modifier>span {
@@ -640,14 +654,42 @@ defineExpose({
 }
 
 .notation-modifier-title {
-    width: 400px;
-    margin-bottom: 5px !important;
-    font-size: 11.5px;
-    opacity: 0.6;
+    font-size: 12px;
     position: relative;
     width: 100%;
-    text-align: center;
+    text-align: left;
     display: block;
+    /* opacity: 0.6; */
+    margin-top: 0px !important;
+    margin-bottom: 12px;
+    padding-left: 23.75px;
+}
+
+.notation-modifier-title::after {
+    height: 4px;
+    border-radius: var(--border-radius);
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 30%, transparent);
+    width: 35%;
+    position: absolute;
+    content: "";
+    bottom: -4px;
+    left: 5px;
+}
+
+.notation-modifier-title::before {
+    position: absolute;
+    left: 10px;
+    translate: 0 -1.5px;
+}
+
+:not([open]) > .notation-modifier-title::before {
+    content: "▶";
+    scale: 0.8;
+}
+
+[open] > .notation-modifier-title::before {
+    content: "▼";
+    scale: 1.2;
 }
 
 .notation-modifier-title:not(:first-child) {
@@ -666,8 +708,8 @@ defineExpose({
     display: block;
     /* opacity: 0.6; */
     margin-top: 5px;
-    margin-bottom: 19px;
-    padding-left: 40px;
+    margin-bottom: 16px;
+    padding-left: 25px;
 }
 
 .subtitle::after {
@@ -678,23 +720,24 @@ defineExpose({
     position: absolute;
     content: "";
     bottom: -4px;
-    left: 15px;
+    left: 0px;
 }
 
 .subtitle::before {
     position: absolute;
-    left: 20px;
+    left: 5px;
 }
 
 :not([open]) > .subtitle::before {
     content: "▶";
     scale: 0.8;
-    translate: 0 -2px;
+    translate: 0 -3px;
 }
 
 [open] > .subtitle::before {
     content: "▼";
     scale: 1.2;
+    translate: 0 -1px;
 }
 
 .lang {
