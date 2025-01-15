@@ -71,81 +71,88 @@
             </div>
             <div v-if="isTab('notation')">
 
-                <span class="subtitle" style="margin-top: 5px;">Thresholds (checked from top down)</span>
-                <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
-                <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
-                <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
+                <details open>
+                    <summary class="subtitle">Modifiers</summary>
+                    <div class="notation-list">
 
-                <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Modifiers</span>
-                <div class="notation-list">
+                            <div class="notation-modifier-title">
+                                <span>Partial Overrides</span>
+                            </div>
+                        <Tooltip :display="engineeringTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span>Engineering</span>
+                                <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                        <Tooltip :display="lettersTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span class="configurable-notation-modifier">Letters</span>
+                                <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                        <Tooltip :display="infinityTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span>Infinity</span>
+                                <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                        
+                            <div class="notation-modifier-title">
+                                <span>Global Overrides</span>
+                            </div>
+                        <Tooltip :display="blindTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span>Blind Mode</span>
+                                <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                        <Tooltip :display="yesnoTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span>YES/NO</span>
+                                <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                        
+                            <div class="notation-modifier-title">
+                                <span>Actual Modifiers</span>
+                            </div>
+                        <Tooltip :display="precisionTooltip" :direction="down">
+                            <div class="notation-modifier">
+                                <span class="configurable-notation-modifier">Precision+</span>
+                                <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
+                            </div>
+                        </Tooltip>
+                    </div>
+                </details>
 
-                        <div class="notation-modifier-title">
-                            <span>Partial Overrides</span>
-                        </div>
-                    <Tooltip :display="engineeringTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span>Engineering</span>
-                            <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                    <Tooltip :display="lettersTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span class="configurable-notation-modifier">Letters</span>
-                            <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                    <Tooltip :display="infinityTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span>Infinity</span>
-                            <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                    
-                        <div class="notation-modifier-title">
-                            <span>Global Overrides</span>
-                        </div>
-                    <Tooltip :display="blindTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span>Blind Mode</span>
-                            <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                    <Tooltip :display="yesnoTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span>YES/NO</span>
-                            <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                    
-                        <div class="notation-modifier-title">
-                            <span>Actual Modifiers</span>
-                        </div>
-                    <Tooltip :display="precisionTooltip" :direction="down">
-                        <div class="notation-modifier">
-                            <span class="configurable-notation-modifier">Precision+</span>
-                            <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
-                        </div>
-                    </Tooltip>
-                </div>
+                <details :open="settings.letterNumbers || settings.insanePrecision">
+                    <summary class="subtitle">Modifier Configs</summary>
+                    <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
+                    <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                </details>
 
-                <span class="subtitle" style="margin-top: 32px;">Modifier Configs</span>
-                <span class="subtitle" style="opacity: 0.4; font-size: 0.6em;" v-if="!settings.letterNumbers && !settings.insanePrecision">No active modifiers have configs</span>
-                <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
-                <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                <details>
+                    <summary class="subtitle" style="margin-top: 5px;">Thresholds</summary>
+                    <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
+                    <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
+                    <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
+                </details>
                 
-                <span class="subtitle" style="margin-top: 32px; margin-bottom: 10px;">Preview</span>
-                <div class="notation-modifier" id="notation-preview">
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
-                    <p>&nbsp;&nbsp;Thousand - {{ format("1e3") }}</p>
-                    <p>&nbsp;&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
-                    <p>&nbsp;&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
-                    <p>&nbsp;&nbsp;Trillion - {{ format("1e12") }}</p>
-                    <p>&nbsp;Decillion - {{ format("1e33") }}</p>
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;Googol - {{ format("1e100") }}</p>
-                    <p>Centillion - {{ format("1e303") }}</p>
-                    <p>&nbsp;&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
-                </div>
+                <details open>
+                    <summary class="subtitle">Preview</summary>
+                    <div class="notation-modifier" id="notation-preview">
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
+                        <p>&nbsp;&nbsp;Thousand - {{ format("1e3") }}</p>
+                        <p>&nbsp;&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
+                        <p>&nbsp;&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
+                        <p>&nbsp;&nbsp;Trillion - {{ format("1e12") }}</p>
+                        <p>&nbsp;Decillion - {{ format("1e33") }}</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;Googol - {{ format("1e100") }}</p>
+                        <p>Centillion - {{ format("1e303") }}</p>
+                        <p>&nbsp;&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
+                    </div>
+                </details>
             </div>
             <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
             </div>
@@ -652,12 +659,42 @@ defineExpose({
 }
 
 .subtitle {
-    font-size: 15px;
+    font-size: 16px;
     position: relative;
     width: 100%;
-    text-align: center;
+    text-align: left;
     display: block;
-    opacity: 0.6;
+    /* opacity: 0.6; */
+    margin-top: 5px;
+    margin-bottom: 19px;
+    padding-left: 40px;
+}
+
+.subtitle::after {
+    height: 4px;
+    border-radius: var(--border-radius);
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.25) 30%, transparent);
+    width: 50%;
+    position: absolute;
+    content: "";
+    bottom: -4px;
+    left: 15px;
+}
+
+.subtitle::before {
+    position: absolute;
+    left: 20px;
+}
+
+:not([open]) > .subtitle::before {
+    content: "▶";
+    scale: 0.8;
+    translate: 0 -2px;
+}
+
+[open] > .subtitle::before {
+    content: "▼";
+    scale: 1.2;
 }
 
 .lang {
@@ -672,7 +709,11 @@ defineExpose({
     text-align: right;
     position: relative;
     overflow: clip;
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
     box-shadow: var(--shadows);
     cursor: pointer;
 }
@@ -687,11 +728,19 @@ defineExpose({
 }
 
 .lang:hover:not(.active) {
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0.3), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0.3),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
 }
 
 .lang.active {
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0.3), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0.3),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
     cursor: default;
 }
 
