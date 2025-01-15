@@ -638,7 +638,7 @@ summary {
     background-color: rgb(from var(--feature-foreground) r g b / 0.15);
     border-radius: var(--border-radius);
     margin: 0 0 10px;
-    min-width: 150px;
+    min-width: 200px;
 }
 
 .notation-modifier>span {
