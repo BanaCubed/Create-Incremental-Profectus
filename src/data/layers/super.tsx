@@ -168,11 +168,11 @@ const layer: any = createLayer(id, () => {
                             {Decimal.gte(unref(conversion.actualGain), 1e3) ? (
                                 <></>
                             ) : (
-                                <>, next at ${formatWhole(unref(conversion.nextAt))} RP</>
+                                <>, next at {formatWhole(unref(conversion.nextAt))} RP</>
                             )}
                         </>
                     ) : (
-                        <>Reach ${formatWhole(1e16)} cash to Super Rebirth</>
+                        <>Reach {formatWhole(1e16)} cash to Super Rebirth</>
                     )
                 ) : (
                     <>Purchase RP UPG 11 "Continuity" to Super Rebirth</>

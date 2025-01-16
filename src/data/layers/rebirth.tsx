@@ -445,15 +445,15 @@ const layer = createLayer(id, () => {
                 {cash.upgs.eight.bought.value === true ? (
                     Decimal.gte(cash.points.value, 100000) ? (
                         <>
-                            Rebirth for ${formatWhole(unref(conversion.actualGain))} RP
+                            Rebirth for {formatWhole(unref(conversion.actualGain))} RP
                             {Decimal.gte(unref(conversion.actualGain), 1e3) ? (
                                 <></>
                             ) : (
-                                <>, next at ${formatWhole(unref(conversion.nextAt))} Cash</>
+                                <>, next at {formatWhole(unref(conversion.nextAt))} Cash</>
                             )}
                         </>
                     ) : (
-                        <>Reach ${formatWhole(100000)} Cash to Rebirth</>
+                        <>Reach {formatWhole(100000)} Cash to Rebirth</>
                     )
                 ) : (
                     <>Purchase Cash UPG 8 "Repitition" to Rebirth</>
