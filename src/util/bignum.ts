@@ -1,17 +1,14 @@
-/**
- * @module
- */
 // Import Decimal and numberUtils from a different file to globally change which big num library gets used
 // This way switching out big number libraries just needs to happen here, not every file that needs big numbers
 import type { DecimalSource as RawDecimalSource } from "lib/break_eternity";
-import Decimal from "lib/break_eternity"; // @ts-expect-error: changing setting in tsconfig.json requires changing other settings
-import * as numberUtils from "util/break_eternity.tsx";
+import Decimal from "lib/break_eternity";
+import * as numberUtils from "./break_eternity";
 import { JSX } from "vue/jsx-runtime";
 
 export const {
-    exponentialFormat,
-    commaFormat,
-    regularFormat,
+    formatExp: exponentialFormat,
+    formatCom: commaFormat,
+    formatRegular: regularFormat,
     format,
     formatWhole,
     formatTime,

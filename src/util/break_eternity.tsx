@@ -5,7 +5,7 @@ import { JSX } from "vue/jsx-runtime";
 
 const decimalOne = new Decimal(1);
 
-export function exponentialFormat(num: DecimalSource, precision: number, mantissa = true): string {
+export function formatExp(num: DecimalSource, precision: number, mantissa = true): string {
     let e = Decimal.log10(num).floor();
     let m = Decimal.div(num, Decimal.pow(10, e));
     if (m.toStringWithDecimalPlaces(precision) === "10") {
@@ -15,7 +15,7 @@ export function exponentialFormat(num: DecimalSource, precision: number, mantiss
     const eString = e.gte(1e9)
         ? format(e, Math.max(Math.max(precision, 3), projInfo.defaultDecimalsShown))
         : e.gte(10000)
-          ? commaFormat(e, 0)
+          ? formatCom(e, 0)
           : e.toStringWithDecimalPlaces(0);
     if (mantissa) {
         return m.toStringWithDecimalPlaces(precision) + "e" + eString;
@@ -24,7 +24,7 @@ export function exponentialFormat(num: DecimalSource, precision: number, mantiss
     }
 }
 
-export function commaFormat(num: DecimalSource, precision: number): string {
+export function formatCom(num: DecimalSource, precision: number): string {
     if (num == null) {
         return "NaN";
     }
@@ -39,7 +39,7 @@ export function commaFormat(num: DecimalSource, precision: number): string {
     return portions[0] + "." + portions[1];
 }
 
-export function regularFormat(num: DecimalSource, precision: number): string {
+export function formatRegular(num: DecimalSource, precision: number): string {
     if (num == null) {
         return "NaN";
     }
@@ -129,9 +129,9 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         );
     }
     if (num.gte(10000)) {
-        return <>{commaFormat(num, 0)}</>;
+        return <>{formatCom(num, 0)}</>;
     }
-    return <>{regularFormat(num, precision)}</>;
+    return <>{formatRegular(num, precision)}</>;
 }
 
 export function formatLog(num: DecimalSource, precision: number = 2): JSX.Element {
