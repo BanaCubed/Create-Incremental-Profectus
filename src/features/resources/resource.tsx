@@ -156,7 +156,7 @@ export function displayResource(resource: Resource, overrideAmount?: DecimalSour
     if (Decimal.eq(resource.precision, 0)) {
         return formatWhole(resource.small ? amount : Decimal.floor(amount));
     }
-    return format(amount, resource.precision, resource.small);
+    return <>{format(amount, resource.precision, resource.small)}</>;
 }
 
 /** Utility for unwrapping a resource that may or may not be inside a ref. */
