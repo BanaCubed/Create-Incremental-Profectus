@@ -6,12 +6,13 @@ import Tree from "features/trees/Tree.vue";
 import TreeNode from "features/trees/TreeNode.vue";
 import { noPersist } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { stringyFormat, stringyFormatWhole } from "util/bignum";
+import Decimal, { format, formatWhole, stringyFormat, stringyFormatWhole } from "util/bignum";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
 import { Renderable, VueFeature, vueFeatureMixin, VueFeatureOptions } from "util/vue";
 import type { MaybeRef, MaybeRefOrGetter, Ref } from "vue";
 import { ref, shallowRef, unref } from "vue";
+import { JSX } from "vue/jsx-runtime";
 
 /** A symbol used to identify {@link TreeNode} features. */
 export const TreeNodeType = Symbol("TreeNode");
@@ -265,20 +266,20 @@ export function createResourceTooltip(
     resource: Resource,
     requiredResource: Resource | null = null,
     requirement: MaybeRefOrGetter<DecimalSource> = 0
-): () => string {
+): () => JSX.Element {
     const req = processGetter(requirement);
     return () => {
         if (requiredResource == null || Decimal.gte(resource.value, unref(req))) {
-            return displayResource(resource) + " " + resource.displayName;
+            return <>{displayResource(resource)} {resource.displayName}</>;
         }
-        return `Reach ${
+        return <>Reach {
             Decimal.eq(requiredResource.precision, 0)
-                ? stringyFormatWhole(unref(req))
-                : stringyFormat(unref(req), requiredResource.precision)
-        } ${requiredResource.displayName} to unlock (You have ${
+                ? formatWhole(unref(req))
+                : format(unref(req), requiredResource.precision)
+        } {requiredResource.displayName} to unlock (You have ${
             Decimal.eq(requiredResource.precision, 0)
-                ? stringyFormatWhole(requiredResource.value)
-                : stringyFormat(requiredResource.value, requiredResource.precision)
-        })`;
+                ? formatWhole(requiredResource.value)
+                : format(requiredResource.value, requiredResource.precision)
+        })</>;
     };
 }
