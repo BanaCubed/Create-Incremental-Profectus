@@ -67,8 +67,6 @@ import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import Info from "./modals/Info.vue";
 import Options from "./modals/Options.vue";
 import SavesManager from "./modals/SavesManager.vue";
-import player from "game/player";
-import { format, formatTime } from "util/bignum";
 
 const info = ref<typeof Info | null>(null);
 const savesManager = ref<typeof SavesManager | null>(null);

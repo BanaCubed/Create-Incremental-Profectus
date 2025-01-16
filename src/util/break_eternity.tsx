@@ -397,6 +397,7 @@ export function formatStan(num: DecimalSource, precision: number = 2): string | 
         standardSuffixes[e]
     );
 }
+
 export function stringyFormatStan(num: DecimalSource, precision: number = 2): string {
     if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
         return stringyFormatSci(num, precision);

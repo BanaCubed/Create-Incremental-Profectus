@@ -3,13 +3,13 @@
         <template v-slot:header>
             <div class="nan-modal-header">
                 <h2>NaN value detected!</h2>
-                <h4>{{ path }}<span v-if="previous"> // {{ format(previous) }} -> NaN</span></h4>
+                <h4>{{ path }}<span v-if="previous"> // {{ stringyFormat(previous) }} -> NaN</span></h4>
             </div>
         </template>
         <template v-slot:body>
             <div>
                 Attempted to assign "{{ path }}" to NaN<span v-if="previous">
-                    {{ " " }}(previously {{ format(previous) }})</span
+                    {{ " " }}(previously {{ stringyFormat(previous) }})</span
                 >. Auto-saving has been {{ autosave ? "enabled" : "disabled" }}. Check the console
                 for more details, and consider sharing it with the developers on discord.
             </div>
@@ -52,7 +52,7 @@ import projInfo from "data/projInfo.json";
 import player from "game/player";
 import state from "game/state";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format } from "util/bignum";
+import Decimal, { stringyFormat } from "util/bignum";
 import type { ComponentPublicInstance } from "vue";
 import { computed, ref, toRef, watch } from "vue";
 import Toggle from "../fields/Toggle.vue";

@@ -127,15 +127,12 @@
 <script setup lang="tsx">
 import Modal from "./Modal.vue";
 import Changelog from "data/Changelog.vue";
-import cash from "data/layers/cash";
-import { main } from "data/projEntry";
 import projInfo from "data/projInfo.json";
 import player from "game/player";
 import { infoComponents } from "game/settings";
-import { formatTime, formatWhole } from "util/bignum";
+import { formatTime } from "util/bignum";
 import { render } from "util/vue";
-import { computed, ref, toRefs, unref } from "vue";
-import { layers } from "game/layers";
+import { ref } from "vue";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 

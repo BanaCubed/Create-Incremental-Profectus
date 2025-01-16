@@ -161,14 +161,22 @@ const layer: any = createLayer(id, () => {
         treeNode,
         display: () => (
             <>
-                {rebirth.upgs.eleven.bought.value === true
-                    ? Decimal.gte(rebirth.points.value, 1e16)
-                        ? `Super Rebirth for ${formatWhole(unref(conversion.actualGain))} SRP` +
-                          (Decimal.gte(unref(conversion.actualGain), 1e3)
-                              ? ""
-                              : `, next at ${formatWhole(unref(conversion.nextAt))} RP`)
-                        : `Reach ${formatWhole(1e16)} cash to Super Rebirth`
-                    : 'Purchase RP UPG 11 "Continuity" to Super Rebirth'}
+                {rebirth.upgs.eleven.bought.value === true ? (
+                    Decimal.gte(rebirth.points.value, 1e16) ? (
+                        <>
+                            Super Rebirth for {formatWhole(unref(conversion.actualGain))} SRP
+                            {Decimal.gte(unref(conversion.actualGain), 1e3) ? (
+                                <></>
+                            ) : (
+                                <>, next at ${formatWhole(unref(conversion.nextAt))} RP</>
+                            )}
+                        </>
+                    ) : (
+                        <>Reach ${formatWhole(1e16)} cash to Super Rebirth</>
+                    )
+                ) : (
+                    <>Purchase RP UPG 11 "Continuity" to Super Rebirth</>
+                )}
             </>
         ),
         onClick() {

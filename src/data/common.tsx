@@ -425,7 +425,8 @@ export function createCollapsibleAchievements(achievements: Record<string, Achie
 export function estimateTime(
     resource: Resource,
     rate: MaybeRefOrGetter<DecimalSource>,
-    target: MaybeRefOrGetter<DecimalSource>
+    target: MaybeRefOrGetter<DecimalSource>,
+    precise: boolean = false
 ) {
     const processedRate = processGetter(rate);
     const processedTarget = processGetter(target);
@@ -437,7 +438,7 @@ export function estimateTime(
         } else if (Decimal.lte(currRate, 0)) {
             return "Never";
         }
-        return formatTime(Decimal.sub(currTarget, resource.value).div(currRate));
+        return formatTime(Decimal.sub(currTarget, resource.value).div(currRate), precise);
     });
 }
 

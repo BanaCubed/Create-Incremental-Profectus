@@ -93,7 +93,7 @@ export const main: any = createLayer("main", () => {
             <>
                 {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
                     <div>
-                        Dev Speed: {format(player.devSpeed)}x
+                        Dev Speed: {format(player.devSpeed)}&times;
                         <Node id="devspeed" />
                     </div>
                 ) : player.devSpeed === 0 ? (

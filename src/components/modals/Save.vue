@@ -85,7 +85,7 @@ import DangerButton from "../fields/DangerButton.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Text from "../fields/Text.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
-import Decimal, { formatWhole } from "util/bignum";
+import Decimal, { stringyFormatWhole } from "util/bignum";
 import { main } from "data/projEntry";
 import cash from "data/layers/cash";
 import rebirth from "data/layers/rebirth";
@@ -117,11 +117,11 @@ const progressDisplay = computed(() => {
     if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
         return '?-? // Progress Unknown'
     } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
-        return `1-1 // Cash // ${formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
+        return `1-1 // Cash // ${stringyFormatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
     } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
-        return `1-2 // Rebirth // ${formatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
+        return `1-2 // Rebirth // ${stringyFormatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
     } else {
-        return `1-3 // Super Rebirth // ${formatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
+        return `1-3 // Super Rebirth // ${stringyFormatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
     }
 });
 
