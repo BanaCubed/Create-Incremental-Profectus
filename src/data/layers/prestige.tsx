@@ -7,7 +7,7 @@ import { createCumulativeConversion } from "features/conversion";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
 import MainDisplay from "features/resources/MainDisplay.vue";
-import { createResource } from "features/resources/resource";
+import { createResource } from "../../features/resources/resource";
 import { createResourceTooltip } from "features/trees/tree";
 import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";

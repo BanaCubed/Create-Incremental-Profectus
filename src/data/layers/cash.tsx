@@ -5,7 +5,7 @@
 import { main } from "data/projEntry";
 import { createReset } from "features/reset";
 import Node from "components/Node.vue";
-import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
+import { createResource, trackBest, trackOOMPS, trackTotal } from "../../features/resources/resource";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { createLayer } from "game/layers";
@@ -820,7 +820,7 @@ const layer: any = createLayer(id, () => {
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
                                 <div>
-                                    ({oomps.value})
+                                    ({oomps()})
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
@@ -850,7 +850,7 @@ const layer: any = createLayer(id, () => {
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
                                 <div>
-                                    ({oomps.value})
+                                    ({oomps()})
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
@@ -1014,7 +1014,7 @@ const layer: any = createLayer(id, () => {
             <>
                 {Decimal.gte(main.progression.value, 1.9)
                     ? render(tabs)
-                    : render(unref(tabs.tabs.cash.tab))}
+                    : <><br style="font-size: 0.5em;" />{render(unref(tabs.tabs.cash.tab))}</>}
             </>
         ),
         treeNode,

@@ -1,12 +1,12 @@
 import { Link } from "features/links/links";
 import type { Reset } from "features/reset";
-import type { Resource } from "features/resources/resource";
-import { displayResource } from "features/resources/resource";
+import type { Resource } from "../resources/resource";
+import { displayResource } from "../resources/resource";
 import Tree from "features/trees/Tree.vue";
 import TreeNode from "features/trees/TreeNode.vue";
 import { noPersist } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatWhole, stringyFormat, stringyFormatWhole } from "util/bignum";
+import Decimal, { format, formatWhole } from "util/bignum";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
 import { Renderable, VueFeature, vueFeatureMixin, VueFeatureOptions } from "util/vue";
@@ -270,16 +270,24 @@ export function createResourceTooltip(
     const req = processGetter(requirement);
     return () => {
         if (requiredResource == null || Decimal.gte(resource.value, unref(req))) {
-            return <>{displayResource(resource)} {resource.displayName}</>;
+            return (
+                <>
+                    {displayResource(resource)} {resource.displayName}
+                </>
+            );
         }
-        return <>Reach {
-            Decimal.eq(requiredResource.precision, 0)
-                ? formatWhole(unref(req))
-                : format(unref(req), requiredResource.precision)
-        } {requiredResource.displayName} to unlock (You have ${
-            Decimal.eq(requiredResource.precision, 0)
-                ? formatWhole(requiredResource.value)
-                : format(requiredResource.value, requiredResource.precision)
-        })</>;
+        return (
+            <>
+                Reach{" "}
+                {Decimal.eq(requiredResource.precision, 0)
+                    ? formatWhole(unref(req))
+                    : format(unref(req), requiredResource.precision)}{" "}
+                {requiredResource.displayName} to unlock (You have $
+                {Decimal.eq(requiredResource.precision, 0)
+                    ? formatWhole(requiredResource.value)
+                    : format(requiredResource.value, requiredResource.precision)}
+                )
+            </>
+        );
     };
 }

@@ -1,7 +1,7 @@
 import type { Tree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
 import Node from "components/Node.vue";
-import { createResource } from "features/resources/resource";
+import { createResource } from "../features/resources/resource";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
@@ -115,7 +115,7 @@ export const main: any = createLayer("main", () => {
                 You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
                 {Decimal.gt(cash.pointGain.value, 0) ? (
                     <div>
-                        ({cash.oomps.value})
+                        ({cash.oomps()})
                         <Node id="oomps" />
                     </div>
                 ) : null}

@@ -1,4 +1,4 @@
-import { Resource } from "features/resources/resource";
+import { Resource } from "../../features/resources/resource";
 import { NonPersistent } from "game/persistence";
 import Decimal, { DecimalSource, stringyFormat } from "util/bignum";
 import { processGetter } from "util/computed";

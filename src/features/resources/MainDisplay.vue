@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import Sticky from "components/layout/Sticky.vue";
-import type { Resource } from "features/resources/resource";
+import type { Resource } from "./resource";
 import ResourceVue from "features/resources/Resource.vue";
 import Decimal from "util/bignum";
 import { MaybeGetter } from "util/computed";

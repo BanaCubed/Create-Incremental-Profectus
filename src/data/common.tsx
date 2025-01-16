@@ -4,7 +4,7 @@ import type { Clickable, ClickableOptions } from "features/clickables/clickable"
 import { createClickable } from "features/clickables/clickable";
 import { Conversion } from "features/conversion";
 import { getFirstFeature } from "features/feature";
-import { displayResource, Resource } from "features/resources/resource";
+import { displayResource, Resource } from "../features/resources/resource";
 import type { Tree, TreeNode, TreeNodeOptions } from "features/trees/tree";
 import { createTreeNode } from "features/trees/tree";
 import type { GenericFormula } from "game/formulas/types";

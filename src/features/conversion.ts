@@ -1,4 +1,4 @@
-import type { Resource } from "features/resources/resource";
+import type { Resource } from "./resources/resource";
 import Formula from "game/formulas/formulas";
 import { InvertibleFormula, InvertibleIntegralFormula } from "game/formulas/types";
 import type { BaseLayer } from "game/layers";

@@ -94,7 +94,7 @@ const e100 = new Decimal("1e100");
 export function trackOOMPS(
     resource: Resource,
     pointGain?: ComputedRef<DecimalSource>
-): Ref<string> {
+): () => JSX.Element {
     const oomps = ref<DecimalSource>(0);
     const oompsMag = ref(0);
     const lastPoints = ref<DecimalSource>(0);
@@ -130,22 +130,17 @@ export function trackOOMPS(
         }
     });
 
-    const oompsString = computed(() => {
+    function oompsString() {
         if (oompsMag.value === 0) {
             return pointGain
-                ? stringyFormat(pointGain.value, 2, resource.small) +
-                      " " +
-                      resource.displayName +
-                      "/s"
-                : "";
+                ? <>{format(pointGain.value, 2, resource.small)}&nbsp;
+                      {resource.displayName}/s</>
+                : <></>;
         }
         return (
-            stringyFormat(oomps.value) +
-            " OOM" +
-            (oompsMag.value < 0 ? "^OOM" : "^" + oompsMag.value) +
-            "s/sec"
+            <>{format(oomps.value)} OOM{oompsMag.value < 0 ? "^OOM" : "^" + oompsMag.value}s/sec</>
         );
-    });
+    };
     return oompsString;
 }
 

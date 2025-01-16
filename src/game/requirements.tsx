@@ -1,5 +1,5 @@
 import { isVisible, Visibility } from "features/feature";
-import { displayResource, Resource } from "features/resources/resource";
+import { displayResource, Resource } from "../features/resources/resource";
 import Decimal, { DecimalSource } from "util/bignum";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";

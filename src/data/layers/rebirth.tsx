@@ -6,7 +6,7 @@ import { main } from "data/projEntry";
 import { createCumulativeConversion } from "features/conversion";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
-import { createResource, trackOOMPS } from "features/resources/resource";
+import { createResource, trackOOMPS } from "../../features/resources/resource";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { createLayer } from "game/layers";
@@ -510,7 +510,7 @@ const layer = createLayer(id, () => {
                 <br />
                 Multiplying cash gain by ×
                 {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
-                {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
+                {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps()})</div> : null}
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />

@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from "features/resources/resource";
-import { displayResource } from "features/resources/resource";
+import type { Resource } from "./resource";
+import { displayResource } from "./resource";
 import { render } from "util/vue";
 import { computed } from "vue";
 
