@@ -6,7 +6,7 @@ import Tree from "features/trees/Tree.vue";
 import TreeNode from "features/trees/TreeNode.vue";
 import { noPersist } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatWhole } from "util/bignum";
+import Decimal, { format, formatWhole, stringyFormat, stringyFormatWhole } from "util/bignum";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
 import { Renderable, VueFeature, vueFeatureMixin, VueFeatureOptions } from "util/vue";
@@ -273,12 +273,12 @@ export function createResourceTooltip(
         }
         return `Reach ${
             Decimal.eq(requiredResource.precision, 0)
-                ? formatWhole(unref(req))
-                : format(unref(req), requiredResource.precision)
+                ? stringyFormatWhole(unref(req))
+                : stringyFormat(unref(req), requiredResource.precision)
         } ${requiredResource.displayName} to unlock (You have ${
             Decimal.eq(requiredResource.precision, 0)
-                ? formatWhole(requiredResource.value)
-                : format(requiredResource.value, requiredResource.precision)
+                ? stringyFormatWhole(requiredResource.value)
+                : stringyFormat(requiredResource.value, requiredResource.precision)
         })`;
     };
 }

@@ -2,7 +2,7 @@ import { globalBus } from "game/events";
 import type { Persistent, State } from "game/persistence";
 import { NonPersistent, persistent } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatWhole } from "util/bignum";
+import Decimal, { format, formatWhole, stringyFormat } from "util/bignum";
 import { loadingSave } from "util/save";
 import type { ComputedRef, MaybeRef, Ref } from "vue";
 import { computed, isRef, ref, unref, watch } from "vue";
@@ -133,11 +133,11 @@ export function trackOOMPS(
     const oompsString = computed(() => {
         if (oompsMag.value === 0) {
             return pointGain
-                ? format(pointGain.value, 2, resource.small) + " " + resource.displayName + "/s"
+                ? stringyFormat(pointGain.value, 2, resource.small) + " " + resource.displayName + "/s"
                 : "";
         }
         return (
-            format(oomps.value) +
+            stringyFormat(oomps.value) +
             " OOM" +
             (oompsMag.value < 0 ? "^OOM" : "^" + oompsMag.value) +
             "s/sec"

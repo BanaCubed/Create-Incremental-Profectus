@@ -479,6 +479,20 @@ export function formatWhole(num: DecimalSource): JSX.Element {
     return format(num, 0);
 }
 
+export function stringyFormatWhole(num: DecimalSource): string {
+    num = new Decimal(num);
+    if (num.sign < 0) {
+        return "-" + formatWhole(num.neg());
+    }
+    if (num.gte(1e9)) {
+        return stringyFormat(num);
+    }
+    if (num.lte(nearOne) && !num.eq(zero)) {
+        return stringyFormat(num);
+    }
+    return stringyFormat(num, 0);
+}
+
 export function formatTime(sec: DecimalSource, precise: boolean = false): JSX.Element {
     if (window.settings.blindNumbers) {
         return <></>;
