@@ -6,7 +6,7 @@ import Tree from "features/trees/Tree.vue";
 import TreeNode from "features/trees/TreeNode.vue";
 import { noPersist } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatWhole, stringyFormat, stringyFormatWhole } from "util/bignum";
+import Decimal, { stringyFormat, stringyFormatWhole } from "util/bignum";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
 import { Renderable, VueFeature, vueFeatureMixin, VueFeatureOptions } from "util/vue";

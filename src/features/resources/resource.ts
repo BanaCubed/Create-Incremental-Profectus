@@ -133,7 +133,10 @@ export function trackOOMPS(
     const oompsString = computed(() => {
         if (oompsMag.value === 0) {
             return pointGain
-                ? stringyFormat(pointGain.value, 2, resource.small) + " " + resource.displayName + "/s"
+                ? stringyFormat(pointGain.value, 2, resource.small) +
+                      " " +
+                      resource.displayName +
+                      "/s"
                 : "";
         }
         return (
