@@ -181,8 +181,6 @@ import {
 import type { Player } from "game/player";
 import { main } from "data/projEntry";
 import Text from "components/fields/Text.vue";
-import { Texture } from "@pixi/core";
-import Slider from "components/fields/Slider.vue";
 import Decimal, { DecimalSource, format } from "util/bignum";
 import Save from "./Save.vue";
 import { JSX } from "vue/jsx-runtime";

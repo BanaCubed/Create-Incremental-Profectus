@@ -52,7 +52,7 @@ import projInfo from "data/projInfo.json";
 import player from "game/player";
 import state from "game/state";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, stringyFormat } from "util/bignum";
+import Decimal, { format } from "util/bignum";
 import type { ComponentPublicInstance } from "vue";
 import { computed, ref, toRef, watch } from "vue";
 import Toggle from "../fields/Toggle.vue";
