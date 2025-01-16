@@ -35,13 +35,13 @@
             <summary class="major">Hyper - <time>2024-04-13</time></summary>
             Addition of Hyper Rebirth
             <ul>
-                <li class="balancing">Rebalanced Power</li>
                 <li class="feature">Hyper Rebirth</li>
                 <li class="feature">Hyper Cash</li>
                 <li class="feature">Hyper Paths</li>
                 <li class="fix">Fixed Power unlock</li>
                 <li class="change">Changed some text</li>
                 <li class="change">Changed challenge visuals</li>
+                <li class="change">Rebalanced Power</li>
             </ul>
         </details>
 
@@ -82,14 +82,6 @@
                 <li class="change">Changed Certain Other Features</li>
             </ul>
         </details>
-
-        <div id="key">
-            <li class="breaking">Major</li>
-            <li class="balancing">Balance</li>
-            <li class="feature">Feature</li>
-            <li class="fix">Fix</li>
-            <li class="change">Misc</li>
-        </div>
     </div>
 </template>
 
@@ -103,32 +95,6 @@ details {
     display: flex;
     flex-direction: column-reverse;
     counter-reset: version-majorer 0 version-major 0 version-minor 0;
-}
-
-#key {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-top: -20px;
-}
-
-#key>li::marker {
-    display: none;
-    visibility: hidden;
-    color: var(--background);
-}
-
-#key>li::before {
-    display: block;
-    position: relative;
-    left: 50%;
-    translate: -50% -2px;
-}
-
-#key>li {
-    width: 30px;
-    flex-grow: 0.15;
-    text-align: center;
 }
 
 .minor {
@@ -171,38 +137,25 @@ li::before {
     padding: 2.5px;
     margin-right: 8px;
     border-radius: var(--border-radius);
-    font-family: "Material Icons";
-    font-weight: normal;
-    font-size: 1.25em;
-    width: 25px;
-    translate: 0 3.5px;
-    display: inline-block;
-    box-sizing: border-box;
-    text-align: center;
 }
 
 .feature::before {
-    content: "add_circle";
+    content: "Added";
     background: var(--accent1);
 }
 
 .change::before {
-    content: "build";
+    content: "Other";
     background: var(--bought);
 }
 
 .fix::before {
-    content: "pest_control";
+    content: "Fixed";
     background: var(--accent2);
 }
 
-.balancing::before {
-    content: "balance";
-    background: var(--accent3);
-}
-
 .breaking::before {
-    content: "new_releases";
+    content: "Major";
     background: var(--danger);
 }
 
