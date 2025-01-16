@@ -134,7 +134,7 @@ li {
 }
 
 li::before {
-    padding: 2.5px;
+    padding: 2px 8px;
     margin-right: 8px;
     border-radius: var(--border-radius);
 }
