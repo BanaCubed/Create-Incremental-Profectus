@@ -1,7 +1,7 @@
 import "components/common/modifiers.css";
 import settings from "game/settings";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { stringyFormatSmall as formatSmall } from "util/bignum";
+import Decimal, { formatSmall } from "util/bignum";
 import type { RequiredKeys, WithRequired } from "util/common";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
