@@ -141,16 +141,7 @@
                 <details open>
                     <summary class="subtitle">Preview</summary>
                     <div class="notation-modifier" id="notation-preview">
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One - {{ format("1e0") }}</p>
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten - {{ format("1e1") }}</p>
-                        <p>&nbsp;&nbsp;Thousand - {{ format("1e3") }}</p>
-                        <p>&nbsp;&nbsp;&nbsp;Million - {{ format("1e6") }}</p>
-                        <p>&nbsp;&nbsp;&nbsp;Billion - {{ format("1e9") }}</p>
-                        <p>&nbsp;&nbsp;Trillion - {{ format("1e12") }}</p>
-                        <p>&nbsp;Decillion - {{ format("1e33") }}</p>
-                        <p>&nbsp;&nbsp;&nbsp;&nbsp;Googol - {{ format("1e100") }}</p>
-                        <p>Centillion - {{ format("1e303") }}</p>
-                        <p>&nbsp;&nbsp;Infinity - {{ format(Decimal.dNumberMax) }}</p>
+                        <NotationPreviewComponent />
                     </div>
                 </details>
             </div>
@@ -192,12 +183,37 @@ import { main } from "data/projEntry";
 import Text from "components/fields/Text.vue";
 import { Texture } from "@pixi/core";
 import Slider from "components/fields/Slider.vue";
-import Decimal, { format } from "util/bignum";
+import Decimal, { DecimalSource, format } from "util/bignum";
 import Save from "./Save.vue";
+import { JSX } from "vue/jsx-runtime";
 
 export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
 
 settings.language = settings.language ?? 'en';
+
+const notationPreviews: [DecimalSource, JSX.Element][] = [
+    ["1",                      <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One</>],
+    ["10",                     <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten</>],
+    ["e3",                     <>&nbsp;&nbsp;Thousand</>],
+    ["e6",                     <>&nbsp;&nbsp;&nbsp;Million</>],
+    ["e9",                     <>&nbsp;&nbsp;&nbsp;Billion</>],
+    ["e12",                    <>&nbsp;&nbsp;Trillion</>],
+    ["e33",                    <>&nbsp;Decillion</>],
+    ["ee2",                    <>&nbsp;&nbsp;&nbsp;&nbsp;Googol</>],
+    ["e303",                   <>Centillion</>],
+    ["1.7976931348623159e308", <>&nbsp;&nbsp;Infinity</>]
+]
+
+function constructNotationPreviewComponent(previews: [DecimalSource, JSX.Element][]) {
+    let element = <></>;
+    for (let i = 0; i < notationPreviews.length; i++) {
+        const preview = notationPreviews[i];
+        element = <>{element}<p>{preview[1]} - {format(preview[0])}</p></>;
+    }
+    return element;
+}
+
+const NotationPreviewComponent = () => render(constructNotationPreviewComponent(notationPreviews));
 
 const importingFailed = ref(false);
 const saveToImport = ref("");

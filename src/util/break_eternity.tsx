@@ -1,6 +1,7 @@
 import projInfo from "data/projInfo.json";
 import type { DecimalSource } from "lib/break_eternity";
 import Decimal from "lib/break_eternity";
+import { JSX } from "vue/jsx-runtime";
 
 const decimalOne = new Decimal(1);
 
@@ -72,7 +73,7 @@ const thresholds = [
 ];
 
 // IMPORTANT!!
-// DO NOT ACCESS PLAYER SETTINGS FROM IMPORTED `settings`
+// DO NOT ACCESS PLAYER SETTINGS FROM IMPORTED `settings` (this causes errors - idk why)
 // INSTEAD ACCESS SETTINGS FROM GLOBALLY ACCESSABLE `window.settings`
 
 /**
@@ -80,9 +81,9 @@ const thresholds = [
  * @param {DecimalSource} num The value to format
  * @param {number} precision Amount of digits to include past the decimal point
  * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
- * @returns {string} Formatted version of num
+ * @returns {JSX.Element} Formatted version of num
  */
-export function format(num: DecimalSource, precision?: number, small?: boolean): string {
+export function format(num: DecimalSource, precision?: number, small?: boolean): JSX.Element {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
     if (precision < 0) {
         precision = 0;
@@ -91,71 +92,73 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
         precision *= window.settings.precisionBonus / 2 + 1;
     }
     if (window.settings.blindNumbers) {
-        return " ";
+        return <></>;
     }
     if (window.settings.yesnoNumbers) {
-        return Decimal.neq(num, 0) ? "YES" : "NO";
+        return <>{Decimal.neq(num, 0) ? "YES" : "NO"}</>;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     small = small ?? projInfo.defaultShowSmall;
     num = new Decimal(num);
     if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
-        return "NaN";
+        return <>NaN</>;
     }
     // Likely to eventually benefit from becoming a parameter
     if (num.sign < 0) {
-        return "-" + format(num.neg(), precision);
+        return <>-{format(num.neg(), precision)}</>;
     }
     // Benefitial to put something here that catches numbers above some arbitrary value (like eee10) to prevent lag
     if (num.mag === Number.POSITIVE_INFINITY) {
-        return "Infinity";
+        return <>Infinity</>;
     }
     if (num.gte(thresholds[window.settings.logarithmicThreshold])) {
-        return window.settings.infinityNumbers
-            ? formatInf(num, precision)
-            : formatLog(num, precision);
+        return window.settings.infinityNumbers ? (
+            <>{formatInf(num, precision)}</>
+        ) : (
+            <>{formatLog(num, precision)}</>
+        );
     }
     if (num.gte(thresholds[window.settings.scientificThreshold])) {
-        return formatSci(num, precision);
+        return <>{formatSci(num, precision)}</>;
     }
     if (num.gte(thresholds[window.settings.standardThreshold])) {
-        return window.settings.letterNumbers
-            ? formatLet(num, precision)
-            : formatStan(num, precision);
+        return window.settings.letterNumbers ? (
+            <>{formatLet(num, precision)}</>
+        ) : (
+            <>{formatStan(num, precision)}</>
+        );
     }
     if (num.gte(10000)) {
-        return commaFormat(num, 0);
+        return <>{commaFormat(num, 0)}</>;
     }
-    return regularFormat(num, precision);
+    return <>{regularFormat(num, precision)}</>;
 }
 
-export function formatLog(num: DecimalSource, precision: number = 2): string {
+export function formatLog(num: DecimalSource, precision: number = 2): JSX.Element {
     const e = Decimal.log10(num);
-    return (
-        "e" +
-        format(
+    return <>e{format(
             e
                 .mul(10 ** precision)
                 .trunc()
                 .div(10 ** precision)
-        )
-    );
+        )}</>;
 }
 
-export function formatInf(num: DecimalSource, precision: number = 2, base: DecimalSource = Number.POSITIVE_INFINITY): string {
+export function formatInf(
+    num: DecimalSource,
+    precision: number = 2,
+    base: DecimalSource = Number.POSITIVE_INFINITY
+): JSX.Element {
     const e = Decimal.log(num, base);
-    return (
-        format(
+    return <>{format(
             e
                 .mul(10 ** precision)
                 .trunc()
                 .div(10 ** precision)
-        ) +
-        "∞"
-    );
+        )}∞</>;
 }
 
-export function formatSci(num: DecimalSource, precision: number = 2): string {
+export function formatSci(num: DecimalSource, precision: number = 2): JSX.Element {
     let e = Decimal.log10(num).floor();
     if (window.settings.engineering) {
         e = e.div(3);
@@ -167,9 +170,10 @@ export function formatSci(num: DecimalSource, precision: number = 2): string {
         .mul(10 ** precision)
         .trunc()
         .div(10 ** precision);
-    return num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e);
+    return <>{num.toStringWithDecimalPlaces(precision)}e{formatWhole(e)}</>;
 }
 
+// Certified eslint moment
 const standardSuffixes = [
     "K",
     "M",
@@ -274,7 +278,7 @@ const standardSuffixes = [
     "Ce",
     "UCe"
 ];
-export function formatStan(num: DecimalSource, precision: number = 2): string {
+export function formatStan(num: DecimalSource, precision: number = 2): string | JSX.Element {
     if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
         return formatSci(num, precision);
     }
@@ -342,12 +346,12 @@ export function formatLet(
     );
 }
 
-export function formatWhole(num: DecimalSource): string {
+export function formatWhole(num: DecimalSource): JSX.Element {
     num = new Decimal(num);
     if (num.sign < 0) {
-        return "-" + formatWhole(num.neg());
+        return <>-{formatWhole(num.neg())}</>;
     }
-    if (num.gte(1e4)) {
+    if (num.gte(1e9)) {
         return format(num);
     }
     if (num.lte(nearOne) && !num.eq(zero)) {
@@ -356,96 +360,93 @@ export function formatWhole(num: DecimalSource): string {
     return format(num, 0);
 }
 
-export function formatTime(seconds: DecimalSource, precise: boolean = false): string {
-    if (Decimal.lt(seconds, 0)) {
-        return "-" + formatTime(Decimal.neg(seconds));
+export function formatTime(sec: DecimalSource, precise: boolean = false): JSX.Element {
+    if (window.settings.blindNumbers) {
+        return <></>;
     }
-    if (Decimal.gt(seconds, 2 ** 51)) {
+    if (window.settings.yesnoNumbers) {
+        return Decimal.neq(sec, 0) ? <>YES</> : <>NO</>;
+    }
+    if (Decimal.lt(sec, 0)) {
+        return <>-{formatTime(Decimal.neg(sec))}</>;
+    }
+    if (Decimal.gt(sec, 2 ** 51)) {
         // integer precision limit
-        return format(Decimal.div(seconds, 31536000)) + "y";
+        return <>{format(Decimal.div(sec, 31536000))}y</>;
     }
-    seconds = new Decimal(seconds).toNumber();
-    if (seconds < 60) {
-        return format(seconds) + "s";
-    } else if (seconds < 3600) {
+    sec = new Decimal(sec).toNumber();
+    if (sec < 60) {
+        return <>{format(sec)}s</>;
+    } else if (sec < 3600) {
         if (precise) {
             return (
-                formatWhole(Math.floor(seconds / 60)) +
-                ":" +
-                (seconds % 60 < 10 ? "0" : "") +
-                format(seconds % 60)
-            );
-        }
-        return formatWhole(Math.floor(seconds / 60)) + "m " + format(seconds % 60) + "s";
-    } else if (seconds < 86400) {
-        if (precise) {
-            return (
-                formatWhole(Math.floor(seconds / 3600)) +
-                ":" +
-                ((seconds / 60) % 60 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 60) % 60) +
-                ":" +
-                (seconds % 60 < 10 ? "0" : "") +
-                format(seconds % 60)
+                <>
+                    {formatWhole(Math.floor(sec / 60))}:{sec % 60 < 10 ? "0" : ""}
+                    {format(sec % 60)}
+                </>
             );
         }
         return (
-            formatWhole(Math.floor(seconds / 3600)) +
-            "h " +
-            formatWhole(Math.floor(seconds / 60) % 60) +
-            "m " +
-            formatWhole(seconds % 60) +
-            "s"
+            <>
+                {formatWhole(Math.floor(sec / 60))}m&nbsp;{format(sec % 60)}s
+            </>
         );
-    } else if (seconds < 31536000) {
+    } else if (sec < 86400) {
         if (precise) {
             return (
-                formatWhole(Math.floor(seconds / 84600) % 365) +
-                "d " +
-                ((seconds / 3600) % 24 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 3600) % 24) +
-                ":" +
-                ((seconds / 60) % 60 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 60) % 60) +
-                ":" +
-                (seconds % 60 < 10 ? "0" : "") +
-                format(seconds % 60)
+                <>
+                    {formatWhole(Math.floor(sec / 3600))}:{(sec / 60) % 60 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 60) % 60)}:{sec % 60 < 10 ? "0" : ""}
+                    {format(sec % 60)}
+                </>
             );
         }
         return (
-            formatWhole(Math.floor(seconds / 84600) % 365) +
-            "d " +
-            formatWhole(Math.floor(seconds / 3600) % 24) +
-            "h " +
-            formatWhole(Math.floor(seconds / 60) % 60) +
-            "m"
+            <>
+                {formatWhole(Math.floor(sec / 3600))}h&nbsp;{formatWhole(Math.floor(sec / 60) % 60)}
+                m&nbsp;{formatWhole(sec % 60)}s
+            </>
+        );
+    } else if (sec < 31536000) {
+        if (precise) {
+            return (
+                <>
+                    {formatWhole(Math.floor(sec / 84600) % 365)}d&nbsp;
+                    {(sec / 3600) % 24 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 3600) % 24)}:{(sec / 60) % 60 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 60) % 60)}:{sec % 60 < 10 ? "0" : ""}
+                    {format(sec % 60)}
+                </>
+            );
+        }
+        return (
+            <>
+                {formatWhole(Math.floor(sec / 84600) % 365)}d&nbsp;
+                {formatWhole(Math.floor(sec / 3600) % 24)}h&nbsp;
+                {formatWhole(Math.floor(sec / 60) % 60)}m
+            </>
         );
     } else {
         if (precise) {
             return (
-                formatWhole(Math.floor(seconds / 31536000)) +
-                "y " +
-                ((seconds / 84600) % 365 < 100 ? "0" : "") +
-                ((seconds / 84600) % 365 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 84600) % 365) +
-                "d " +
-                ((seconds / 3600) % 24 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 3600) % 24) +
-                ":" +
-                ((seconds / 60) % 60 < 10 ? "0" : "") +
-                formatWhole(Math.floor(seconds / 60) % 60) +
-                ":" +
-                (seconds % 60 < 10 ? "0" : "") +
-                format(seconds % 60)
+                <>
+                    {formatWhole(Math.floor(sec / 31536000))}y&nbsp;
+                    {(sec / 84600) % 365 < 100 ? "0" : ""}
+                    {(sec / 84600) % 365 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 84600) % 365)}d&nbsp;
+                    {(sec / 3600) % 24 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 3600) % 24)}:{(sec / 60) % 60 < 10 ? "0" : ""}
+                    {formatWhole(Math.floor(sec / 60) % 60)}:{sec % 60 < 10 ? "0" : ""}
+                    {format(sec % 60)}
+                </>
             );
         }
         return (
-            formatWhole(Math.floor(seconds / 31536000)) +
-            "y " +
-            formatWhole(Math.floor(seconds / 84600) % 365) +
-            "d " +
-            formatWhole(Math.floor(seconds / 3600) % 24) +
-            "h"
+            <>
+                {formatWhole(Math.floor(sec / 31536000))}y&nbsp;
+                {formatWhole(Math.floor(sec / 84600) % 365)}d&nbsp;
+                {formatWhole(Math.floor(sec / 3600) % 24)}h
+            </>
         );
     }
 }
@@ -462,7 +463,7 @@ export function toPlaces(x: DecimalSource, precision: number, maxAccepted: Decim
 }
 
 // Will also display very small numbers
-export function formatSmall(x: DecimalSource, precision?: number): string {
+export function formatSmall(x: DecimalSource, precision?: number): JSX.Element {
     return format(x, precision, true);
 }
 

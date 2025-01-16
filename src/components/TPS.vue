@@ -1,11 +1,12 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: {{ format(tps, 0, false) }}</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: <TpsRender /></div>
     <div class="tpsDisplay2">v1.0 β5</div>
 </template>
 
 <script setup lang="ts">
 import state from "game/state";
 import Decimal, { format } from "util/bignum";
+import { render } from "util/vue";
 import { computed } from "vue";
 
 const tps = computed(() =>
@@ -14,6 +15,8 @@ const tps = computed(() =>
         state.lastTenTicks.reduce((acc, curr) => acc + curr, 0)
     )
 );
+
+const TpsRender = () => render(format(Decimal.div(state.lastTenTicks.length, state.lastTenTicks.reduce((acc, curr) => acc + curr, 0)), 0, false))
 </script>
 
 <style scoped>

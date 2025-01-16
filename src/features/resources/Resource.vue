@@ -1,12 +1,13 @@
 <template>
     <h2 :style="{ color, 'text-shadow': '0px 0px 10px ' + color }">
-        {{ amount }}
+        <Amount />
     </h2>
 </template>
 
 <script setup lang="ts">
 import type { Resource } from "features/resources/resource";
 import { displayResource } from "features/resources/resource";
+import { render } from "util/vue";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -14,5 +15,5 @@ const props = defineProps<{
     color: string;
 }>();
 
-const amount = computed(() => displayResource(props.resource));
+const Amount = () => render(displayResource(props.resource));
 </script>

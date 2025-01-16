@@ -20,7 +20,7 @@
         <template v-slot:body="{ shown }">
             <div v-if="shown">
                 <div v-if="isTab('hotkeys')">
-                    <div>Time Played: {{ timePlayed }}</div>
+                    <div>Time Played: <TimePlayed /></div>
                     <InfoComponents />
                 </div>
                 <div v-if="isTab('credits')">
@@ -145,7 +145,7 @@ const emits = defineEmits<{
 
 const isOpen = ref(false);
 
-const timePlayed = computed(() => formatTime(player.timePlayed, true));
+const TimePlayed = () => render(formatTime(player.timePlayed, true));
 
 const InfoComponents = () => infoComponents.map(f => render(f));
 

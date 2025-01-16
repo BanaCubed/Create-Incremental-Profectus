@@ -6,6 +6,7 @@ import Decimal, { format, formatWhole } from "util/bignum";
 import { loadingSave } from "util/save";
 import type { ComputedRef, MaybeRef, Ref } from "vue";
 import { computed, isRef, ref, unref, watch } from "vue";
+import { JSX } from "vue/jsx-runtime";
 
 /** An object that represents a named and quantifiable resource in the game. */
 export interface Resource<T = DecimalSource> extends Ref<T> {
@@ -132,7 +133,7 @@ export function trackOOMPS(
     const oompsString = computed(() => {
         if (oompsMag.value === 0) {
             return pointGain
-                ? format(pointGain.value, resource.precision, resource.small) +
+                ? format(pointGain.value, 2, resource.small) +
                       " " +
                       resource.displayName +
                       "/s"
@@ -149,7 +150,7 @@ export function trackOOMPS(
 }
 
 /** Utility for displaying a resource with the correct precision. */
-export function displayResource(resource: Resource, overrideAmount?: DecimalSource): string {
+export function displayResource(resource: Resource, overrideAmount?: DecimalSource): JSX.Element {
     const amount = overrideAmount ?? resource.value;
     if (Decimal.eq(resource.precision, 0)) {
         return formatWhole(resource.small ? amount : Decimal.floor(amount));
