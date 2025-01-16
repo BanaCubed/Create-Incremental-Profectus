@@ -4,62 +4,9 @@ import Decimal from "lib/break_eternity";
 import { JSX } from "vue/jsx-runtime";
 
 const decimalOne = new Decimal(1);
-
-export function formatExp(num: DecimalSource, precision: number, mantissa = true): string {
-    let e = Decimal.log10(num).floor();
-    let m = Decimal.div(num, Decimal.pow(10, e));
-    if (m.toStringWithDecimalPlaces(precision) === "10") {
-        m = decimalOne;
-        e = e.add(1);
-    }
-    const eString = e.gte(1e9)
-        ? format(e, Math.max(Math.max(precision, 3), projInfo.defaultDecimalsShown))
-        : e.gte(10000)
-          ? formatCom(e, 0)
-          : e.toStringWithDecimalPlaces(0);
-    if (mantissa) {
-        return m.toStringWithDecimalPlaces(precision) + "e" + eString;
-    } else {
-        return "e" + eString;
-    }
-}
-
-export function formatCom(num: DecimalSource, precision: number): string {
-    if (num == null) {
-        return "NaN";
-    }
-    num = new Decimal(num);
-    if (num.mag < 0.001) {
-        return (0).toFixed(precision);
-    }
-    const init = num.toStringWithDecimalPlaces(precision);
-    const portions = init.split(".");
-    portions[0] = portions[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-    if (portions.length === 1) return portions[0];
-    return portions[0] + "." + portions[1];
-}
-
-export function formatRegular(num: DecimalSource, precision: number): string {
-    if (num == null) {
-        return "NaN";
-    }
-    num = new Decimal(num);
-    if (num.mag < 0.0001) {
-        return (0).toFixed(precision);
-    }
-    if (num.mag < 0.1 && precision !== 0) {
-        precision = Math.max(
-            Math.max(precision, num.log10().negate().ceil().toNumber()),
-            projInfo.defaultDecimalsShown
-        );
-    }
-    return num.toStringWithDecimalPlaces(precision);
-}
-
 const nearOne = new Decimal(0.98);
 const zero = new Decimal(0);
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const thresholds = [
     new Decimal(1),
     new Decimal(1e3),
@@ -131,17 +78,86 @@ export function format(num: DecimalSource, precision?: number, small?: boolean):
     if (num.gte(10000)) {
         return <>{formatCom(num, 0)}</>;
     }
-    return <>{formatRegular(num, precision)}</>;
+    return <>{formatReg(num, precision)}</>;
+}
+
+export function stringyFormat(num: DecimalSource, precision?: number, small?: boolean): string {
+    if (precision == null) precision = projInfo.defaultDecimalsShown;
+    if (precision < 0) {
+        precision = 0;
+    }
+    if (window.settings.insanePrecision) {
+        precision *= window.settings.precisionBonus / 2 + 1;
+    }
+    if (window.settings.blindNumbers) {
+        return "";
+    }
+    if (window.settings.yesnoNumbers) {
+        return Decimal.neq(num, 0) ? "YES" : "NO";
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    small = small ?? projInfo.defaultShowSmall;
+    num = new Decimal(num);
+    if (isNaN(num.sign) || isNaN(num.layer) || isNaN(num.mag)) {
+        return "NaN";
+    }
+    // Likely to eventually benefit from becoming a parameter
+    if (num.sign < 0) {
+        return "-" + stringyFormat(num.neg(), precision);
+    }
+    // Benefitial to put something here that catches numbers above some arbitrary value (like eee10) to prevent lag
+    if (num.mag === Number.POSITIVE_INFINITY) {
+        return "Infinity";
+    }
+    if (num.gte(thresholds[window.settings.logarithmicThreshold])) {
+        return window.settings.infinityNumbers ? (
+            stringyFormatInf(num, precision)
+        ) : (
+            stringyFormatLog(num, precision)
+        );
+    }
+    if (num.gte(thresholds[window.settings.scientificThreshold])) {
+        return stringyFormatSci(num, precision);
+    }
+    if (num.gte(thresholds[window.settings.standardThreshold])) {
+        return window.settings.letterNumbers ? (
+            formatLet(num, precision)
+        ) : (
+            stringyFormatStan(num, precision)
+        );
+    }
+    if (num.gte(10000)) {
+        return formatCom(num, 0);
+    }
+    return formatReg(num, precision);
 }
 
 export function formatLog(num: DecimalSource, precision: number = 2): JSX.Element {
     const e = Decimal.log10(num);
-    return <>e{format(
+    return (
+        <>
             e
-                .mul(10 ** precision)
-                .trunc()
-                .div(10 ** precision)
-        )}</>;
+            {format(
+                e
+                    .mul(10 ** precision)
+                    .trunc()
+                    .div(10 ** precision)
+            )}
+        </>
+    );
+}
+
+export function stringyFormatLog(num: DecimalSource, precision: number = 2): string {
+    const e = Decimal.log10(num);
+    return (
+            "e" +
+            stringyFormat(
+                e
+                    .mul(10 ** precision)
+                    .trunc()
+                    .div(10 ** precision)
+            )
+    );
 }
 
 export function formatInf(
@@ -150,12 +166,34 @@ export function formatInf(
     base: DecimalSource = Number.POSITIVE_INFINITY
 ): JSX.Element {
     const e = Decimal.log(num, base);
-    return <>{format(
-            e
-                .mul(10 ** precision)
-                .trunc()
-                .div(10 ** precision)
-        )}∞</>;
+    return (
+        <>
+            {format(
+                e
+                    .mul(10 ** precision)
+                    .trunc()
+                    .div(10 ** precision)
+            )}
+            ∞
+        </>
+    );
+}
+
+export function stringyFormatInf(
+    num: DecimalSource,
+    precision: number = 2,
+    base: DecimalSource = Number.POSITIVE_INFINITY
+): string {
+    const e = Decimal.log(num, base);
+    return (
+            format(
+                e
+                    .mul(10 ** precision)
+                    .trunc()
+                    .div(10 ** precision)
+            ) +
+            "∞"
+    );
 }
 
 export function formatSci(num: DecimalSource, precision: number = 2): JSX.Element {
@@ -170,7 +208,79 @@ export function formatSci(num: DecimalSource, precision: number = 2): JSX.Elemen
         .mul(10 ** precision)
         .trunc()
         .div(10 ** precision);
-    return <>{num.toStringWithDecimalPlaces(precision)}e{formatWhole(e)}</>;
+    return (
+        <>
+            {num.toStringWithDecimalPlaces(precision)}e{formatWhole(e)}
+        </>
+    );
+}
+
+export function stringyFormatSci(num: DecimalSource, precision: number = 2): string {
+    let e = Decimal.log10(num).floor();
+    if (window.settings.engineering) {
+        e = e.div(3);
+        precision -= e.mul(3).sub(e.floor().mul(3)).toNumber();
+        e = e.floor().mul(3);
+    }
+    num = Decimal.div(num, Decimal.pow(10, e));
+    num = num
+        .mul(10 ** precision)
+        .trunc()
+        .div(10 ** precision);
+    return (
+            num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e)
+    );
+}
+
+export function formatExp(num: DecimalSource, precision: number, mantissa = true): string {
+    let e = Decimal.log10(num).floor();
+    let m = Decimal.div(num, Decimal.pow(10, e));
+    if (m.toStringWithDecimalPlaces(precision) === "10") {
+        m = decimalOne;
+        e = e.add(1);
+    }
+    const eString = e.gte(1e9)
+        ? format(e, Math.max(Math.max(precision, 3), projInfo.defaultDecimalsShown))
+        : e.gte(10000)
+          ? formatCom(e, 0)
+          : e.toStringWithDecimalPlaces(0);
+    if (mantissa) {
+        return m.toStringWithDecimalPlaces(precision) + "e" + eString;
+    } else {
+        return "e" + eString;
+    }
+}
+
+export function formatCom(num: DecimalSource, precision: number): string {
+    if (num == null) {
+        return "NaN";
+    }
+    num = new Decimal(num);
+    if (num.mag < 0.001) {
+        return (0).toFixed(precision);
+    }
+    const init = num.toStringWithDecimalPlaces(precision);
+    const portions = init.split(".");
+    portions[0] = portions[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+    if (portions.length === 1) return portions[0];
+    return portions[0] + "." + portions[1];
+}
+
+export function formatReg(num: DecimalSource, precision: number): string {
+    if (num == null) {
+        return "NaN";
+    }
+    num = new Decimal(num);
+    if (num.mag < 0.0001) {
+        return (0).toFixed(precision);
+    }
+    if (num.mag < 0.1 && precision !== 0) {
+        precision = Math.max(
+            Math.max(precision, num.log10().negate().ceil().toNumber()),
+            projInfo.defaultDecimalsShown
+        );
+    }
+    return num.toStringWithDecimalPlaces(precision);
 }
 
 // Certified eslint moment
@@ -281,6 +391,22 @@ const standardSuffixes = [
 export function formatStan(num: DecimalSource, precision: number = 2): string | JSX.Element {
     if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
         return formatSci(num, precision);
+    }
+    const e = Decimal.log(num, 1000).floor().toNumber() - 1;
+    num = Decimal.div(num, Decimal.pow(1000, e + 1));
+    num = num
+        .mul(10 ** (precision - num.log10().floor().toNumber() + 1))
+        .trunc()
+        .div(10 ** (precision - num.log10().floor().toNumber() + 1));
+    return (
+        num.toStringWithDecimalPlaces(precision - num.log10().floor().toNumber() + 1) +
+        " " +
+        standardSuffixes[e]
+    );
+}
+export function stringyFormatStan(num: DecimalSource, precision: number = 2): string {
+    if (Decimal.gte(num, Decimal.pow(1000, standardSuffixes.length))) {
+        return stringyFormatSci(num, precision);
     }
     const e = Decimal.log(num, 1000).floor().toNumber() - 1;
     num = Decimal.div(num, Decimal.pow(1000, e + 1));
@@ -451,20 +577,26 @@ export function formatTime(sec: DecimalSource, precise: boolean = false): JSX.El
     }
 }
 
-export function toPlaces(x: DecimalSource, precision: number, maxAccepted: DecimalSource): string {
-    x = new Decimal(x);
-    let result = x.toStringWithDecimalPlaces(precision);
-    if (new Decimal(result).gte(maxAccepted)) {
-        result = Decimal.sub(maxAccepted, Math.pow(0.1, precision)).toStringWithDecimalPlaces(
-            precision
-        );
-    }
-    return result;
-}
-
 // Will also display very small numbers
 export function formatSmall(x: DecimalSource, precision?: number): JSX.Element {
     return format(x, precision, true);
+}
+
+export function toPlaces(
+    x: DecimalSource,
+    precision: number,
+    maxAccepted: DecimalSource
+): string {
+    x = new Decimal(x);
+    let result = x.toStringWithDecimalPlaces(precision);
+    if (x.gte(maxAccepted)) {
+        result = (
+            Decimal.sub(maxAccepted, Math.pow(0.1, precision)).toStringWithDecimalPlaces(
+                precision
+            )
+        );
+    }
+    return result;
 }
 
 export function invertOOM(x: DecimalSource): Decimal {

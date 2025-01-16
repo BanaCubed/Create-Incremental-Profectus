@@ -8,13 +8,26 @@ import { JSX } from "vue/jsx-runtime";
 export const {
     formatExp: exponentialFormat,
     formatCom: commaFormat,
-    formatRegular: regularFormat,
+    formatReg: regularFormat,
     format,
     formatWhole,
     formatTime,
     toPlaces,
     formatSmall,
-    invertOOM
+    invertOOM,
+    formatInf,
+    formatLet,
+    formatLog,
+    formatSci,
+    formatStan,
+    formatExp,
+    formatCom,
+    formatReg,
+    stringyFormat,
+    stringyFormatInf,
+    stringyFormatLog,
+    stringyFormatSci,
+    stringyFormatStan
 } = numberUtils;
 
 export type DecimalSource = RawDecimalSource;
