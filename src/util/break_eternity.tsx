@@ -110,21 +110,17 @@ export function stringyFormat(num: DecimalSource, precision?: number, small?: bo
         return "Infinity";
     }
     if (num.gte(thresholds[window.settings.logarithmicThreshold])) {
-        return window.settings.infinityNumbers ? (
-            stringyFormatInf(num, precision)
-        ) : (
-            stringyFormatLog(num, precision)
-        );
+        return window.settings.infinityNumbers
+            ? stringyFormatInf(num, precision)
+            : stringyFormatLog(num, precision);
     }
     if (num.gte(thresholds[window.settings.scientificThreshold])) {
         return stringyFormatSci(num, precision);
     }
     if (num.gte(thresholds[window.settings.standardThreshold])) {
-        return window.settings.letterNumbers ? (
-            formatLet(num, precision)
-        ) : (
-            stringyFormatStan(num, precision)
-        );
+        return window.settings.letterNumbers
+            ? formatLet(num, precision)
+            : stringyFormatStan(num, precision);
     }
     if (num.gte(10000)) {
         return formatCom(num, 0);
@@ -150,13 +146,13 @@ export function formatLog(num: DecimalSource, precision: number = 2): JSX.Elemen
 export function stringyFormatLog(num: DecimalSource, precision: number = 2): string {
     const e = Decimal.log10(num);
     return (
-            "e" +
-            stringyFormat(
-                e
-                    .mul(10 ** precision)
-                    .trunc()
-                    .div(10 ** precision)
-            )
+        "e" +
+        stringyFormat(
+            e
+                .mul(10 ** precision)
+                .trunc()
+                .div(10 ** precision)
+        )
     );
 }
 
@@ -186,13 +182,12 @@ export function stringyFormatInf(
 ): string {
     const e = Decimal.log(num, base);
     return (
-            format(
-                e
-                    .mul(10 ** precision)
-                    .trunc()
-                    .div(10 ** precision)
-            ) +
-            "∞"
+        format(
+            e
+                .mul(10 ** precision)
+                .trunc()
+                .div(10 ** precision)
+        ) + "∞"
     );
 }
 
@@ -227,9 +222,7 @@ export function stringyFormatSci(num: DecimalSource, precision: number = 2): str
         .mul(10 ** precision)
         .trunc()
         .div(10 ** precision);
-    return (
-            num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e)
-    );
+    return num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e);
 }
 
 export function formatExp(num: DecimalSource, precision: number, mantissa = true): string {
@@ -586,18 +579,12 @@ export function stringyFormatSmall(x: DecimalSource, precision?: number): string
     return stringyFormat(x, precision, true);
 }
 
-export function toPlaces(
-    x: DecimalSource,
-    precision: number,
-    maxAccepted: DecimalSource
-): string {
+export function toPlaces(x: DecimalSource, precision: number, maxAccepted: DecimalSource): string {
     x = new Decimal(x);
     let result = x.toStringWithDecimalPlaces(precision);
     if (x.gte(maxAccepted)) {
-        result = (
-            Decimal.sub(maxAccepted, Math.pow(0.1, precision)).toStringWithDecimalPlaces(
-                precision
-            )
+        result = Decimal.sub(maxAccepted, Math.pow(0.1, precision)).toStringWithDecimalPlaces(
+            precision
         );
     }
     return result;
