@@ -2,10 +2,10 @@ import { globalBus } from "game/events";
 import type { Persistent, State } from "game/persistence";
 import { NonPersistent, persistent } from "game/persistence";
 import type { DecimalSource } from "util/bignum";
-import Decimal, { format, formatWhole, stringyFormat } from "util/bignum";
+import Decimal, { format, formatWhole } from "util/bignum";
 import { loadingSave } from "util/save";
 import type { ComputedRef, MaybeRef, Ref } from "vue";
-import { computed, isRef, ref, unref, watch } from "vue";
+import { isRef, ref, unref, watch } from "vue";
 import { JSX } from "vue/jsx-runtime";
 
 /** An object that represents a named and quantifiable resource in the game. */
@@ -132,15 +132,21 @@ export function trackOOMPS(
 
     function oompsString() {
         if (oompsMag.value === 0) {
-            return pointGain
-                ? <>{format(pointGain.value, 2, resource.small)}&nbsp;
-                      {resource.displayName}/s</>
-                : <></>;
+            return pointGain ? (
+                <>
+                    {format(pointGain.value, 2, resource.small)}&nbsp;
+                    {resource.displayName}/s
+                </>
+            ) : (
+                <></>
+            );
         }
         return (
-            <>{format(oomps.value)} OOM{oompsMag.value < 0 ? "^OOM" : "^" + oompsMag.value}s/sec</>
+            <>
+                {format(oomps.value)} OOM{oompsMag.value < 0 ? "^OOM" : "^" + oompsMag.value}s/sec
+            </>
         );
-    };
+    }
     return oompsString;
 }
 

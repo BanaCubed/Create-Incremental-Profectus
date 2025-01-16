@@ -483,7 +483,7 @@ export function formatWhole(num: DecimalSource): JSX.Element {
 export function stringyFormatWhole(num: DecimalSource): string {
     num = new Decimal(num);
     if (num.sign < 0) {
-        return "-" + formatWhole(num.neg());
+        return "-" + stringyFormatWhole(num.neg());
     }
     if (num.gte(1e9)) {
         return stringyFormat(num);

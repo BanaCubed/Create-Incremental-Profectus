@@ -5,7 +5,12 @@
 import { main } from "data/projEntry";
 import { createReset } from "features/reset";
 import Node from "components/Node.vue";
-import { createResource, trackBest, trackOOMPS, trackTotal } from "../../features/resources/resource";
+import {
+    createResource,
+    trackBest,
+    trackOOMPS,
+    trackTotal
+} from "../../features/resources/resource";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
 import { createLayer } from "game/layers";
@@ -1012,9 +1017,14 @@ const layer: any = createLayer(id, () => {
         tooltip,
         display: () => (
             <>
-                {Decimal.gte(main.progression.value, 1.9)
-                    ? render(tabs)
-                    : <><br style="font-size: 0.5em;" />{render(unref(tabs.tabs.cash.tab))}</>}
+                {Decimal.gte(main.progression.value, 1.9) ? (
+                    render(tabs)
+                ) : (
+                    <>
+                        <br style="font-size: 0.5em;" />
+                        {render(unref(tabs.tabs.cash.tab))}
+                    </>
+                )}
             </>
         ),
         treeNode,
