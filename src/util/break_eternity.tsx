@@ -222,7 +222,7 @@ export function stringyFormatSci(num: DecimalSource, precision: number = 2): str
         .mul(10 ** precision)
         .trunc()
         .div(10 ** precision);
-    return num.toStringWithDecimalPlaces(precision) + "e" + formatWhole(e);
+    return num.toStringWithDecimalPlaces(precision) + "e" + stringyFormatWhole(e);
 }
 
 export function formatExp(num: DecimalSource, precision: number, mantissa = true): string {

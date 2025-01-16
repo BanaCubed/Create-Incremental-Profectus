@@ -64,7 +64,7 @@
             <div v-if="currentTime" class="time" @click="emit('open')" :disabled="readonly">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
-            <div v-if="progressDisplay" @click="emit('open')">{{ progressDisplay }}</div>
+            <div v-if="progressDisplay" @click="emit('open')"><ProgressDisplay /></div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />
@@ -75,7 +75,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import player, { LayerData } from "game/player";
 import { Direction } from "util/common";
 import { LoadablePlayerData } from "util/save";
@@ -90,6 +90,7 @@ import { main } from "data/projEntry";
 import cash from "data/layers/cash";
 import rebirth from "data/layers/rebirth";
 import srebirth from "data/layers/super";
+import { render } from "util/vue";
 
 const props = defineProps<{
     save: LoadablePlayerData;
@@ -113,18 +114,19 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
     second: "numeric"
 });
 
-const progressDisplay = computed(() => {
+const progressDisplay = () => {
     if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
-        return '?-? // Progress Unknown'
+        return <>?-? // Progress Unknown</>
     } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
-        return `1-1 // Cash // ${stringyFormatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
+        return <>1-1 // Cash // {stringyFormatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
     } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
-        return `1-2 // Rebirth // ${stringyFormatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
+        return <>1-2 // Rebirth // {stringyFormatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP</>
     } else {
-        return `1-3 // Super Rebirth // ${stringyFormatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
+        return <>1-3 // Super Rebirth // {stringyFormatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP</>
     }
-});
+};
 
+const ProgressDisplay = () => render(progressDisplay);
 const isEditing = ref(false);
 const isConfirming = ref(false);
 const newName = ref("");
