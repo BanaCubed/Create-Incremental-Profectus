@@ -582,6 +582,10 @@ export function formatSmall(x: DecimalSource, precision?: number): JSX.Element {
     return format(x, precision, true);
 }
 
+export function stringyFormatSmall(x: DecimalSource, precision?: number): string {
+    return stringyFormat(x, precision, true);
+}
+
 export function toPlaces(
     x: DecimalSource,
     precision: number,

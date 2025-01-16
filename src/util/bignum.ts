@@ -27,7 +27,8 @@ export const {
     stringyFormatInf,
     stringyFormatLog,
     stringyFormatSci,
-    stringyFormatStan
+    stringyFormatStan,
+    stringyFormatSmall
 } = numberUtils;
 
 export type DecimalSource = RawDecimalSource;
