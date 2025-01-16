@@ -3,20 +3,24 @@
  * @hidden
  */
 import { main } from "data/projEntry";
-import { jsx } from "features/feature";
 import { createReset } from "features/reset";
 import Node from "components/Node.vue";
-import { createResource, trackBest, trackOOMPS, trackTotal } from "features/resources/resource";
-import { addTooltip } from "features/tooltips/tooltip";
+import {
+    createResource,
+    trackBest,
+    trackOOMPS,
+    trackTotal
+} from "../../features/resources/resource";
+import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
-import { BaseLayer, createLayer } from "game/layers";
+import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal } from "../common";
 import { globalBus } from "game/events";
 import Decimal, { format, formatWhole } from "util/bignum";
 import { computed, unref } from "vue";
-import { createUpgrade } from "features/upgrades/upgrade";
+import { createUpgrade } from "features/clickables/upgrade";
 import { createCostRequirement } from "game/requirements";
 import { noPersist, persistent } from "game/persistence";
 import {
@@ -33,14 +37,16 @@ import { createClickable } from "features/clickables/clickable";
 import settings from "game/settings";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
-import { createRepeatable } from "features/repeatable";
+import { createRepeatable } from "features/clickables/repeatable";
 import Formula from "game/formulas/formulas";
+
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 
 /**
  * Util function for display of dynamic portion of subtitle for The Machine
- * @returns string, to be used in the subtitle
+ * @returns {string} To be used in the subtitle
  */
-export function machineDisplay() {
+export function machineDisplay(): string {
     // Inactive case, also handles negative lengths if that happens
     if (layer.machine.value.length < 1) {
         return (
@@ -67,7 +73,7 @@ export function machineDisplay() {
 }
 
 const id = "cash";
-const layer: any = createLayer(id, function (this: BaseLayer) {
+const layer: any = createLayer(id, () => {
     const points = createResource<DecimalSource>(0, "Cash", 2, false);
     const machine: any = persistent([]);
     const best = trackBest(points);
@@ -77,30 +83,6 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         // eslint-disable-next-line prefer-const
         let gain = effects.cash.apply(upgs.one.bought.value ? 1 : 0);
         return gain;
-    });
-    globalBus.on("update", diff => {
-        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-        if (
-            Decimal.gt(autoMachine.c.value, 0.5) &&
-            machine.value.includes(0) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.cash.onClick();
-        }
-        if (
-            Decimal.gt(autoMachine.n.value, 0.5) &&
-            machine.value.includes(1) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.neut.onClick();
-        }
-        if (
-            Decimal.gt(autoMachine.r.value, 0.5) &&
-            machine.value.includes(2) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.rp.onClick();
-        }
     });
     const oomps = trackOOMPS(points, pointGain);
 
@@ -141,10 +123,10 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             return unref(settings.appendLayers);
         })
     }));
-    const tooltip = addTooltip(treeNode, {
+    const tooltip = addTooltip(treeNode, () => ({
         display: createResourceTooltip(points),
         pinnable: true
-    });
+    }));
 
     const reset = createReset(() => ({
         thingsToReset: (): Record<string, any>[] => [
@@ -218,11 +200,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>×{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -257,25 +239,17 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash again",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}
                         </span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
                     cash: true
-                };
-            }),
-            style: computed(() => {
-                return {
-                    "border-bottom-left-radius":
-                        rebirth.upgs.four.bought.value === true
-                            ? "0"
-                            : "var(--border-radius) !important"
                 };
             })
         })),
@@ -289,13 +263,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, yet again",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}
                         </span>
                     </>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -336,14 +310,6 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return {
                     cash: true
                 };
-            }),
-            style: computed(() => {
-                return {
-                    "border-bottom-right-radius":
-                        rebirth.upgs.four.bought.value === true
-                            ? "0"
-                            : "var(--border-radius) !important"
-                };
             })
         })),
         nine: createUpgrade(() => ({
@@ -356,13 +322,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, yet another time",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>
                             ×{format(Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5))}
                         </span>
                     </>
-                ))
+                )
             },
             visibility() {
                 return rebirth.upgs.four.bought.value;
@@ -383,11 +349,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on cash, for the last time",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         <span>×{format(Decimal.max(0, points.value).add(1).log(1e2).add(1))}</span>
                     </>
-                ))
+                )
             },
             visibility() {
                 return rebirth.upgs.four.bought.value;
@@ -458,13 +424,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Boost RP gain slightly",
                 showAmount: false,
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         ×{format(Decimal.pow(1.1, buys.one.amount.value))}
                         <br />
                         Amount: {formatWhole(buys.one.amount.value)}
                     </>
-                ))
+                )
             },
             visibility() {
                 return srebirth.achs.four.earned.value === true ? 0 : 2;
@@ -702,13 +668,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.c.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         })),
         n: createClickable(() => ({
@@ -731,13 +697,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.n.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         })),
         r: createClickable(() => ({
@@ -760,13 +726,13 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
             },
             display: {
-                description: jsx(() => (
+                description: () => (
                     <>
                         AUTO
                         <br />
                         {Decimal.gt(autoMachine.r.value, 0.5) ? "ON" : "OFF"}
                     </>
-                ))
+                )
             }
         }))
     };
@@ -787,11 +753,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(0) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -811,11 +777,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(1) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -835,11 +801,11 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                         : false
                     : machine.value.length < machineUtils.maxModes.value;
             },
-            display: jsx(() => (
+            display: () => (
                 <>
                     <h2>{machine.value.includes(2) === true ? "Disable" : "Enable"}</h2>
                 </>
-            )),
+            ),
             style: {
                 "min-height": "50px"
             }
@@ -852,14 +818,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                 display: "Cash",
                 glowColor: color,
                 tab: createTab(() => ({
-                    display: jsx(() => (
+                    display: () => (
                         <>
                             <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
                                 <div>
-                                    ({oomps.value})
+                                    ({oomps()})
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
@@ -867,10 +833,12 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             <Column>
                                 {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
                                 {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
-                                {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
+                                {rebirth.upgs.four.bought.value === true
+                                    ? renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)
+                                    : null}
                             </Column>
                         </>
-                    ))
+                    )
                 }))
             }),
             machine: () => ({
@@ -880,14 +848,14 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                     return Decimal.gte(main.progression.value, 1.9) ? 0 : 2;
                 },
                 tab: createTab(() => ({
-                    display: jsx(() => (
+                    display: () => (
                         <>
                             <br />
                             You have <ResourceVue resource={points} color={color} /> Cash
                             {render(modals.cashGain)}
                             {Decimal.gt(pointGain.value, 0) ? (
                                 <div>
-                                    ({oomps.value})
+                                    ({oomps()})
                                     <Node id="oomps" />
                                 </div>
                             ) : null}
@@ -895,9 +863,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                             <h2>The Machine</h2>
                             {render(modals.machine)}
                             <br />
-                            <sup style="color: var(--highlighted)">
-                                Currently {machineDisplay()}
-                            </sup>
+                            <sup style="opacity: 0.5;">Currently {machineDisplay()}</sup>
                             <div style="background-color: rgba(102, 102, 102, 25%); width: 470px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
                                 <table>
                                     <tr>
@@ -905,7 +871,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Cash Mode</h3>
                                             {render(modals.machineC)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(0) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -926,7 +892,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Neutral Mode</h3>
                                             {render(modals.machineN)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(1) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -946,7 +912,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                             <h3>Rebirth Mode</h3>
                                             {render(modals.machineR)}
                                             <br />
-                                            <sup style="color: var(--highlighted)">
+                                            <sup style="opacity: 0.5;">
                                                 {machine.value.includes(2) === true
                                                     ? "Enabled"
                                                     : "Disabled"}
@@ -961,7 +927,7 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
                                 </table>
                             </div>
                         </>
-                    ))
+                    )
                 }))
             })
         },
@@ -1020,35 +986,47 @@ const layer: any = createLayer(id, function (this: BaseLayer) {
         ])
     };
 
+    globalBus.on("update", diff => {
+        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
+        if (
+            Decimal.gt(autoMachine.c.value, 0.5) &&
+            machine.value.includes(0) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.cash.onClick?.();
+        }
+        if (
+            Decimal.gt(autoMachine.n.value, 0.5) &&
+            machine.value.includes(1) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.neut.onClick?.();
+        }
+        if (
+            Decimal.gt(autoMachine.r.value, 0.5) &&
+            machine.value.includes(2) !== true &&
+            rebirth.upgs.five.bought.value === true
+        ) {
+            machineClickables.rp.onClick?.();
+        }
+    });
+
     return {
         name,
         color,
         tooltip,
-        display: jsx(() => (
+        display: () => (
             <>
                 {Decimal.gte(main.progression.value, 1.9) ? (
                     render(tabs)
                 ) : (
                     <>
-                        <br />
-                        You have <ResourceVue resource={points} color={color} /> Cash
-                        {render(modals.cashGain)}
-                        {Decimal.gt(pointGain.value, 0) ? (
-                            <div>
-                                ({oomps.value})
-                                <Node id="oomps" />
-                            </div>
-                        ) : null}
-                        <Spacer />
-                        <Column>
-                            {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
-                            {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
-                            {renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)}
-                        </Column>
+                        <br style="font-size: 0.5em;" />
+                        {render(unref(tabs.tabs.cash.tab))}
                     </>
                 )}
             </>
-        )),
+        ),
         treeNode,
         points,
         best,

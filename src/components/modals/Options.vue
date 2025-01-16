@@ -1,38 +1,151 @@
 <template>
-    <Modal v-model="isOpen">
+    <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
             <div class="header">
                 <h2>{{ settings.e === true ? 's' : 'S' }}<span @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
                 <div class="option-tabs">
-                    <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button>
+                    <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
                     <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behaviour</button>
+                    <button :class="{selected: isTab('saves')}" @click="setTab('saves')">Saves</button>
                     <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
+                    <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button>
                 </div>
             </div>
         </template>
-        <template v-slot:body>
+        <template #body="{ shown }">
             <div v-if="isTab('behaviour')">
                 <Toggle :title="unthrottledTitle" v-model="unthrottled" />
                 <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
                 <Toggle :title="offlineProdTitle" v-model="offlineProd" />
                 <!-- <Toggle :title="showHealthWarningTitle" v-model="showHealthWarning" v-if="!projInfo.disableHealthWarning" /> -->
+            </div>
+            <div v-if="isTab('saves')">
+                <div v-if="showNotSyncedWarning" style="color: var(--danger)">
+                    Not all saves are synced! You may need to delete stale saves.
+                </div>
+                <Draggable
+                    :list="settings.saves"
+                    handle=".handle"
+                    v-if="shown"
+                    :itemKey="(save: string) => save"
+                >
+                    <template #item="{ element }">
+                        <Save
+                            :save="saves[element]"
+                            @open="openSave(element)"
+                            @export="exportSave(element)"
+                            @editName="(name: string) => editSave(element, name)"
+                            @duplicate="duplicateSave(element)"
+                            @delete="deleteSave(element)"
+                        />
+                    </template>
+                </Draggable>
+                <Text
+                    v-model="saveToImport"
+                    title="Import Save"
+                    placeholder="Paste your save here!"
+                    :class="{ importingFailed }"
+                />
+                <div class="field">
+                    <span class="field-title">Create Save</span>
+                    <div class="field-buttons">
+                        <button class="button" @click="openSave(newSave().id)">New Game</button>
+                        <!-- <Select
+                            v-if="Object.keys(bank).length > 0"
+                            :options="bank"
+                            :modelValue="selectedPreset"
+                            @update:modelValue="(preset: unknown) => newFromPreset(preset as string)"
+                            closeOnSelect
+                            placeholder="Select preset"
+                            class="presets"
+                        /> -->
+                    </div>
+                </div>
                 <Toggle :title="autosaveTitle" v-model="autosave" />
                 <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
             </div>
             <div v-if="isTab('appearance')">
-                <Select :title="notationTitle" :options="notationsOptions" v-model="notation" />
-                <component :is="settingFieldsComponent" />
+                <SettingFields />
                 <Toggle :title="showTPSTitle" v-model="showTPS" />
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
             </div>
-            <div v-if="isTab('lang')" islang>
-                <table>
-                    <tr>
-                        <td><div class="lang" lang="EN" v-bind:class="{active: settings.language === 'en'}" onclick="settings.language = 'en'"><span><span class="langPortion">100%</span><br>English</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>
+            <div v-if="isTab('notation')">
+
+                <details open>
+                    <summary class="subtitle" style="margin-top: 12px;">Modifiers</summary>
+                    
+                    <details open>
+                        <summary class="notation-modifier-title">Unconditional Modifiers</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="precisionTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span class="configurable-notation-modifier">Precision+</span>
+                                    <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                    </details>
+
+                    <details>
+                        <summary class="notation-modifier-title">Partial Overrides</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="engineeringTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Engineering</span>
+                                    <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="lettersTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span class="configurable-notation-modifier">Letters</span>
+                                    <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="infinityTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Infinity</span>
+                                    <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
+                    </details>
+                    
+                    <details>
+                        <summary class="notation-modifier-title">Full Overrides</summary>
+                        <div class="notation-list">
+                            <Tooltip :display="blindTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>Blind Mode</span>
+                                    <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                            <Tooltip :display="yesnoTooltip" :direction="down">
+                                <div class="notation-modifier">
+                                    <span>YES/NO</span>
+                                    <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                                </div>
+                            </Tooltip>
+                        </div>
+                    </details>
+                </details>
+
+                <details>
+                    <summary class="subtitle">Thresholds</summary>
+                    <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
+                    <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
+                    <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
+                </details>
+                
+                <details open>
+                    <summary class="subtitle">Preview</summary>
+                    <div class="notation-modifier" id="notation-preview">
+                        <NotationPreviewComponent />
+                    </div>
+                </details>
+            </div>
+            <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
             </div>
         </template>
     </Modal>
@@ -41,27 +154,314 @@
 <script setup lang="tsx">
 import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
-import { save } from "util/save";
+import { galaxy, syncedSaves } from "util/galaxy";
 import rawThemes from "data/themes";
-import { jsx } from "features/feature";
-import Tooltip from "features/tooltips/Tooltip.vue";
-import player from "game/player";
+import player, { stringifySave } from "game/player";
+import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
 import { camelToTitle, Direction } from "util/common";
-import { coerceComponent, render } from "util/vue";
-import { computed, ref, toRefs } from "vue";
-import Select from "../fields/Select.vue";
+import { render } from "util/vue";
+import { computed, ref, toRefs, nextTick, watch } from "vue";
+import Select, { SelectOption } from "../fields/Select.vue";
 import Toggle from "../fields/Toggle.vue";
+import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Hotkey from "../Hotkey.vue";
-import { createHotkey } from "features/hotkey";
+import Draggable from "vuedraggable";
+import {
+    clearCachedSave,
+    clearCachedSaves,
+    decodeSave,
+    getCachedSave,
+    getUniqueID,
+    loadSave,
+    newSave,
+    save
+} from "util/save";
+import type { Player } from "game/player";
 import { main } from "data/projEntry";
+import Text from "components/fields/Text.vue";
+import Decimal, { DecimalSource, format } from "util/bignum";
+import Save from "./Save.vue";
+import { JSX } from "vue/jsx-runtime";
 
-settings.notation = settings.notation ?? 0;
+export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
+
 settings.language = settings.language ?? 'en';
 
+const notationPreviews: [DecimalSource, JSX.Element][] = [
+    ["1",                      <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One</>],
+    ["10",                     <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten</>],
+    ["e3",                     <>&nbsp;&nbsp;Thousand</>],
+    ["e6",                     <>&nbsp;&nbsp;&nbsp;Million</>],
+    ["e9",                     <>&nbsp;&nbsp;&nbsp;Billion</>],
+    ["e12",                    <>&nbsp;&nbsp;Trillion</>],
+    ["e33",                    <>&nbsp;Decillion</>],
+    ["ee2",                    <>&nbsp;&nbsp;&nbsp;&nbsp;Googol</>],
+    ["e303",                   <>Centillion</>],
+    ["1.7976931348623159e308", <>&nbsp;&nbsp;Infinity</>]
+]
+
+function constructNotationPreviewComponent(previews: [DecimalSource, JSX.Element][]) {
+    let element = <></>;
+    for (let i = 0; i < notationPreviews.length; i++) {
+        const preview = notationPreviews[i];
+        element = <>{element}<p>{preview[1]} - {format(preview[0])}</p></>;
+    }
+    return element;
+}
+
+const NotationPreviewComponent = () => render(constructNotationPreviewComponent(notationPreviews));
+
+const importingFailed = ref(false);
+const saveToImport = ref("");
+const selectedPreset = ref<string | null>(null);
+
+let bankContext = import.meta.glob("./../../../saves/*.txt", { query: "?raw", eager: true });
+let bank = ref(
+    Object.keys(bankContext).reduce((acc: Array<{ label: string; value: string }>, curr) => {
+        acc.push({
+            // .slice(2, -4) strips the leading ./ and the trailing .txt
+            label: curr.split("/").slice(-1)[0].slice(0, -4),
+            // Have to perform this unholy cast because globEager's typing doesn't appear to know
+            // adding { as: "raw" } will make the object contain strings rather than modules
+            value: bankContext[curr] as unknown as string
+        });
+        return acc;
+    }, [])
+);
+
+watch(saveToImport, importedSave => {
+    if (importedSave) {
+        nextTick(() => {
+            try {
+                importedSave = decodeSave(importedSave) ?? "";
+                if (importedSave === "") {
+                    console.warn("Unable to determine preset encoding", importedSave);
+                    importingFailed.value = true;
+                    return;
+                }
+                const playerData = JSON.parse(importedSave);
+                if (typeof playerData !== "object") {
+                    importingFailed.value = true;
+                    return;
+                }
+                const id = getUniqueID();
+                playerData.id = id;
+                save(playerData);
+                saveToImport.value = "";
+                importingFailed.value = false;
+
+                settings.saves.push(id);
+            } catch (e) {
+                importingFailed.value = true;
+            }
+        });
+    } else {
+        importingFailed.value = false;
+    }
+});
+
+const showNotSyncedWarning = computed(
+    () => galaxy.value?.loggedIn === true && settings.saves.length < syncedSaves.value.length
+);
+
+const saves = computed(() =>
+    settings.saves.reduce((acc: Record<string, LoadablePlayerData>, curr: string) => {
+        acc[curr] = getCachedSave(curr);
+        return acc;
+    }, {})
+);
+
+function newFromPreset(preset: string) {
+    // Reset preset dropdown
+    selectedPreset.value = preset;
+    nextTick(() => {
+        selectedPreset.value = null;
+    });
+
+    preset = decodeSave(preset) ?? "";
+    if (preset === "") {
+        console.warn("Unable to determine preset encoding", preset);
+        return;
+    }
+    const playerData = JSON.parse(preset);
+    playerData.id = getUniqueID();
+    save(playerData as Player);
+
+    settings.saves.push(playerData.id);
+
+    openSave(playerData.id);
+}
+
+function editSave(id: string, newName: string) {
+    const currSave = saves.value[id];
+    if (currSave != null) {
+        currSave.name = newName;
+        if (player.id === id) {
+            player.name = newName;
+            save();
+        } else {
+            save(currSave as Player);
+            clearCachedSave(id);
+        }
+    }
+}
+
+function exportSave(id: string) {
+    let saveToExport;
+    if (player.id === id) {
+        saveToExport = stringifySave(player);
+    } else {
+        saveToExport = JSON.stringify(saves.value[id]);
+    }
+    switch (projInfo.exportEncoding) {
+        default:
+            console.warn(`Unknown save encoding: ${projInfo.exportEncoding}. Defaulting to lz`);
+        case "lz":
+            saveToExport = LZString.compressToUTF16(saveToExport);
+            break;
+        case "base64":
+            saveToExport = btoa(unescape(encodeURIComponent(saveToExport)));
+            break;
+        case "plain":
+            break;
+    }
+
+    // Put on clipboard. Using the clipboard API asks for permissions and stuff
+    const el = document.createElement("textarea");
+    el.value = saveToExport;
+    document.body.appendChild(el);
+    el.select();
+    el.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    document.body.removeChild(el);
+}
+
+function duplicateSave(id: string) {
+    if (player.id === id) {
+        save();
+    }
+
+    const playerData = { ...saves.value[id], id: getUniqueID() };
+    save(playerData as Player);
+
+    settings.saves.push(playerData.id);
+}
+
+function deleteSave(id: string) {
+    if (galaxy.value?.loggedIn === true) {
+        galaxy.value.getSaveList().then(list => {
+            const slot = Object.keys(list).find(slot => {
+                const content = list[slot as unknown as number].content;
+                try {
+                    if (JSON.parse(content).id === id) {
+                        return true;
+                    }
+                } catch (e) {
+                    return false;
+                }
+            });
+            if (slot != null) {
+                galaxy.value?.save(parseInt(slot), "", "").catch(console.error);
+            }
+        });
+    }
+    settings.saves = settings.saves.filter((save: string) => save !== id);
+    localStorage.removeItem(id);
+    clearCachedSave(id);
+}
+
+function openSave(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    saves.value[player.id]!.time = player.time;
+    save();
+    clearCachedSave(player.id);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    loadSave(saves.value[id]!);
+    // Delete cached version in case of opening it again
+    clearCachedSave(id);
+}
+
 const isOpen = ref(false);
-const currentTab = ref("lang");
+const currentTab = ref("behaviour");
+
+const thresholdsSimple: SelectOption[] = [
+    {
+        label: '1',
+        value: 0,
+    },
+    {
+        label: '1e3',
+        value: 1,
+    },
+    {
+        label: '1e6',
+        value: 2,
+    },
+    {
+        label: '1e9',
+        value: 3,
+    },
+    {
+        label: '1e12',
+        value: 4,
+    }
+]
+
+const thresholds: SelectOption[] = [
+    {
+        label: '1',
+        value: 0,
+    },
+    {
+        label: '1e3',
+        value: 1,
+    },
+    {
+        label: '1e6',
+        value: 2,
+    },
+    {
+        label: '1e9',
+        value: 3,
+    },
+    {
+        label: '1e12',
+        value: 4,
+    },
+    {
+        label: '1e33',
+        value: 5,
+    },
+    {
+        label: '1e100',
+        value: 6,
+    },
+    {
+        label: '1e303',
+        value: 7,
+    },
+    {
+        label: '1e1000',
+        value: 8,
+    },
+]
+
+const precisionPlusOptions: SelectOption[] = [
+    {
+        label: '+1',
+        value: 1,
+    },
+    {
+        label: '+2',
+        value: 2,
+    },
+    {
+        label: '+3',
+        value: 3,
+    }
+]
 
 function isTab(tab: string): boolean {
     return tab == currentTab.value;
@@ -70,44 +470,27 @@ function isTab(tab: string): boolean {
 function setTab(tab: string) {
     currentTab.value = tab;
 }
+const down = Direction.Up; // dont ask
 
-defineExpose({
-    isTab,
-    setTab,
-    save,
-    open() {
-        isOpen.value = true;
-    }
-});
+const SettingFields = () => settingFields.map(f => render(f));
 
-const notationsOptions = [
-    {
-        label: "Scientific",
-        value: 0,
-    },
-    {
-        label: "Standard",
-        value: 1,
-    },
-    {
-        label: "Logarithmic",
-        value: 2,
-    },
-    {
-        label: "Mixed Scientific",
-        value: 3,
-    },
-    {
-        label: "Mixed Logarithmic",
-        value: 4,
-    },
-];
-
-const settingFieldsComponent = computed(() => {
-    return coerceComponent(jsx(() => (<>{settingFields.map(render)}</>)));
-});
-
-const { showTPS, notation, language, unthrottled, alignUnits, appendLayers, showHealthWarning } = toRefs(settings);
+const { 
+    showTPS,
+    language,
+    unthrottled,
+    alignUnits,
+    engineering,
+    insanePrecision,
+    blindNumbers,
+    yesnoNumbers,
+    letterNumbers,
+    standardThreshold,
+    scientificThreshold,
+    logarithmicThreshold,
+    letters,
+    precisionBonus,
+    infinityNumbers
+} = toRefs(settings);
 const { autosave, offlineProd } = toRefs(player);
 const isPaused = computed({
     get() {
@@ -118,69 +501,259 @@ const isPaused = computed({
     }
 });
 
-const unthrottledTitle = jsx(() => (
+const engineeringTooltip = <>Replaces Scientific with Engineering</>;
+const precisionTooltip   = <>Increases decimal places [Configurable]</>;
+const lettersTooltip     = <>Replaces Standard with Letters [Configurable]</>;
+const blindTooltip       = <>Forces Blind notation</>;
+const yesnoTooltip       = <>Forces YES/NO notation</>;
+const infinityTooltip    = <>Replaces Logarithmic with Infinity</>;
+const standardTitle = () => (
     <span class="option-title">
-        Unthrottled
-        <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
+        {settings.letterNumbers ? 'Letters' : 'Standard'}
     </span>
-));
-const offlineProdTitle = jsx(() => (
+);
+const scientificTitle = () => (
     <span class="option-title">
-        Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Simulate production that occurs while the game is closed.</desc>
+        {settings.engineering ? 'Engineering' : 'Scientific'}
     </span>
-));
-const appendTitle = jsx(() => (
+);
+const logarithmicTitle = () => (
     <span class="option-title">
-        Append Layers
-        <desc>Whether opening a layer appends it to previous layers or replaces them.</desc>
+        {settings.infinityNumbers ? "Infinity" : "Logarithmic"}
     </span>
-));
-const showHealthWarningTitle = jsx(() => (
-    <span class="option-title">
-        Show videogame addiction warning
-        <desc>Show a helpful warning after playing for a long time about video game addiction and encouraging you to take a break.</desc>
-    </span>
-));
-const autosaveTitle = jsx(() => (
-    <span class="option-title">
-        Autosave<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Automatically save the game every second or when the game is closed.</desc>
-    </span>
-));
-const isPausedTitle = jsx(() => (
-    <span class="option-title">
-        Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-        <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
-    </span>
-));
-const notationTitle = jsx(() => (
-    <span class="option-title">
-        Notation
-        <desc>How numbers are displayed.<br />Currently unfinished porting from β3.</desc>
-    </span>
-));
-const langTitle = jsx(() => (
-    <span class="option-title">
-        Language
-        <desc>The language the game uses.<br />The game was developed in English.</desc>
-    </span>
-));
-const showTPSTitle = jsx(() => (
-    <span class="option-title">
-        Show TPS
-        <desc>Show TPS meter at the bottom-left corner of the page.</desc>
-    </span>
-));
-const alignModifierUnitsTitle = jsx(() => (
-    <span class="option-title">
-        Align modifier units
-        <desc>Align numbers to the beginning of the unit in modifier view.</desc>
-    </span>
-));
+);
+const lettersTitle = <span class="option-title">
+    Letters Config
+    <desc>Letters used in letters notation.</desc>
+</span>;
+const precisionTitle = <span class="option-title">
+    Precision+ Config
+    <desc>Decimal places increase.</desc>
+</span>;
+const unthrottledTitle = <span class="option-title">
+    Unthrottled
+    <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
+</span>;
+const offlineProdTitle = <span class="option-title">
+    Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Simulate production that occurs while the game is closed.</desc>
+</span>;
+const autosaveTitle = <span class="option-title">
+    Autosave<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Automatically save the game every second or when the game is closed.</desc>
+</span>;
+const isPausedTitle = <span class="option-title">
+    Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
+    <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
+</span>;
+const bigModalTitle = <span class="option-title">
+    Larger Modals
+    <desc>Makes modals bigger. Might have visual bugs.</desc>
+</span>;
+const showTPSTitle = <span class="option-title">
+    Show TPS
+    <desc>Show TPS meter at the bottom-left corner of the page.</desc>
+</span>;
+const alignModifierUnitsTitle = <span class="option-title">
+    Align modifier units
+    <desc>Align numbers to the beginning of the unit in modifier view.</desc>
+</span>;
+
+defineExpose({
+    isTab,
+    setTab,
+    save,
+    open() {
+        isOpen.value = true;
+    },
+    format,
+    Decimal
+});
 </script>
 
+<style lang="css" scoped>
+summary {
+    cursor: pointer;
+}
+</style>
+
 <style>
+.configurable-notation-modifier::after {
+    font-size: 1em;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    font-family: 'Material Icons';
+    content: 'tune';
+    font-weight: lighter;
+    left: 10px;
+}
+
+#notation-preview {
+    columns: 2;
+    break-inside: unset;
+    display: block;
+    padding: 10px;
+    margin-left: 10px; margin-right: 10px;
+    text-align: left
+}
+
+#notation-preview > p {
+    width: 259.6px;
+    margin: auto
+}
+
+@media screen and (max-width: 600px) {
+    #notation-preview {
+        columns: 1;
+    }
+}
+
+.notation-thresholds {
+    width: 75%;
+}
+
+.notation-thresholds>tr>td:first-child {
+    width: 60%;
+}
+
+.notation-thresholds>tr>td:last-child {
+    width: 40%;
+}
+
+.notation-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: stretch;
+    margin-left: 10px
+}
+
+.notation-list + div {
+    margin-top: 0px;
+}
+
+.notation-list + form {
+    margin-top: -10px;
+}
+
+.notation-list>div {
+    break-inside: avoid;
+    margin: 0 10px 0 0;
+    flex-grow: 1;
+}
+
+.notation-modifier {
+    display: flex;
+    break-inside: avoid;
+    padding: 0 10px;
+    background-color: rgb(from var(--feature-foreground) r g b / 0.15);
+    border-radius: var(--border-radius);
+    margin: 0 0 10px;
+    min-width: 200px;
+}
+
+.notation-modifier>span {
+    flex-grow: 1;
+    display: inline-block
+}
+
+.notation-modifier>label {
+    max-width: 40px;
+    max-height: 52px;
+    display: inline;
+    margin: 0;
+}
+
+.notation-modifier-title {
+    font-size: 12px;
+    position: relative;
+    width: 100%;
+    text-align: left;
+    display: block;
+    /* opacity: 0.6; */
+    margin-top: 0px !important;
+    margin-bottom: 12px;
+    padding-left: 23.75px;
+}
+
+.notation-modifier-title::after {
+    height: 4px;
+    border-radius: var(--border-radius);
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 30%, transparent);
+    width: 35%;
+    position: absolute;
+    content: "";
+    bottom: -4px;
+    left: 5px;
+}
+
+.notation-modifier-title::before {
+    position: absolute;
+    left: 10px;
+    translate: 0 -1.5px;
+}
+
+:not([open]) > .notation-modifier-title::before {
+    content: "▶";
+    scale: 0.8;
+}
+
+[open] > .notation-modifier-title::before {
+    content: "▼";
+    scale: 1.2;
+}
+
+.notation-modifier-title:not(:first-child) {
+    margin-top: 5px;
+}
+
+.notation-modifier-title:first-child {
+    margin-top: -10px;
+}
+
+.subtitle {
+    font-size: 16px;
+    position: relative;
+    width: 100%;
+    text-align: left;
+    display: block;
+    /* opacity: 0.6; */
+    margin-top: 5px;
+    margin-bottom: 16px;
+    padding-left: 25px;
+}
+
+.subtitle::after {
+    height: 4px;
+    border-radius: var(--border-radius);
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.25) 30%, transparent);
+    width: 50%;
+    position: absolute;
+    content: "";
+    bottom: -4px;
+    left: 0px;
+}
+
+.subtitle::before {
+    position: absolute;
+    left: 5px;
+}
+
+:not([open]) > .subtitle::before {
+    content: "▶";
+    scale: 0.8;
+    translate: 0 -3px;
+}
+
+[open] > .subtitle::before {
+    content: "▼";
+    scale: 1.2;
+    translate: 0 -1px;
+}
+
 .lang {
     width: 160px;
     height: 90px;
@@ -193,7 +766,11 @@ const alignModifierUnitsTitle = jsx(() => (
     text-align: right;
     position: relative;
     overflow: clip;
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
     box-shadow: var(--shadows);
     cursor: pointer;
 }
@@ -208,11 +785,19 @@ const alignModifierUnitsTitle = jsx(() => (
 }
 
 .lang:hover:not(.active) {
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0.3), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1), inset 6px 6px 12px -6px rgba(0, 0, 0, 0), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0.3),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
 }
 
 .lang.active {
-    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0), -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0), inset 6px 6px 12px -6px rgba(0, 0, 0, 0.3), inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
+    --shadows:
+               6px  6px 12px -6px rgba(0, 0, 0, 0),
+              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset  6px  6px 12px -6px rgba(0, 0, 0, 0.3),
+        inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
     cursor: default;
 }
 

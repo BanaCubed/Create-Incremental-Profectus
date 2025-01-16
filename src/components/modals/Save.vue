@@ -64,7 +64,7 @@
             <div v-if="currentTime" class="time" @click="emit('open')" :disabled="readonly">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
-            <div v-if="progressDisplay"><component :is="progressDisplay" @click="emit('open')" :disabled="readonly" /></div>
+            <div v-if="progressDisplay" @click="emit('open')"><ProgressDisplay /></div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />
@@ -75,28 +75,28 @@
     </div>
 </template>
 
-<script setup lang="ts">
-import Tooltip from "features/tooltips/Tooltip.vue";
+<script setup lang="tsx">
 import player, { LayerData } from "game/player";
 import { Direction } from "util/common";
-import { computed, ref, toRefs, unref, watch } from "vue";
+import { LoadablePlayerData } from "util/save";
+import { computed, ref, watch } from "vue";
+import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import DangerButton from "../fields/DangerButton.vue";
 import FeedbackButton from "../fields/FeedbackButton.vue";
 import Text from "../fields/Text.vue";
-import type { LoadablePlayerData } from "../modals/SavesManager.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
-import Decimal, { formatWhole } from "util/break_eternity";
-import { computeComponent } from "util/vue";
+import Decimal, { formatWhole } from "util/bignum";
 import { main } from "data/projEntry";
 import cash from "data/layers/cash";
 import rebirth from "data/layers/rebirth";
 import srebirth from "data/layers/super";
+import { render } from "util/vue";
 
-const _props = defineProps<{
+const props = defineProps<{
     save: LoadablePlayerData;
     readonly?: boolean;
 }>();
-const { save, readonly } = toRefs(_props);
+
 const emit = defineEmits<{
     (e: "export"): void;
     (e: "open"): void;
@@ -114,37 +114,36 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
     second: "numeric"
 });
 
-const progressDisplay = computeComponent(
-    computed(() => {
-    	if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
-            return '?-? // Progress Unknown'
-        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
-            return `1-1 // Cash // ${formatWhole((save.value?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash`
-        } else if(Decimal.lt((save.value?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
-            return `1-2 // Rebirth // ${formatWhole((save.value?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP`
-        } else {
-            return `1-3 // Super Rebirth // ${formatWhole((save.value?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP`
-        }
-    })
-);
+const progressDisplay = () => {
+    if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
+        return <>?-? // Progress Unknown</>
+    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
+        return <>1-1 // Cash // {formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
+    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
+        return <>1-2 // Rebirth // {formatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP</>
+    } else {
+        return <>1-3 // Super Rebirth // {formatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP</>
+    }
+};
 
+const ProgressDisplay = () => render(progressDisplay);
 const isEditing = ref(false);
 const isConfirming = ref(false);
 const newName = ref("");
 
-watch(isEditing, () => (newName.value = save.value.name ?? ""));
+watch(isEditing, () => (newName.value = props.save.name ?? ""));
 
 const isActive = computed(
-    () => save.value != null && save.value.id === player.id && !unref(readonly)
+    () => props.save != null && props.save.id === player.id && !props.readonly
 );
 const currentTime = computed(() =>
-    isActive.value ? player.time : (save.value != null && save.value.time) ?? 0
+    isActive.value ? player.time : (props.save != null && props.save.time) ?? 0
 );
 const synced = computed(
     () =>
-        !unref(readonly) &&
+        !props.readonly &&
         galaxy.value?.loggedIn === true &&
-        syncedSaves.value.includes(save.value.id)
+        syncedSaves.value.includes(props.save.id)
 );
 
 function changeName() {
@@ -159,7 +158,7 @@ function changeName() {
     border: solid 4px var(--outline);
     padding: 4px;
     background: var(--raised-background);
-    margin: var(--feature-margin);
+    margin: 0 10px;
     display: flex;
     align-items: center;
     min-height: 30px;

@@ -1,9 +1,9 @@
 <template>
     <form @submit.prevent="submit">
         <div class="field">
-            <span class="field-title" v-if="titleComponent"
-                ><component :is="titleComponent"
-            /></span>
+            <span class="field-title" v-if="title">
+                <Title />
+            </span>
             <VueTextareaAutosize
                 v-if="textArea"
                 v-model="value"
@@ -25,15 +25,15 @@
     </form>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import "components/common/fields.css";
-import type { CoercableComponent } from "features/feature";
-import { computeOptionalComponent } from "util/vue";
-import { computed, onMounted, shallowRef, toRef, unref } from "vue";
+import { MaybeGetter } from "util/computed";
+import { render, Renderable } from "util/vue";
+import { computed, onMounted, shallowRef, unref } from "vue";
 import VueTextareaAutosize from "vue-textarea-autosize";
 
 const props = defineProps<{
-    title?: CoercableComponent;
+    title?: MaybeGetter<Renderable>;
     modelValue?: string;
     textArea?: boolean;
     placeholder?: string;
@@ -46,12 +46,12 @@ const emit = defineEmits<{
     (e: "cancel"): void;
 }>();
 
-const titleComponent = computeOptionalComponent(toRef(props, "title"), "span");
+const Title = () => props.title == null ? <></> : render(props.title, el => <span>{el}</span>);
 
 const field = shallowRef<HTMLElement | null>(null);
-onMounted(() => {
-    field.value?.focus();
-});
+// onMounted(() => {
+//     field.value?.focus();
+// });
 
 const value = computed({
     get() {
@@ -88,9 +88,11 @@ form {
 input {
     width: 50%;
     outline: none;
-    border: solid 1px var(--outline);
+    border: solid 2px var(--outline);
     background-color: unset;
     border-radius: var(--border-radius);
+    font-size: 16px;
+    height: 29.2px;
 }
 
 .fullWidth {

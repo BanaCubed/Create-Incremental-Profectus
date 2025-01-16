@@ -15,14 +15,26 @@
                 <div class="modal-wrapper">
                     <div class="modal-container" :width="width">
                         <div class="modal-header">
-                            <slot name="header" :shown="isOpen"> default header </slot>
+                            <!--
+                                @slot Modal Header
+                                  @binding {boolean} shown Whether the modal is currently open or animating
+                              -->
+                            <slot name="header" :shown="isOpen" />
                         </div>
                         <div class="modal-body">
                             <Context ref="contextRef">
-                                <slot name="body" :shown="isOpen"> default body </slot>
+                                <!--
+                                    @slot Modal Body
+                                      @binding {boolean} shown Whether the modal is currently open or animating
+                                  -->
+                                <slot name="body" :shown="isOpen" />
                             </Context>
                         </div>
                         <div class="modal-footer">
+                            <!--
+                                @slot Modal Footer
+                                  @binding {boolean} shown Whether the modal is currently open or animating
+                              -->
                             <slot name="footer" :shown="isOpen">
                                 <div class="modal-default-footer">
                                     <div class="modal-default-flex-grow"></div>
@@ -41,22 +53,22 @@
 
 <script setup lang="ts">
 import type { FeatureNode } from "game/layers";
-import { computed, ref, toRefs, unref } from "vue";
+import { computed, ref } from "vue";
 import Context from "../Context.vue";
 
-const _props = defineProps<{
+const props = defineProps<{
     modelValue: boolean;
     preventClosing?: boolean;
     width?: string;
 }>();
-const props = toRefs(_props);
+
 const emit = defineEmits<{
     (e: "update:modelValue", value: boolean): void;
 }>();
 
-const isOpen = computed(() => unref(props.modelValue) || isAnimating.value);
+const isOpen = computed(() => props.modelValue || isAnimating.value);
 function close() {
-    if (unref(props.preventClosing) !== true) {
+    if (props.preventClosing !== true) {
         emit("update:modelValue", false);
     }
 }
@@ -95,7 +107,7 @@ defineExpose({ isOpen, nodes });
 .modal-container {
     width: 640px;
     max-width: 95vw;
-    max-height: calc(100vh - 30px);
+    max-height: 95vh;
     background-color: var(--background);
     padding: 20px;
     border-radius: var(--border-radius);
@@ -105,8 +117,6 @@ defineExpose({ isOpen, nodes });
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    overflow: clip;
-    box-shadow: 0 12px 24px 6px rgba(0, 0, 0, 0.35);
 }
 
 .modal-header {

@@ -23,28 +23,6 @@
                 </li>
             </ul>
         </div>
-        <div>
-            <a href="https://forums.moddingtree.com/" target="_blank">
-                <Tooltip display="Forums" :direction="Direction.Down" yoffset="5px">
-                    <span class="material-icons">forum</span>
-                </Tooltip>
-            </a>
-        </div>
-        <div @click="info?.open()">
-            <Tooltip display="Info" :direction="Direction.Down" class="info">
-                <span class="material-icons">info</span>
-            </Tooltip>
-        </div>
-        <div @click="savesManager?.open()">
-            <Tooltip display="Saves" :direction="Direction.Down" xoffset="-20px">
-                <span class="material-icons" :class="{ needsSync }">library_books</span>
-            </Tooltip>
-        </div>
-        <div @click="options?.open()">
-            <Tooltip display="Settings" :direction="Direction.Down" xoffset="-66px">
-                <span class="material-icons">settings</span>
-            </Tooltip>
-        </div>
     </div>
     <div v-else class="overlay-nav" v-bind="$attrs">
         <div @click="options?.open()">
@@ -52,19 +30,28 @@
                 <span class="material-icons">settings</span>
             </Tooltip>
         </div>
-        <div @click="savesManager?.open()">
-            <Tooltip display="Saves" :direction="Direction.Right">
-                <span class="material-icons" :class="{ needsSync }">library_books</span>
-            </Tooltip>
-        </div>
         <div @click="info?.open()">
             <Tooltip display="Info" :direction="Direction.Right">
                 <span class="material-icons">info</span>
             </Tooltip>
         </div>
+        <div class="discord">
+            <span @click="openDiscord" class="material-icons">discord</span>
+            <ul class="discord-links">
+                <li v-if="discordLink">
+                    <a :href="discordLink" target="_blank">{{ discordName }}</a>
+                </li>
+                <li>
+                    <a href="https://discord.gg/yJ4fjnjU54" target="_blank">Profectus & Friends</a>
+                </li>
+                <li>
+                    <a href="https://discord.gg/F3xveHV" target="_blank">The Modding Tree</a>
+                </li>
+            </ul>
+        </div>
         <div style="flex-grow: 1;"></div>
     </div>
-    <Info ref="info" :changelog="changelog" />
+    <Info ref="info" @open-changelog="changelog?.open()" />
     <SavesManager ref="savesManager" />
     <Options ref="options" />
 </template>
@@ -72,24 +59,19 @@
 <script setup lang="ts">
 import Changelog from "data/Changelog.vue";
 import projInfo from "data/projInfo.json";
-import Tooltip from "features/tooltips/Tooltip.vue";
 import settings from "game/settings";
 import { Direction } from "util/common";
 import { galaxy, syncedSaves } from "util/galaxy";
-import type { ComponentPublicInstance } from "vue";
 import { computed, ref } from "vue";
+import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import Info from "./modals/Info.vue";
 import Options from "./modals/Options.vue";
 import SavesManager from "./modals/SavesManager.vue";
-import player from "game/player";
-import { format, formatTime } from "util/bignum";
 
-const info = ref<ComponentPublicInstance<typeof Info> | null>(null);
-const savesManager = ref<ComponentPublicInstance<typeof SavesManager> | null>(null);
-const options = ref<ComponentPublicInstance<typeof Options> | null>(null);
-// For some reason Info won't accept the changelog unless I do this:
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const changelog = ref<ComponentPublicInstance<any> | null>(null);
+const info = ref<typeof Info | null>(null);
+const savesManager = ref<typeof SavesManager | null>(null);
+const options = ref<typeof Options | null>(null);
+const changelog = ref<typeof Changelog | null>(null);
 
 const { useHeader, banner, title, discordName, discordLink, versionNumber } = projInfo;
 

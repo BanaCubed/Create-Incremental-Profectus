@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { GenericHotkey } from "features/hotkey";
+import { Hotkey } from "features/hotkey";
 import { watchEffect } from "vue";
 
 const props = defineProps<{
-    hotkey: GenericHotkey;
+    hotkey: Hotkey;
 }>();
 
 let key = "";
@@ -63,7 +63,7 @@ watchEffect(() => {
     user-select: none;
     transition: transform 0s, box-shadow 0s;
 }
-.key:active { /* why */
+.key:active {
     transform: translateY(0.1em);
     box-shadow: none;
 }

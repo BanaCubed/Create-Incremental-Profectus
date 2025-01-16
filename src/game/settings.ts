@@ -1,9 +1,10 @@
 import projInfo from "data/projInfo.json";
 import { Themes } from "data/themes";
-import type { CoercableComponent } from "features/feature";
 import { globalBus } from "game/events";
 import LZString from "lz-string";
+import { MaybeGetter } from "util/computed";
 import { decodeSave, hardReset } from "util/save";
+import { Renderable } from "util/vue";
 import { reactive, watch } from "vue";
 
 /** The player's settings object. */
@@ -20,15 +21,37 @@ export interface Settings {
     unthrottled: boolean;
     /** Whether to align modifiers to the unit. */
     alignUnits: boolean;
-    /** The default notation used to render numbers. */
-    notation: number;
-    /** Language most text in the game is written in. Does not affect code. */
+    /** Force a really big modal size. */
+    bigModal: boolean;
+    /** Whether to swap out scientific notation for engineering. */
+    engineering: boolean;
+    /** Adds two more digits of precision to formatted numbers. */
+    insanePrecision: boolean;
+    /** Replace formatted numbers with an empty space. */
+    blindNumbers: boolean;
+    /** Whether to swap out standard notation for letter notation. */
+    letterNumbers: boolean;
+    /** Whether to swap out logarithmic notation for infinity notation. */
+    infinityNumbers: boolean;
+    /** Replace formatted numbers with 'YES' or 'NO'. */
+    yesnoNumbers: boolean;
+    /** Index of minimum value to be formatted with standard notation. */
+    standardThreshold: number;
+    /** Index of minimum value to be formatted with scientific notation. */
+    scientificThreshold: number;
+    /** Index of minimum value to be formatted with logarithmic notation. */
+    logarithmicThreshold: number;
+    /** Index of minimum value to be formatted with standard notation. */
+    letters: string;
+    /** Index of minimum value to be formatted with standard notation. */
+    precisionBonus: number;
+    /** Language most text in the game is displayed as. */
     language: string;
     /** Whether or not a new layer replaces the old one. */
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
     showHealthWarning: boolean;
-    /** Whether or not to show a video game health warning after playing excessively. */
+    /** Debug mode toggled by clicking the 'e' in 'Settings'. */
     e: boolean;
 }
 
@@ -39,7 +62,18 @@ const state = reactive<Partial<Settings>>({
     theme: Themes.Paper,
     unthrottled: false,
     alignUnits: false,
-    notation: 3,
+    bigModal: false,
+    engineering: false,
+    insanePrecision: false,
+    blindNumbers: false,
+    letterNumbers: false,
+    infinityNumbers: false,
+    yesnoNumbers: false,
+    standardThreshold: 3,
+    scientificThreshold: 5,
+    logarithmicThreshold: 8,
+    letters: "",
+    precisionBonus: 2,
     language: "en",
     appendLayers: false,
     showHealthWarning: true,
@@ -78,7 +112,18 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         showTPS: true,
         theme: Themes.Nordic,
         alignUnits: false,
-        notation: 3,
+        bigModal: false,
+        engineering: false,
+        insanePrecision: false,
+        blindNumbers: false,
+        letterNumbers: false,
+        infinityNumbers: false,
+        yesnoNumbers: false,
+        standardThreshold: 3,
+        scientificThreshold: 5,
+        logarithmicThreshold: 8,
+        letters: "",
+        precisionBonus: 2,
         appendLayers: false,
         unthrottled: false,
         showHealthWarning: true,
@@ -91,7 +136,7 @@ export const hardResetSettings = (window.hardResetSettings = () => {
 
 /**
  * Loads the player settings from localStorage.
- * Calls the {@link GlobalEvents.loadSettings} event for custom properties to be included.
+ * Calls the {@link game/events.GlobalEvents.loadSettings} event for custom properties to be included.
  * Custom properties should be added by the file they relate to, so they won't be included if the file is tree shaken away.
  * Custom properties should also register the field to modify said setting using {@link registerSettingField}.
  */
@@ -115,22 +160,22 @@ export function loadSettings(): void {
 }
 
 /** A list of fields to append to the settings modal. */
-export const settingFields: CoercableComponent[] = reactive([]);
+export const settingFields: MaybeGetter<Renderable>[] = reactive([]);
 /** Register a field to be displayed in the settings modal. */
-export function registerSettingField(component: CoercableComponent) {
+export function registerSettingField(component: MaybeGetter<Renderable>) {
     settingFields.push(component);
 }
 
 /** A list of components to show in the info modal. */
-export const infoComponents: CoercableComponent[] = reactive([]);
+export const infoComponents: MaybeGetter<Renderable>[] = reactive([]);
 /** Register a component to be displayed in the info modal. */
-export function registerInfoComponent(component: CoercableComponent) {
+export function registerInfoComponent(component: MaybeGetter<Renderable>) {
     infoComponents.push(component);
 }
 
 /** A list of components to add to the root of the page. */
-export const gameComponents: CoercableComponent[] = reactive([]);
+export const gameComponents: MaybeGetter<Renderable>[] = reactive([]);
 /** Register a component to be displayed at the root of the page. */
-export function registerGameComponent(component: CoercableComponent) {
+export function registerGameComponent(component: MaybeGetter<Renderable>) {
     gameComponents.push(component);
 }

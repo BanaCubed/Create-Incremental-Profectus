@@ -20,8 +20,8 @@
         <template v-slot:body="{ shown }">
             <div v-if="shown">
                 <div v-if="isTab('hotkeys')">
-                    <div>Time Played: {{ timePlayed }}</div>
-                    <infoComponent />
+                    <div>Time Played: <TimePlayed /></div>
+                    <InfoComponents />
                 </div>
                 <div v-if="isTab('credits')">
                     <div>Created by:<br>
@@ -68,7 +68,7 @@
                         </div><br>
                         <div>
                             <a
-                                href="https://raw.githack.com/BanaCubed/Create-Incremental/dev-pages/index.html"
+                                href="https://raw.githack.com/BanaCubed/Create-Incremental/beta-deploy/index.html"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -117,16 +117,6 @@
                                 The Modding Tree
                             </a>
                         </div>
-                        <div>
-                            <a
-                                href="https://discord.gg/6FD2bYMqV9"
-                                class="info-modal-discord-link"
-                                target="_blank"
-                            >
-                                <span class="material-icons info-modal-discord">discord</span>
-                                galaxy (+ ego)
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -137,29 +127,24 @@
 <script setup lang="tsx">
 import Modal from "./Modal.vue";
 import Changelog from "data/Changelog.vue";
-import cash from "data/layers/cash";
-import { main } from "data/projEntry";
 import projInfo from "data/projInfo.json";
-import { jsx } from "features/feature";
 import player from "game/player";
 import { infoComponents } from "game/settings";
-import { formatTime, formatWhole } from "util/bignum";
-import { coerceComponent, render } from "util/vue";
-import { computed, ref, toRefs, unref } from "vue";
-import { layers } from "game/layers";
+import { formatTime } from "util/bignum";
+import { render } from "util/vue";
+import { ref } from "vue";
 
 const { title, logo, author, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
-const _props = defineProps<{ changelog: typeof Changelog | null }>();
-const props = toRefs(_props);
+const emits = defineEmits<{
+    (e: "openChangelog"): void;
+}>();
 
 const isOpen = ref(false);
 
-const timePlayed = computed(() => formatTime(player.timePlayed, true));
+const TimePlayed = () => render(formatTime(player.timePlayed, true));
 
-const infoComponent = computed(() => {
-    return coerceComponent(jsx(() => (<>{infoComponents.map(render)}</>)));
-});
+const InfoComponents = () => infoComponents.map(f => render(f));
 
 const currentTab = ref("hotkeys");
 

@@ -11,17 +11,23 @@
         </template>
         <template v-slot:body="{ shown }">
             <div v-if="shown">
-                <div>It took you {{ timePlayed }} to beat the game.</div>
+                <div>It took you <TimePlayed /> to beat the game.</div>
                 <br />
                 <div>
                     Please check the Discord to discuss the game or to check for new content
                     updates!
                 </div>
                 <br />
-                <div>
+                <div v-if="discordLink && discordName">
                     <a :href="discordLink" class="game-over-modal-discord-link">
                         <span class="material-icons game-over-modal-discord">discord</span>
                         {{ discordName }}
+                    </a>
+                </div>
+                <div v-else>
+                    <a href="https://discord.gg/yJ4fjnjU54" class="game-over-modal-discord-link">
+                        <span class="material-icons game-over-modal-discord">discord</span>
+                        Profectus & Friends
                     </a>
                 </div>
                 <Toggle title="Autosave" v-model="autosave" />
@@ -37,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "./Modal.vue";
 import { hasWon } from "data/projEntry";
 import projInfo from "data/projInfo.json";
 import player from "game/player";
@@ -45,10 +50,12 @@ import { formatTime } from "util/bignum";
 import { loadSave, newSave } from "util/save";
 import { computed, toRef } from "vue";
 import Toggle from "../fields/Toggle.vue";
+import Modal from "./Modal.vue";
+import { render } from "util/vue";
 
 const { title, logo, discordName, discordLink, versionNumber, versionTitle } = projInfo;
 
-const timePlayed = computed(() => formatTime(player.timePlayed));
+const TimePlayed = () => render(formatTime(player.timePlayed));
 const isOpen = computed(() => hasWon.value && !player.keepGoing);
 const autosave = toRef(player, "autosave");
 

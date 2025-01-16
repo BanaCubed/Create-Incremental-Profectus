@@ -1,6 +1,9 @@
-.feature:not(li),
-.feature:not(li) button {
+.feature {
     position: relative;
+}
+
+button.feature,
+.feature button {
     padding: 5px;
     border-radius: var(--border-radius);
     border: 4px solid rgba(255, 255, 255, 0.25);
@@ -11,13 +14,17 @@
     transition: all 0.5s, z-index 0s 0.5s;
 }
 
-.can,
+.feature button {
+    position: relative;
+}
+
+button.can,
 .can button {
     background-color: var(--layer-color);
 	cursor: pointer;
 }
 
-.can:hover,
+button.can:hover,
 .can:hover button {
     transform: scale(1.1, 1.1);
     box-shadow: 0 0 10px 5px var(--background);
@@ -25,29 +32,26 @@
     transition: all 0.5s, z-index 0s;
 }
 
-.locked,
+button.locked,
 .locked button {
     background-color: var(--locked);
     cursor: not-allowed;
 }
 
-.bought,
+button.bought,
 .bought button {
     background-color: var(--bought);
     cursor: default;
 }
 
-.super.can   { background-color: #d65029; }
-.rebirth.can { background-color: #c60029; }
-.cash.can    { background-color: #0b8000; }
+.super   > button.can { background-color: #d65029; }
+.rebirth > button.can { background-color: #c60029; }
+.cash    > button.can { background-color: #0b8000; }
 
-.upgrade.left,  .clickable.left  { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }
-.upgrade.right, .clickable.right { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.wide     > button { width: 240px !important; }
+.halfwide > button { width: 160px !important; }
+.tall     > button { min-height: 240px !important; }
+.halftall > button { min-height: 160px !important; }
 
-.wide     { width: 240px !important; }
-.halfwide { width: 160px !important; }
-.tall     { min-height: 240px !important; }
-.halftall { min-height: 160px !important; }
-
-.wide180  { width: 180px !important; }
-.wide270  { width: 270px !important; }
+.wide180  > button { width: 180px !important; }
+.wide270  > button { width: 270px !important; }

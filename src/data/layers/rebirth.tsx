@@ -4,13 +4,12 @@
  */
 import { main } from "data/projEntry";
 import { createCumulativeConversion } from "features/conversion";
-import { jsx } from "features/feature";
 import { createHotkey } from "features/hotkey";
 import { createReset } from "features/reset";
-import { createResource, trackOOMPS } from "features/resources/resource";
-import { addTooltip } from "features/tooltips/tooltip";
+import { createResource, trackOOMPS } from "../../features/resources/resource";
+import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
-import { BaseLayer, createLayer } from "game/layers";
+import { createLayer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
 import { render, renderRow } from "util/vue";
 import { createLayerTreeNode, createModifierModal, createResetButton } from "../common";
@@ -21,16 +20,18 @@ import { createSequentialModifier, createMultiplicativeModifier } from "game/mod
 import { computed, unref } from "vue";
 import ResourceVue from "features/resources/Resource.vue";
 import Spacer from "components/layout/Spacer.vue";
-import { createUpgrade, setupAutoPurchase } from "features/upgrades/upgrade";
+import { createUpgrade, setupAutoPurchase } from "features/clickables/upgrade";
 import { createCostRequirement } from "game/requirements";
 import settings from "game/settings";
-import { createRepeatable } from "features/repeatable";
+import { createRepeatable } from "features/clickables/repeatable";
 import Formula from "game/formulas/formulas";
 import Column from "components/layout/Column.vue";
 import srebirth from "./super";
 
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+
 const id = "rebirth";
-const layer = createLayer(id, function (this: BaseLayer) {
+const layer = createLayer(id, () => {
     const name = "Rebirth";
     const color = "#c60029";
     const points = createResource<DecimalSource>(0, "RP", 0, false);
@@ -202,9 +203,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost cash gain based on RP",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>×{format(Decimal.max(points.value, 0).add(1).log(3).add(1))}</>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -222,9 +223,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
             })),
             display: {
                 description: "Boost RP gain based on Cash",
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>×{format(Decimal.max(cash.points.value, 0).add(1).log(1e4).add(1))}</>
-                ))
+                )
             },
             classes: computed(() => {
                 return {
@@ -268,7 +269,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Boost RP gain",
                 showAmount: false,
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         ×
                         {format(
@@ -280,7 +281,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                         <br />
                         Amount: {formatWhole(buys.one.amount.value)}
                     </>
-                ))
+                )
             },
             visibility() {
                 return upgs.six.bought.value === true ? 0 : 2;
@@ -308,13 +309,13 @@ const layer = createLayer(id, function (this: BaseLayer) {
             display: {
                 description: "Increase previous buyable's effect's base",
                 showAmount: false,
-                effectDisplay: jsx(() => (
+                effectDisplay: () => (
                     <>
                         +{format(Decimal.mul(0.05, buys.two.amount.value))}
                         <br />
                         Amount: {formatWhole(buys.two.amount.value)}
                     </>
-                ))
+                )
             },
             visibility() {
                 return upgs.six.bought.value === true ? 0 : 2;
@@ -430,32 +431,40 @@ const layer = createLayer(id, function (this: BaseLayer) {
                 : 2;
         }
     }));
-    const tooltip = addTooltip(treeNode, {
+    const tooltip = addTooltip(treeNode, () => ({
         display: createResourceTooltip(points),
         pinnable: true
-    });
+    }));
 
     const resetButton = createResetButton(() => ({
         conversion,
         tree: main.tree,
         treeNode,
-        display: jsx(() => (
+        display: () => (
             <>
-                {cash.upgs.eight.bought.value === true
-                    ? Decimal.gte(cash.points.value, 100000)
-                        ? `Rebirth for ${formatWhole(conversion.actualGain.value)} RP` +
-                          (Decimal.gte(conversion.actualGain.value, 1e3)
-                              ? ""
-                              : `, next at ${formatWhole(conversion.nextAt.value)} cash`)
-                        : `Reach ${formatWhole(100000)} cash to Rebirth`
-                    : 'Purchase Cash UPG 8 "Repitition" to Rebirth'}
+                {cash.upgs.eight.bought.value === true ? (
+                    Decimal.gte(cash.points.value, 100000) ? (
+                        <>
+                            Rebirth for {formatWhole(unref(conversion.actualGain))} RP
+                            {Decimal.gte(unref(conversion.actualGain), 1e3) ? (
+                                <></>
+                            ) : (
+                                <>, next at {formatWhole(unref(conversion.nextAt))} Cash</>
+                            )}
+                        </>
+                    ) : (
+                        <>Reach {formatWhole(100000)} Cash to Rebirth</>
+                    )
+                ) : (
+                    <>Purchase Cash UPG 8 "Repitition" to Rebirth</>
+                )}
             </>
-        )),
+        ),
         onClick() {
             main.progression.value = Decimal.max(main.progression.value, 1);
         },
         canClick(): boolean {
-            return Decimal.gte(conversion.actualGain.value, 1) && cash.upgs.eight.bought.value;
+            return Decimal.gte(unref(conversion.actualGain), 1) && cash.upgs.eight.bought.value;
         },
         classes: computed(() => {
             return {
@@ -468,7 +477,9 @@ const layer = createLayer(id, function (this: BaseLayer) {
     const hotkey = createHotkey(() => ({
         description: "Rebirth",
         key: "r",
-        onPress: resetButton.onClick,
+        onPress() {
+            resetButton.onClick?.();
+        },
         enabled() {
             return Decimal.gte(main.progression.value, 0.9);
         }
@@ -492,14 +503,14 @@ const layer = createLayer(id, function (this: BaseLayer) {
         points,
         tooltip,
         effects,
-        display: jsx(() => (
+        display: () => (
             <>
                 <br />
                 You have <ResourceVue resource={points} color={color} /> RP{render(modals.rpGain)}
                 <br />
                 Multiplying cash gain by ×
                 {format(Decimal.max(points.value, 0).add(1).log(10).add(1).pow(2))}
-                {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps.value})</div> : null}
+                {Decimal.gt(pointGain.value, "1e1000") ? <div>({oomps()})</div> : null}
                 <Spacer />
                 {render(resetButton)}
                 <Spacer />
@@ -510,7 +521,7 @@ const layer = createLayer(id, function (this: BaseLayer) {
                     {renderRow(upgs.nine, upgs.ten, upgs.eleven)}
                 </Column>
             </>
-        )),
+        ),
         treeNode,
         hotkey,
         upgs,

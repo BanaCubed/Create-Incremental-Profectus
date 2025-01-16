@@ -1,12 +1,10 @@
-import { jsx } from "features/feature";
-import type { GenericTree } from "features/trees/tree";
+import type { Tree } from "features/trees/tree";
 import { branchedResetPropagation, createTree } from "features/trees/tree";
 import Node from "components/Node.vue";
-import { createResource } from "features/resources/resource";
-import type { BaseLayer, GenericLayer } from "game/layers";
+import { createResource } from "../features/resources/resource";
+import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
-import type { Player } from "game/player";
-import player from "game/player";
+import player, { Player } from "game/player";
 import Decimal, { format, formatTime } from "util/bignum";
 import { render } from "util/vue";
 import { computed } from "vue";
@@ -16,27 +14,35 @@ import { createHotkey } from "features/hotkey";
 import ResourceVue from "features/resources/Resource.vue";
 import srebirth from "./layers/super";
 import settings from "game/settings";
+import { noPersist } from "game/persistence";
+
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 
 /**
  * @hidden
  */
-export const main: any = createLayer("main", function (this: BaseLayer) {
+export const main: any = createLayer("main", () => {
     const progression = createResource(0, "progress");
 
+    // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
-        nodes: [[cash.treeNode], [rebirth.treeNode], [srebirth.treeNode]],
+        nodes: [
+            [noPersist(cash.treeNode)],
+            [noPersist(rebirth.treeNode)],
+            [noPersist(srebirth.treeNode)]
+        ],
         branches: [
             {
-                startNode: rebirth.treeNode,
-                endNode: cash.treeNode,
+                startNode: noPersist(rebirth.treeNode),
+                endNode: noPersist(cash.treeNode),
                 visibility:
                     cash.upgs.eight.bought.value === true || Decimal.gte(progression.value, 0.9)
                         ? 1
                         : 0
             },
             {
-                startNode: srebirth.treeNode,
-                endNode: rebirth.treeNode,
+                startNode: noPersist(srebirth.treeNode),
+                endNode: noPersist(rebirth.treeNode),
                 visibility:
                     rebirth.upgs.eleven.bought.value === true || Decimal.gte(progression.value, 3.9)
                         ? 1
@@ -44,7 +50,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
             }
         ],
         resetPropagation: branchedResetPropagation
-    })) as GenericTree;
+    })) as Tree;
 
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
@@ -76,15 +82,18 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
         }
     }));
 
+    // Note: layers don't _need_ a reference to everything,
+    //  but I'd recommend it over trying to remember what does and doesn't need to be included.
+    // Officially all you need are anything with persistency or that you want to access elsewhere
     return {
         name: "Tree",
         links: tree.links,
         minimizable: true,
-        display: jsx(() => (
+        display: () => (
             <>
                 {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
                     <div>
-                        Dev Speed: {format(player.devSpeed)}x
+                        Dev Speed: {format(player.devSpeed)}&times;
                         <Node id="devspeed" />
                     </div>
                 ) : player.devSpeed === 0 ? (
@@ -106,13 +115,13 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
                 You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
                 {Decimal.gt(cash.pointGain.value, 0) ? (
                     <div>
-                        ({cash.oomps.value})
+                        ({cash.oomps()})
                         <Node id="oomps" />
                     </div>
                 ) : null}
                 {render(tree)}
             </>
-        )),
+        ),
         tree,
         hotkey,
         progression,
@@ -128,7 +137,7 @@ export const main: any = createLayer("main", function (this: BaseLayer) {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<GenericLayer> => [main, rebirth, cash, srebirth];
+): Array<Layer> => [main, rebirth, cash, srebirth];
 
 /**
  * A computed ref whose value is true whenever the game is over.
