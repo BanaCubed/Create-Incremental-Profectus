@@ -1,30 +1,5 @@
 <template>
-    <div class="nav" v-if="useHeader" v-bind="$attrs">
-        <img v-if="banner" :src="banner" class="banner" :alt="title" />
-        <div v-else class="title">{{ title }}</div>
-        <div @click="changelog?.open()" class="version-container">
-            <Tooltip display="Changelog" :direction="Direction.Down" class="version"
-                ><span>v{{ versionNumber }}</span></Tooltip
-            >
-        </div>
-        <div style="flex-grow: 1; cursor: unset"></div>
-        <div style="flex-grow: 1; cursor: unset"></div>
-        <div class="discord">
-            <span @click="openDiscord" class="material-icons">discord</span>
-            <ul class="discord-links">
-                <li v-if="discordLink">
-                    <a :href="discordLink" target="_blank">{{ discordName }}</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/yJ4fjnjU54" target="_blank">Profectus & Friends</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/F3xveHV" target="_blank">The Modding Tree</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div v-else class="overlay-nav" v-bind="$attrs">
+    <div class="overlay-nav" v-bind="$attrs">
         <div @click="options?.open()">
             <Tooltip display="Settings" :direction="Direction.Right">
                 <span class="material-icons">settings</span>

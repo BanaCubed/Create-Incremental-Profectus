@@ -86,6 +86,7 @@ onErrorCaptured((err, instance, info) => {
     flex-grow: 1;
     text-align: center;
     position: relative;
+    max-width: 100%;
 }
 
 .inner-tab > .layer-container > .layer-tab:not(.minimized) {
@@ -118,8 +119,8 @@ onErrorCaptured((err, instance, info) => {
 }
 
 .inner-tab > .layer-container > .layer-tab:not(.minimized) {
-    margin: -50px -10px;
-    padding: 50px 10px;
+    margin: -50px -4px -50px 0;
+    padding: 50px 0;
 }
 
 .modal-body .layer-tab {

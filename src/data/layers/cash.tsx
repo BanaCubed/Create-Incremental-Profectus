@@ -2,1014 +2,306 @@
  * @module
  * @hidden
  */
-import { main } from "data/projEntry";
-import { createReset } from "features/reset";
-import Node from "components/Node.vue";
+import { createReset, Reset } from "features/reset";
 import {
     createResource,
+    Resource,
     trackBest,
     trackOOMPS,
     trackTotal
 } from "../../features/resources/resource";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createResourceTooltip } from "features/trees/tree";
-import { createLayer } from "game/layers";
+import { createLayer, Layer } from "game/layers";
 import type { DecimalSource } from "util/bignum";
-import { render, renderRow } from "util/vue";
-import { createLayerTreeNode, createModifierModal } from "../common";
+import { createLayerTreeNode, createModifierModal, LayerTreeNode } from "../common";
 import { globalBus } from "game/events";
-import Decimal, { format, formatWhole } from "util/bignum";
-import { computed, unref } from "vue";
-import { createUpgrade } from "features/clickables/upgrade";
+import Decimal, { format } from "util/bignum";
+import { computed, ComputedRef, Ref } from "vue";
+import { noPersist, Persistent, persistent } from "game/persistence";
+import { JSX } from "vue/jsx-runtime";
+import { createUpgrade, Upgrade } from "features/clickables/upgrade";
 import { createCostRequirement } from "game/requirements";
-import { noPersist, persistent } from "game/persistence";
-import {
-    createExponentialModifier,
-    createMultiplicativeModifier,
-    createSequentialModifier
-} from "game/modifiers";
-import ResourceVue from "features/resources/Resource.vue";
-import Spacer from "components/layout/Spacer.vue";
-import rebirth from "./rebirth";
-import { createTab } from "features/tabs/tab";
-import { createTabFamily } from "features/tabs/tabFamily";
-import { createClickable } from "features/clickables/clickable";
-import settings from "game/settings";
-import Column from "components/layout/Column.vue";
-import srebirth from "./super";
-import { createRepeatable } from "features/clickables/repeatable";
+import { main } from "data/projEntry";
+import { createRepeatable, Repeatable } from "features/clickables/repeatable";
 import Formula from "game/formulas/formulas";
+import {
+    createAdditiveModifier,
+    createMultiplicativeModifier,
+    createSequentialModifier,
+    Modifier
+} from "game/modifiers";
+import { formatWhole } from "util/break_eternity";
+import Spacer from "components/layout/Spacer.vue";
+import Column from "components/layout/Column.vue";
+import Node from "components/Node.vue";
+import ResourceVue from "features/resources/Resource.vue";
+import { render, renderRow } from "util/vue";
+import rebirth from "./rebirth";
+import { WithRequired } from "util/common";
 
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
-/**
- * Util function for display of dynamic portion of subtitle for The Machine
- * @returns {string} To be used in the subtitle
- */
-export function machineDisplay(): string {
-    // Inactive case, also handles negative lengths if that happens
-    if (layer.machine.value.length < 1) {
-        return (
-            "Inactive // " + layer.machine.value.length + "/" + layer.machineUtils.maxModes.value
-        );
-    }
-
-    const modeNames = ["Cash", "Neutral", "Rebirth"];
-    let text = "in ";
-
-    // Single mode case
-    if (layer.machine.value.length < 2) {
-        text = text + modeNames[layer.machine.value[0]] + " Mode";
-    } else {
-        text = text + " the ";
-        for (let index = 0; index < layer.machine.value.length; index++) {
-            const mode = layer.machine.value[index];
-
-            text = text + modeNames[mode] + ", ";
-        }
-        text = text.substring(0, text.length - 2) + " Modes";
-    }
-    return text + ` // ${layer.machine.value.length}/${layer.machineUtils.maxModes.value}`;
+export interface LayerCash extends Layer {
+    points: Resource<DecimalSource>;
+    machine: Persistent<number[]>;
+    best: Ref<DecimalSource>;
+    total: Ref<DecimalSource>;
+    pointGain: ComputedRef<DecimalSource>;
+    oomps: () => JSX.Element;
+    effects: Record<string, ComputedRef<DecimalSource>>;
+    treeNode: LayerTreeNode;
+    tooltip: void;
+    reset: Reset;
+    upgrades: Upgrade[];
+    printers: Repeatable[];
 }
 
 const id = "cash";
-const layer: any = createLayer(id, () => {
-    const points = createResource<DecimalSource>(0, "Cash", 2, false);
-    const machine: any = persistent([]);
+const layer: LayerCash = createLayer(id, () => {
+    const points = createResource<DecimalSource>(10, "Cash", 2, false);
+    const machine: Persistent<number[]> = persistent([]);
     const best = trackBest(points);
     const total = trackTotal(points);
 
-    const pointGain = computed(() => {
-        // eslint-disable-next-line prefer-const
-        let gain = effects.cash.apply(upgs.one.bought.value ? 1 : 0);
-        return gain;
+    const pointGain: ComputedRef<DecimalSource> = computed(() => {
+        const gain = cashGainModifier.apply(0);
+        return main.upgrades[0].bought.value ? gain : Decimal.dZero;
     });
     const oomps = trackOOMPS(points, pointGain);
 
-    const machineUtils = {
-        canDisable: computed(() => {
-            return false;
+    const cashGainModifier: WithRequired<Modifier, "description"> = createSequentialModifier(() => [
+        createAdditiveModifier(() => ({
+            addend: effects.printer_0,
+            description: "Money Printers"
+        })),
+        createMultiplicativeModifier(() => ({
+            multiplier: effects.upg_0,
+            enabled: upgrades[0].bought,
+            description: "Polynomial Growth"
+        })),
+        createMultiplicativeModifier(() => ({
+            multiplier: effects.upg_2,
+            enabled: upgrades[2].bought,
+            description: "Exponential Growth"
+        })),
+        createMultiplicativeModifier(() => ({
+            multiplier: rebirth.effects.rp_innate,
+            enabled: main.upgrades[1].bought,
+            description: "RP Effect"
+        }))
+    ]);
+
+    const effects: Record<string, ComputedRef<DecimalSource>> = {
+        printer_0: computed(() => printers[0].amount.value),
+        upg_count: computed(() => {
+            let count = 0;
+            for (let i = 0; i < upgrades.length; i++) {
+                const upg = upgrades[i];
+                if (upg.bought.value) count++;
+            }
+            return count;
         }),
-        maxModes: computed(() => {
-            let n = 0;
-            if (upgs.twelve.bought.value) {
-                n++;
-            }
-            if (rebirth.upgs.seven.bought.value === true) {
-                n++;
-            }
-            if (rebirth.upgs.eleven.bought.value === true) {
-                n++;
-            }
-            return n;
+        upg_0: computed(() =>
+            Decimal.mul(printers[0].amount.value, effects_local.upg_0_per.value).add(1)
+        ),
+        upg_2: computed(() =>
+            Decimal.div(printers[0].amount.value, 10)
+                .floor()
+                .pow_base(effects_local.upg_2_per.value)
+        )
+    };
+
+    const effects_local: Record<string, ComputedRef<DecimalSource>> = {
+        upg_0_per: computed(() => {
+            let value: DecimalSource = 0.1;
+            if (rebirth.upgrades[0].bought.value)
+                value = Decimal.add(value, rebirth.effects.upg_0.value);
+            return value;
+        }),
+        upg_2_per: computed(() => {
+            let value: DecimalSource = 1.5;
+            if (rebirth.upgrades[2].bought.value)
+                value = Decimal.add(value, rebirth.effects.upg_2.value);
+            return value;
         })
     };
 
-    const autoMachine: any = {
-        c: persistent(0, false),
-        n: persistent(0, false),
-        r: persistent(0, false)
-    };
+    globalBus.on("update", diff => {
+        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
+    });
 
     const name = "Cash";
     const color = "#0b9000";
+
+    const reset = createReset(() => ({
+        thingsToReset: (): Record<string, any>[] => [
+            points,
+            machine,
+            best,
+            total,
+            upgrades,
+            printers
+        ]
+    }));
 
     const treeNode = createLayerTreeNode(() => ({
         layerID: "cash",
         color,
         reset,
         display: "$",
-        append: computed(() => {
-            return unref(settings.appendLayers);
-        })
+        append: () => window.innerWidth >= 1000
     }));
     const tooltip = addTooltip(treeNode, () => ({
         display: createResourceTooltip(points),
         pinnable: true
     }));
 
-    const reset = createReset(() => ({
-        thingsToReset: (): Record<string, any>[] => [
-            effects,
-            points,
-            best,
-            total,
-            oomps,
-            machine,
-            srebirth.achs.three.earned.value === true
-                ? Decimal.gt(rebirth.points.value, 0)
-                    ? null
-                    : [
-                          upgs.four,
-                          upgs.five,
-                          upgs.six,
-                          upgs.seven,
-                          upgs.eight,
-                          upgs.nine,
-                          upgs.ten,
-                          upgs.eleven,
-                          upgs.twelve
-                      ]
-                : upgs
-        ]
-    }));
-
-    const upgs = {
-        one: createUpgrade(() => ({
+    const upgrades: Upgrade[] = [
+        createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 0,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
+                cost: 100,
+                resource: noPersist(points)
             })),
-            display: {
-                description: "Begin generating 1 cash/s",
-                title: "The Start..."
+            classes: {
+                cash: true
             },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        two: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 10,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
             display: {
-                description: "Quadruple cash gain"
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        three: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 50,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Boost cash gain based on cash",
-                effectDisplay: () => (
+                title: () => (
                     <>
-                        <span>×{format(Decimal.max(0, points.value).add(1).log(5).add(1))}</span>
+                        <h3>Polynomial Growth</h3>
+                    </>
+                ),
+                description: () => <>Printers boost Cash gain by +{format(0.1)}&times;</>,
+                effectDisplay: () => <>{format(effects.upg_0.value)}&times;</>
+            }
+        })),
+        createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                cost: 1000,
+                resource: noPersist(points)
+            })),
+            classes: {
+                cash: true
+            },
+            display: {
+                title: () => (
+                    <>
+                        <h3>Coupon Code</h3>
+                    </>
+                ),
+                description: () => (
+                    <>
+                        Decrease base printer cost growth from {formatWhole(10)}&times; to{" "}
+                        {formatWhole(8)}&times;
                     </>
                 )
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
+            }
         })),
-        four: createUpgrade(() => ({
+        createUpgrade(() => ({
             requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 300,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
+                cost: 5000,
+                resource: noPersist(points)
             })),
-            display: {
-                description: "Quadruple cash gain again"
+            classes: {
+                cash: true
             },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        five: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 1600,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
             display: {
-                description: "Boost cash gain based on cash again",
-                effectDisplay: () => (
+                title: () => (
                     <>
-                        <span>
-                            ×{format(Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8))}
-                        </span>
+                        <h3>Exponential Growth</h3>
+                    </>
+                ),
+                description: () => (
+                    <>
+                        Every {formatWhole(10)} printers bought boost Cash gain by {format(1.5)}
+                        &times;
+                    </>
+                ),
+                effectDisplay: () => <>{format(effects.upg_2.value)}&times;</>
+            }
+        })),
+        createUpgrade(() => ({
+            requirements: createCostRequirement(() => ({
+                cost: 50000,
+                resource: noPersist(points)
+            })),
+            classes: {
+                cash: true
+            },
+            display: {
+                title: () => (
+                    <>
+                        <h3>Overstocked</h3>
+                    </>
+                ),
+                description: () => (
+                    <>
+                        Increase the amount of printers per price increase from {formatWhole(10)} to{" "}
+                        {formatWhole(15)}
                     </>
                 )
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        six: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 5500,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Boost cash gain based on cash, yet again",
-                effectDisplay: () => (
-                    <>
-                        <span>
-                            ×{format(Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6))}
-                        </span>
-                    </>
-                )
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        seven: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 17000,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Raise previous boosts ^1.2"
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        eight: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 200000,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Unlock Rebirth",
-                title: "Repitition"
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        nine: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 80e6,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Boost cash gain based on cash, yet another time",
-                effectDisplay: () => (
-                    <>
-                        <span>
-                            ×{format(Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5))}
-                        </span>
-                    </>
-                )
-            },
-            visibility() {
-                return rebirth.upgs.four.bought.value;
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        ten: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 7e8,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Boost cash gain based on cash, for the last time",
-                effectDisplay: () => (
-                    <>
-                        <span>×{format(Decimal.max(0, points.value).add(1).log(1e2).add(1))}</span>
-                    </>
-                )
-            },
-            visibility() {
-                return rebirth.upgs.four.bought.value;
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        eleven: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 1e10,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Double RP gain"
-            },
-            visibility() {
-                return rebirth.upgs.four.bought.value;
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            })
-        })),
-        twelve: createUpgrade(() => ({
-            requirements: createCostRequirement(() => ({
-                resource: noPersist(points),
-                cost: 2.5e10,
-                requiresPay() {
-                    return srebirth.achs.one.earned.value !== true;
-                }
-            })),
-            display: {
-                description: "Unlock The Machine",
-                title: "Beep Boop"
-            },
-            visibility() {
-                return rebirth.upgs.four.bought.value;
-            },
-            classes: computed(() => {
-                return {
-                    cash: true
-                };
-            }),
-            onPurchase() {
-                main.progression.value = Decimal.max(main.progression.value, 2);
             }
         }))
-    };
+    ];
 
-    const buys: any = {
-        one: createRepeatable(() => ({
-            requirements: [
-                createCostRequirement(() => ({
-                    resource: noPersist(points),
-                    cost: Formula.variable(buys.one.amount)
-                        .step(100, c => c.pow(2))
-                        .pow_base(10)
-                        .mul(1000)
-                }))
-            ],
-            display: {
-                description: "Boost RP gain slightly",
-                showAmount: false,
-                effectDisplay: () => (
-                    <>
-                        ×{format(Decimal.pow(1.1, buys.one.amount.value))}
-                        <br />
-                        Amount: {formatWhole(buys.one.amount.value)}
-                    </>
-                )
-            },
-            visibility() {
-                return srebirth.achs.four.earned.value === true ? 0 : 2;
-            },
+    const printerScaling: ComputedRef<Decimal>[] = [
+        computed(() => {
+            let scaling = Decimal.dTen;
+            if (upgrades[1].bought.value) {
+                scaling = scaling.div(1.25);
+            }
+            return scaling;
+        })
+    ];
+
+    const printerSteps: ComputedRef<Decimal>[] = [
+        computed(() => {
+            let scaling = Decimal.dTen;
+            if (upgrades[3].bought.value) {
+                scaling = scaling.mul(1.5);
+            }
+            return scaling;
+        })
+    ];
+
+    const printers: Repeatable[] = [
+        createRepeatable(() => ({
+            requirements: createCostRequirement(() => ({
+                cost: Formula.variable(printers[0].amount)
+                    .div(printerSteps[0])
+                    .floor()
+                    .pow_base(printerScaling[0])
+                    .mul(10),
+                resource: noPersist(points),
+                maxBulkAmount: () => 1
+            })),
             classes: {
                 cash: true,
-                wide: true
-            }
-        }))
-    };
-
-    const effects: any = {
-        cash: createSequentialModifier(() => [
-            createMultiplicativeModifier(() => ({
-                multiplier: 4,
-                enabled: upgs.two.bought,
-                description: "Cash UPG 2"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier() {
-                    return Decimal.max(0, points.value).add(1).log(5).add(1);
-                },
-                enabled: upgs.three.bought,
-                description: "Cash UPG 3"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier: 4,
-                enabled: upgs.four.bought,
-                description: "Cash UPG 4"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier() {
-                    return Decimal.max(0, points.value).add(1).log(8).add(1).pow(0.8);
-                },
-                enabled: upgs.five.bought,
-                description: "Cash UPG 5"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier() {
-                    return Decimal.max(0, points.value).add(1).log(6).add(1).pow(0.6);
-                },
-                enabled: upgs.six.bought,
-                description: "Cash UPG 6"
-            })),
-            createExponentialModifier(() => ({
-                exponent: 1.2,
-                enabled: upgs.seven.bought,
-                description: "Cash UPG 7"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier() {
-                    return Decimal.max(0, points.value).add(1).log(1e5).add(1).pow(1.5);
-                },
-                enabled: upgs.nine.bought,
-                description: "Cash UPG 9"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier() {
-                    return Decimal.max(0, points.value).add(1).log(1e2).add(1);
-                },
-                enabled: upgs.ten.bought,
-                description: "Cash UPG 10"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    return effects.machine.cash.cash.apply(8);
-                },
-                enabled() {
-                    return machine.value.includes(0);
-                },
-                description: "Machine Cash Mode"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    return effects.machine.neut.cash.apply(3);
-                },
-                enabled() {
-                    return machine.value.includes(1);
-                },
-                description: "Machine Neutral Mode"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    return Decimal.max(rebirth.points.value, 0).add(1).log(10).add(1).pow(2);
-                },
-                enabled() {
-                    return Decimal.gte(main.progression.value, 0.9);
-                },
-                description: "RP Effect"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    let upgs = Decimal.dZero;
-                    if (rebirth.upgs.one.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.two.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.three.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.four.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.five.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.six.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    if (rebirth.upgs.seven.bought.value === true) {
-                        upgs = upgs.add(1);
-                    }
-                    return Decimal.pow(2, upgs).min(100);
-                },
-                enabled: rebirth.upgs.one.bought,
-                description: "RP UPG 1"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    return Decimal.max(rebirth.points.value, 0).add(1).log(3).add(1);
-                },
-                enabled: rebirth.upgs.nine.bought,
-                description: "RP UPG 9"
-            })),
-            createMultiplicativeModifier(() => ({
-                multiplier(): any {
-                    return Decimal.max(srebirth.points.value, 0).add(1).pow(1.75);
-                },
-                enabled() {
-                    return Decimal.gte(main.progression.value, 3.9);
-                },
-                description: "SRP Effect"
-            }))
-        ]),
-        machine: {
-            overall: {
-                cash: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier() {
-                            return effects.machine.cash.cash.apply(8);
-                        },
-                        enabled() {
-                            return machine.value.includes(0);
-                        },
-                        description: "Cash Mode"
-                    })),
-                    createMultiplicativeModifier(() => ({
-                        multiplier() {
-                            return effects.machine.neut.cash.apply(3);
-                        },
-                        enabled() {
-                            return machine.value.includes(1);
-                        },
-                        description: "Neutral Mode"
-                    }))
-                ]),
-                rp: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier() {
-                            return effects.machine.neut.rp.apply(2);
-                        },
-                        enabled() {
-                            return machine.value.includes(1);
-                        },
-                        description: "Neutral Mode"
-                    })),
-                    createMultiplicativeModifier(() => ({
-                        multiplier() {
-                            return effects.machine.rp.rp.apply(4);
-                        },
-                        enabled() {
-                            return machine.value.includes(2);
-                        },
-                        description: "Rebirth Mode"
-                    }))
-                ])
-            },
-            cash: {
-                cash: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier: 2.25,
-                        enabled: rebirth.upgs.eleven.bought,
-                        description: "RP UPG 11"
-                    }))
-                ])
-            },
-            neut: {
-                cash: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier: 1.5,
-                        enabled: rebirth.upgs.eleven.bought,
-                        description: "RP UPG 11"
-                    }))
-                ]),
-                rp: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier: 1.5,
-                        enabled: rebirth.upgs.eleven.bought,
-                        description: "RP UPG 11"
-                    }))
-                ])
-            },
-            rp: {
-                rp: createSequentialModifier(() => [
-                    createMultiplicativeModifier(() => ({
-                        multiplier: 2.25,
-                        enabled: rebirth.upgs.eleven.bought,
-                        description: "RP UPG 11"
-                    }))
-                ])
-            }
-        }
-    };
-
-    const machineAutos: any = {
-        c: createClickable(() => ({
-            onClick() {
-                autoMachine.c.value = Decimal.lte(autoMachine.c.value, 0.5) ? 1 : 0;
-            },
-            canClick() {
-                return Decimal.gte(main.progression.value, 2.9);
-            },
-            style() {
-                return {
-                    "min-height": "50px",
-                    width: "50px",
-                    "background-color": Decimal.gt(autoMachine.c.value, 0.5)
-                        ? "var(--accent2)"
-                        : "var(--danger)"
-                };
-            },
-            visibility() {
-                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
+                pylon: true
             },
             display: {
+                title: () => <><h3>Money Printers</h3></>,
                 description: () => (
                     <>
-                        AUTO
+                        Each printer give +{formatWhole(1)} Cash/s
                         <br />
-                        {Decimal.gt(autoMachine.c.value, 0.5) ? "ON" : "OFF"}
+                        <i>You have {formatWhole(printers[0].amount.value)} printers</i>
                     </>
-                )
-            }
-        })),
-        n: createClickable(() => ({
-            onClick() {
-                autoMachine.n.value = Decimal.lte(autoMachine.n.value, 0.5) ? 1 : 0;
-            },
-            canClick() {
-                return Decimal.gte(main.progression.value, 2.9);
-            },
-            style() {
-                return {
-                    "min-height": "50px",
-                    width: "50px",
-                    "background-color": Decimal.gt(autoMachine.n.value, 0.5)
-                        ? "var(--accent2)"
-                        : "var(--danger)"
-                };
-            },
-            visibility() {
-                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
-            },
-            display: {
-                description: () => (
-                    <>
-                        AUTO
-                        <br />
-                        {Decimal.gt(autoMachine.n.value, 0.5) ? "ON" : "OFF"}
-                    </>
-                )
-            }
-        })),
-        r: createClickable(() => ({
-            onClick() {
-                autoMachine.r.value = Decimal.lte(autoMachine.r.value, 0.5) ? 1 : 0;
-            },
-            canClick() {
-                return Decimal.gte(main.progression.value, 2.9);
-            },
-            style() {
-                return {
-                    "min-height": "50px",
-                    width: "50px",
-                    "background-color": Decimal.gt(autoMachine.r.value, 0.5)
-                        ? "var(--accent2)"
-                        : "var(--danger)"
-                };
-            },
-            visibility() {
-                return Decimal.gte(main.progression.value, 2.9) ? 0 : 1;
-            },
-            display: {
-                description: () => (
-                    <>
-                        AUTO
-                        <br />
-                        {Decimal.gt(autoMachine.r.value, 0.5) ? "ON" : "OFF"}
-                    </>
-                )
+                ),
+                showAmount: false
             }
         }))
-    };
+    ];
 
-    const machineClickables = {
-        cash: createClickable(() => ({
-            onClick() {
-                if (machine.value.includes(0) === true) {
-                    machine.value = machine.value.filter((n: number) => n !== 0);
-                } else if (machine.value.length < machineUtils.maxModes.value) {
-                    machine.value.push(0);
-                }
-            },
-            canClick() {
-                return machine.value.includes(0) === true
-                    ? machineUtils.canDisable.value
-                        ? machine.value.length <= machineUtils.maxModes.value
-                        : false
-                    : machine.value.length < machineUtils.maxModes.value;
-            },
-            display: () => (
-                <>
-                    <h2>{machine.value.includes(0) === true ? "Disable" : "Enable"}</h2>
-                </>
-            ),
-            style: {
-                "min-height": "50px"
-            }
-        })),
-        neut: createClickable(() => ({
-            onClick() {
-                if (machine.value.includes(1) === true) {
-                    machine.value = machine.value.filter((n: number) => n !== 1);
-                } else if (machine.value.length < machineUtils.maxModes.value) {
-                    machine.value.push(1);
-                }
-            },
-            canClick() {
-                return machine.value.includes(1) === true
-                    ? machineUtils.canDisable.value
-                        ? machine.value.length <= machineUtils.maxModes.value
-                        : false
-                    : machine.value.length < machineUtils.maxModes.value;
-            },
-            display: () => (
-                <>
-                    <h2>{machine.value.includes(1) === true ? "Disable" : "Enable"}</h2>
-                </>
-            ),
-            style: {
-                "min-height": "50px"
-            }
-        })),
-        rp: createClickable(() => ({
-            onClick() {
-                if (machine.value.includes(2) === true) {
-                    machine.value = machine.value.filter((n: number) => n !== 2);
-                } else if (machine.value.length < machineUtils.maxModes.value) {
-                    machine.value.push(2);
-                }
-            },
-            canClick() {
-                return machine.value.includes(2) === true
-                    ? machineUtils.canDisable.value
-                        ? machine.value.length <= machineUtils.maxModes.value
-                        : false
-                    : machine.value.length < machineUtils.maxModes.value;
-            },
-            display: () => (
-                <>
-                    <h2>{machine.value.includes(2) === true ? "Disable" : "Enable"}</h2>
-                </>
-            ),
-            style: {
-                "min-height": "50px"
-            }
-        }))
-    };
-
-    const tabs = createTabFamily(
+    const modifierModal = createModifierModal("Cash Modifiers", () => [
         {
-            cash: () => ({
-                display: "Cash",
-                glowColor: color,
-                tab: createTab(() => ({
-                    display: () => (
-                        <>
-                            <br />
-                            You have <ResourceVue resource={points} color={color} /> Cash
-                            {render(modals.cashGain)}
-                            {Decimal.gt(pointGain.value, 0) ? (
-                                <div>
-                                    ({oomps()})
-                                    <Node id="oomps" />
-                                </div>
-                            ) : null}
-                            <Spacer />
-                            <Column>
-                                {renderRow(upgs.one, upgs.two, upgs.three, upgs.four)}
-                                {renderRow(upgs.five, upgs.six, upgs.seven, upgs.eight)}
-                                {rebirth.upgs.four.bought.value === true
-                                    ? renderRow(upgs.nine, upgs.ten, upgs.eleven, upgs.twelve)
-                                    : null}
-                            </Column>
-                        </>
-                    )
-                }))
-            }),
-            machine: () => ({
-                display: "Machine",
-                glowColor: "#666",
-                visibility() {
-                    return Decimal.gte(main.progression.value, 1.9) ? 0 : 2;
-                },
-                tab: createTab(() => ({
-                    display: () => (
-                        <>
-                            <br />
-                            You have <ResourceVue resource={points} color={color} /> Cash
-                            {render(modals.cashGain)}
-                            {Decimal.gt(pointGain.value, 0) ? (
-                                <div>
-                                    ({oomps()})
-                                    <Node id="oomps" />
-                                </div>
-                            ) : null}
-                            <Spacer />
-                            <h2>The Machine</h2>
-                            {render(modals.machine)}
-                            <br />
-                            <sup style="opacity: 0.5;">Currently {machineDisplay()}</sup>
-                            <div style="background-color: rgba(102, 102, 102, 25%); width: 470px; min-height: 50px; border-radius: var(--border-radius); padding: 10px; border: 4px solid rgba(0, 0, 0, 0.25);">
-                                <table>
-                                    <tr>
-                                        <td style="width: 270px;">
-                                            <h3>Cash Mode</h3>
-                                            {render(modals.machineC)}
-                                            <br />
-                                            <sup style="opacity: 0.5;">
-                                                {machine.value.includes(0) === true
-                                                    ? "Enabled"
-                                                    : "Disabled"}
-                                            </sup>
-                                            <br />
-                                            <h5>
-                                                ×{format(effects.machine.cash.cash.apply(8))} Cash
-                                            </h5>
-                                            <br />
-                                        </td>
-                                        <td style="width: 150px;">
-                                            {render(machineClickables.cash)}
-                                        </td>
-                                        <td style="width: 50px;">{render(machineAutos.c)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <h3>Neutral Mode</h3>
-                                            {render(modals.machineN)}
-                                            <br />
-                                            <sup style="opacity: 0.5;">
-                                                {machine.value.includes(1) === true
-                                                    ? "Enabled"
-                                                    : "Disabled"}
-                                            </sup>
-                                            <br />
-                                            <h5>
-                                                ×{format(effects.machine.neut.cash.apply(3))} Cash,
-                                                ×{format(effects.machine.neut.rp.apply(2))} RP
-                                            </h5>
-                                            <br />
-                                        </td>
-                                        <td>{render(machineClickables.neut)}</td>
-                                        <td style="width: 50px;">{render(machineAutos.n)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <h3>Rebirth Mode</h3>
-                                            {render(modals.machineR)}
-                                            <br />
-                                            <sup style="opacity: 0.5;">
-                                                {machine.value.includes(2) === true
-                                                    ? "Enabled"
-                                                    : "Disabled"}
-                                            </sup>
-                                            <br />
-                                            <h5>×{format(effects.machine.rp.rp.apply(4))} RP</h5>
-                                            <br />
-                                        </td>
-                                        <td>{render(machineClickables.rp)}</td>
-                                        <td style="width: 50px;">{render(machineAutos.r)}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </>
-                    )
-                }))
-            })
-        },
-        () => ({
-            visibility: true
-        })
-    );
-
-    const modals = {
-        cashGain: createModifierModal("Cash", () => [
-            {
-                title: "Cash Gain",
-                modifier: effects.cash,
-                base() {
-                    return upgs.one.bought.value === true ? 1 : 0;
-                }
-            }
-        ]),
-        machine: createModifierModal("The Machine", () => [
-            {
-                title: "Cash Bonus",
-                modifier: effects.machine.overall.cash,
-                base: 1
-            },
-            {
-                title: "RP Bonus",
-                modifier: effects.machine.overall.rp,
-                base: 1
-            }
-        ]),
-        machineC: createModifierModal("Cash Mode", () => [
-            {
-                title: "Cash Bonus",
-                modifier: effects.machine.cash.cash,
-                base: 8
-            }
-        ]),
-        machineN: createModifierModal("Neutral Mode", () => [
-            {
-                title: "Cash Bonus",
-                modifier: effects.machine.neut.cash,
-                base: 3
-            },
-            {
-                title: "RP Bonus",
-                modifier: effects.machine.neut.rp,
-                base: 2
-            }
-        ]),
-        machineR: createModifierModal("Rebirth Mode", () => [
-            {
-                title: "RP Bonus",
-                modifier: effects.machine.rp.rp,
-                base: 4
-            }
-        ])
-    };
-
-    globalBus.on("update", diff => {
-        points.value = Decimal.add(points.value, Decimal.times(pointGain.value, diff));
-        if (
-            Decimal.gt(autoMachine.c.value, 0.5) &&
-            machine.value.includes(0) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.cash.onClick?.();
+            title: "Cash Gain",
+            modifier: cashGainModifier,
+            base: 0,
+            unit: "/s"
         }
-        if (
-            Decimal.gt(autoMachine.n.value, 0.5) &&
-            machine.value.includes(1) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.neut.onClick?.();
-        }
-        if (
-            Decimal.gt(autoMachine.r.value, 0.5) &&
-            machine.value.includes(2) !== true &&
-            rebirth.upgs.five.bought.value === true
-        ) {
-            machineClickables.rp.onClick?.();
-        }
-    });
+    ]);
 
     return {
         name,
@@ -1017,32 +309,44 @@ const layer: any = createLayer(id, () => {
         tooltip,
         display: () => (
             <>
-                {Decimal.gte(main.progression.value, 1.9) ? (
-                    render(tabs)
-                ) : (
-                    <>
-                        <br style="font-size: 0.5em;" />
-                        {render(unref(tabs.tabs.cash.tab))}
-                    </>
-                )}
+                <div style="margin-top: 0px;">+
+                    You have <ResourceVue resource={points} color={"#0b9000"} /> Cash
+                    {render(modifierModal)}
+                    {Decimal.gt(pointGain.value, 0) ? (
+                        <div>
+                            ({oomps()})<br />
+                            <br />
+                            <Node id="oomps" />
+                        </div>
+                    ) : (
+                        <>
+                            <br />
+                            <br />
+                            <br />
+                        </>
+                    )}
+                    <Spacer />
+                    <div style="display: flex; width: fit-content;">
+                        {render(printers[0])}
+                        <Column style="margin-left: 20px; margin-top: -10px;">
+                            {renderRow(upgrades[0], upgrades[1])}
+                            {renderRow(upgrades[2], upgrades[3])}
+                        </Column>
+                    </div>
+                </div>
             </>
         ),
+        effects,
         treeNode,
         points,
         best,
-        tabs,
         total,
         pointGain,
         oomps,
-        upgs,
-        effects,
         reset,
         machine,
-        machineClickables,
-        machineUtils,
-        minimizable: false,
-        autoMachine,
-        buys
+        upgrades,
+        printers
     };
 });
 

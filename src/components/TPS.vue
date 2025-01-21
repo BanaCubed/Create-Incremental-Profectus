@@ -1,9 +1,9 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()">TPS: <TpsRender /></div>
-    <div class="tpsDisplay2">v1.0 β5</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()"><span v-if="player.devSpeed === 0">Paused<br /></span>TPS: <TpsRender /><br />v1.0 &beta;5</div>
 </template>
 
 <script setup lang="ts">
+import player from "game/player";
 import state from "game/state";
 import Decimal, { format } from "util/bignum";
 import { render } from "util/vue";
@@ -20,18 +20,13 @@ const TpsRender = () => render(format(Decimal.div(state.lastTenTicks.length, sta
 </script>
 
 <style scoped>
-.tpsDisplay, .tpsDisplay2 {
+.tpsDisplay {
     position: absolute;
     left: 10px;
     z-index: 100;
-}
-
-.tpsDisplay {
-    bottom: 25px;
-}
-
-.tpsDisplay2 {
     bottom: 10px;
+    line-height: 1em;
+    text-align: left;
 }
 
 .low {

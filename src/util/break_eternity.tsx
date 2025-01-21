@@ -100,6 +100,13 @@ export function format(
     if (num.gte(10000)) {
         return str ? formatCom(num, 0) : <>{formatCom(num, 0)}</>;
     }
+    if (num.gte(1000)) {
+        precision--;
+    }
+    if (num.gte(100)) {
+        precision--;
+    }
+    precision = Math.max(precision, 0);
     return str ? formatReg(num, precision) : <>{formatReg(num, precision)}</>;
 }
 

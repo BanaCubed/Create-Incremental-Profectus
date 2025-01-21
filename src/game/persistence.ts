@@ -341,13 +341,13 @@ globalBus.on("addLayer", (layer: Layer, saveData: Record<string, unknown>) => {
                     // TODO handle arrays better
                     if (foundPersistentInChild) {
                         if (Array.isArray(value) && !Array.isArray(obj)) {
-                            console.warn(
-                                "Found array that contains persistent values when adding layer. Keep in mind changing the order of elements in the array will mess with existing player saves.",
-                                ProxyState in obj
-                                    ? (obj as Record<PropertyKey, unknown>)[ProxyState]
-                                    : obj,
-                                key
-                            );
+                            // console.warn(
+                            //     "Found array that contains persistent values when adding layer. Keep in mind changing the order of elements in the array will mess with existing player saves.",
+                            //     ProxyState in obj
+                            //         ? (obj as Record<PropertyKey, unknown>)[ProxyState]
+                            //         : obj,
+                            //     key
+                            // );
                         } else {
                             foundPersistent = true;
                         }
