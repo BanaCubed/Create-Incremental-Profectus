@@ -44,14 +44,17 @@ button.bought,
     cursor: default;
 }
 
-.super   > button.can { background-color: #d65029; }
-.rebirth > button.can { background-color: #c60029; }
-.cash    > button.can { background-color: #0b8000; }
+.super    > button.can { background-color: #d65029; }
+.rebirth  > button.can { background-color: #c60029; }
+.cash     > button.can { background-color: #0b8000; }
+.pylon    > button     { width: 180px !important; min-height: 90px !important; }
+.mystery  > button     { background-color: #332233; border-color: rgba(0, 0, 0, 0.25); color: var(--foreground); }
+.creation > button     { width: 150px !important; height: 150px; }
 
-.wide     > button { width: 240px !important; }
-.halfwide > button { width: 160px !important; }
-.tall     > button { min-height: 240px !important; }
-.halftall > button { min-height: 160px !important; }
+.wide     > button     { width: 240px !important; }
+.halfwide > button     { width: 160px !important; }
+.tall     > button     { min-height: 240px !important; }
+.halftall > button     { min-height: 160px !important; }
 
-.wide180  > button { width: 180px !important; }
-.wide270  > button { width: 270px !important; }
+.wide180  > button     { width: 180px !important; }
+.wide270  > button     { width: 270px !important; }

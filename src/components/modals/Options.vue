@@ -66,7 +66,7 @@
             </div>
             <div v-if="isTab('appearance')">
                 <SettingFields />
-                <Toggle :title="showTPSTitle" v-model="showTPS" />
+                <!-- <Toggle :title="showTPSTitle" v-model="showTPS" /> -->
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
             </div>
             <div v-if="isTab('notation')">

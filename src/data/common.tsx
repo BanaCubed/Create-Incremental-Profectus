@@ -520,13 +520,13 @@ export function createModifierModal(
                 class="button"
                 style={{
                     display: "inline-block",
-                    fontSize: fontSize ?? "20px",
+                    fontSize: fontSize ?? "1em",
                     border: "none",
                     color: "var(--link)"
                 }}
                 onClick={() => (showModifiers.value = true)}
             >
-                🛈
+                &#x1F6C8;
             </button>
             <Modal
                 modelValue={showModifiers.value}

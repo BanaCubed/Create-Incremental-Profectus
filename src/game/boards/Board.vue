@@ -1,7 +1,7 @@
 <template>
     <panZoom
         selector=".stage"
-        :options="{ initialZoom: 1, minZoom: 0.1, maxZoom: 10, zoomDoubleClickSpeed: 1 }"
+        :options="{ initialZoom: 1, minZoom: 0.3, maxZoom: 3, zoomDoubleClickSpeed: 1 }"
         ref="stage"
         @init="onInit"
         @mousemove="(e: MouseEvent) => emit('drag', e)"

@@ -81,7 +81,7 @@ function gatherLayerProps(layer: Layer) {
 }
 
 .inner-tab {
-    padding: 50px 10px;
+    padding: 50px 0;
     min-height: calc(100% - 100px);
     display: flex;
     flex-direction: column;

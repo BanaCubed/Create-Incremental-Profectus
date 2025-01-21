@@ -167,7 +167,7 @@ export function createCostRequirement<T extends CostRequirementOptions>(optionsF
             ),
             display: (amount?: DecimalSource) => (
                 <div>
-                    {unref(requirement.requiresPay as MaybeRef<boolean>) ? "Costs: " : "Requires: "}
+                    {unref(requirement.requiresPay as MaybeRef<boolean>) ? "Cost: " : "Requires: "}
                     {displayResource(
                         resource,
                         requirement.cost instanceof Formula
