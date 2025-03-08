@@ -134,7 +134,10 @@ export function trackOOMPS(
         if (oompsMag.value === 0) {
             return pointGain ? (
                 <>
-                    {format(pointGain.value, 2, resource.small)}&nbsp;
+                    {resource.precision === 0
+                        ? formatWhole(pointGain.value)
+                        : format(pointGain.value, 2, resource.small)}
+                    &nbsp;
                     {resource.displayName}/s
                 </>
             ) : (

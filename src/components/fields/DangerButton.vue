@@ -50,6 +50,7 @@ function cancel() {
     align-items: center;
     background: var(--raised-background);
     box-shadow: var(--raised-background) 0 2px 3px 5px;
+    box-sizing: border-box;
 }
 
 .container.confirming button {

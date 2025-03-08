@@ -37,7 +37,7 @@ import settings, { gameComponents } from "./game/settings";
 import "./main.css";
 
 const useHeader = projInfo.useHeader;
-const theme = computed(() => themes[settings.theme].variables as CSSProperties);
+const theme = computed(() => themes.classic.variables as CSSProperties);
 const showTPS = toRef(settings, "showTPS");
 const appErrors = toRef(state, "errors");
 

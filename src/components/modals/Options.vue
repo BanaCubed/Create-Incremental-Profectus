@@ -5,7 +5,7 @@
                 <h2>{{ settings.e === true ? 's' : 'S' }}<span @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
                 <div class="option-tabs">
                     <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
-                    <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behaviour</button>
+                    <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behavior</button>
                     <button :class="{selected: isTab('saves')}" @click="setTab('saves')">Saves</button>
                     <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
                     <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button>
@@ -155,11 +155,10 @@
 import Modal from "components/modals/Modal.vue";
 import projInfo from "data/projInfo.json";
 import { galaxy, syncedSaves } from "util/galaxy";
-import rawThemes from "data/themes";
 import player, { stringifySave } from "game/player";
 import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
-import { camelToTitle, Direction } from "util/common";
+import { Direction } from "util/common";
 import { render } from "util/vue";
 import { computed, ref, toRefs, nextTick, watch } from "vue";
 import Select, { SelectOption } from "../fields/Select.vue";
@@ -170,7 +169,6 @@ import Hotkey from "../Hotkey.vue";
 import Draggable from "vuedraggable";
 import {
     clearCachedSave,
-    clearCachedSaves,
     decodeSave,
     getCachedSave,
     getUniqueID,
@@ -872,5 +870,6 @@ summary {
     padding: 10px;
     padding-bottom: 0;
     background: var(--raised-background);
+    border-radius: calc(var(--border-radius) - 4px);
 }
 </style>

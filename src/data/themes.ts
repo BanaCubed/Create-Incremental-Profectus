@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /** A object of all CSS variables determined by the current theme. */
 export interface ThemeVars {
     "--foreground": string;
@@ -44,25 +45,25 @@ declare module "@vue/runtime-dom" {
 
 const defaultTheme: Theme = {
     variables: {
-        "--foreground": "#dfdfdf",
-        "--background": "#0f0f0f",
-        "--feature-foreground": "#0f0f0f",
-        "--tooltip-background": "rgba(0, 0, 0, 0.75)",
-        "--raised-background": "#0f0f0f",
-        "--points": "#ffffff",
-        "--locked": "#bf8f8f",
-        "--highlighted": "#333",
-        "--bought": "#77bf5f",
-        "--danger": "rgb(220, 53, 69)",
-        "--link": "#02f2f2",
-        "--outline": "#dfdfdf",
-        "--accent1": "#627a82",
-        "--accent2": "#658262",
-        "--accent3": "#7c6282",
+        "--foreground":          "hsl(0, 0%, 90%)",
+        "--background":          "hsl(0, 0%, 10%)",
+        "--feature-foreground":  "hsl(0, 0%, 5%)",
+        "--tooltip-background":  "hsla(0, 0%, 0%, 0.75)",
+        "--raised-background":   "hsl(0, 0%, 15%)",
+        "--points":              "hsl(0, 0%, 100%)",
+        "--locked":              "#bf8f8f",
+        "--highlighted":         "#333",
+        "--bought":              "#77bf5f",
+        "--danger":              "rgb(220, 53, 69)",
+        "--link":                "#02f2f2",
+        "--outline":             "hsla(0, 0%, 0%, 0.25)",
+        "--accent1":             "#627a82",
+        "--accent2":             "#658262",
+        "--accent3":             "#7c6282",
 
-        "--border-radius": "15px",
-        "--modal-border": "4px solid rgba(0, 0, 0, 0.25)",
-        "--feature-margin": "0px"
+        "--border-radius":       "15px",
+        "--modal-border":        "4px solid rgba(0, 0, 0, 0.25)",
+        "--feature-margin":      "0px"
     },
     floatingTabs: true,
     mergeAdjacent: true,
@@ -71,39 +72,10 @@ const defaultTheme: Theme = {
 
 /** An enum of all available themes and their internal IDs. The keys are their display names. */
 export enum Themes {
-    Paper = "paper",
-    Nordic = "nordic"
+    Classic = "classic"
 }
 
 /** A dictionary of all available themes. */
 export default {
-    paper: {
-        ...defaultTheme,
-        variables: {
-            ...defaultTheme.variables,
-            "--background": "#2a323d",
-            "--feature-foreground": "#000",
-            "--raised-background": "#333c4a",
-            "--highlighted": "#434c5e",
-            "--bought": "#5CAA58",
-            "--outline": "#333c4a",
-            "--border-radius": "7px"
-        },
-        floatingTabs: false
-    } as Theme,
-    // Based on https://www.nordtheme.com
-    nordic: {
-        ...defaultTheme,
-        variables: {
-            ...defaultTheme.variables,
-            "--background": "#2a323d",
-            "--feature-foreground": "#000",
-            "--raised-background": "#333c4a",
-            "--highlighted": "#434c5e",
-            "--bought": "#5CAA58",
-            "--outline": "#333c4a",
-            "--border-radius": "7px"
-        },
-        floatingTabs: false
-    } as Theme
+    classic: defaultTheme
 } as Record<Themes, Theme>;

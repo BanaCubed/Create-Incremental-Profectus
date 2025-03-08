@@ -180,7 +180,7 @@ const needsSync = computed(
 }
 
 .material-icons:hover, .version:hover span {
-    text-shadow: 5px 0 10px var(--link), -3px 0 12px var(--foreground);
+    text-shadow: 0 0 15px var(--foreground);
 }
 
 .nav .version-container {

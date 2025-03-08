@@ -1,5 +1,5 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()"><span v-if="player.devSpeed === 0">Paused<br /></span>TPS: <TpsRender /><br />v1.0 &beta;5</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()"><span v-if="player.devSpeed === 0">Paused<br /></span>TPS: <TpsRender /><br />v1.0 &beta;6</div>
 </template>
 
 <script setup lang="ts">

@@ -36,7 +36,7 @@
                 @confirmingChanged="(value: boolean) => (isConfirming = value)"
             >
                 <Tooltip display="Delete" :direction="Direction.Left" class="info">
-                    <span class="material-icons" style="margin: -2px">delete</span>
+                    <span class="material-icons save-delete-button-omg-so-scary" style="margin: 2px">delete</span>
                 </Tooltip>
             </DangerButton>
         </div>
@@ -64,7 +64,7 @@
             <div v-if="currentTime" class="time" @click="emit('open')" :disabled="readonly">
                 Last played {{ dateFormat.format(currentTime) }}
             </div>
-            <!-- <div v-if="progressDisplay" @click="emit('open')"><ProgressDisplay /></div> -->
+            <div v-if="progressDisplay" @click="emit('open')"><ProgressDisplay /></div>
         </div>
         <div class="details" v-else-if="save.error == undefined && isEditing">
             <Text v-model="newName" class="editname" @submit="changeName" />

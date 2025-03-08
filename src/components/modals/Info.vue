@@ -196,6 +196,7 @@ defineExpose({
     margin-bottom: 0;
     background: var(--raised-background);
     align-items: center;
+    border-radius: calc(var(--border-radius) - 4px);
 }
 
 .info-modal-header * {

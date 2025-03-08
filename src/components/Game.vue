@@ -60,6 +60,7 @@ function gatherLayerProps(layer: Layer) {
 <style scoped>
 .tabs-container {
     width: 100vw;
+    transition: none;
     flex-grow: 1;
     overflow-x: auto;
     overflow-y: hidden;
