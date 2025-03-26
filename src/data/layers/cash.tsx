@@ -1,6 +1,6 @@
 import Spacer from "components/layout/Spacer.vue";
 import { createLayerTreeNode, LayerTreeNode } from "data/common";
-import { createPylon, Pylon } from "features/clickables/pylon";
+import { createPylon, Pylon } from "create-addons/features/pylon";
 import { Upgrade } from "features/clickables/upgrade";
 import {
     createResource,
@@ -12,13 +12,11 @@ import {
 import ResourceVue from "features/resources/Resource.vue";
 import Formula from "game/formulas/formulas";
 import { createLayer, Layer } from "game/layers";
-import { createAdditiveModifier, createSequentialModifier, Modifier } from "game/modifiers";
 import { noPersist } from "game/persistence";
 import { createCostRequirement } from "game/requirements";
 import { DecimalSource, formatWhole } from "util/bignum";
-import { WithRequired } from "util/common";
 import { renderRow } from "util/vue";
-import { computed, ComputedRef, Ref } from "vue";
+import { Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 
@@ -28,7 +26,6 @@ export interface LayerCash extends Layer {
     best: Ref<DecimalSource>;
     total: Ref<DecimalSource>;
     oomps: () => JSX.Element;
-    pointGain: ComputedRef<DecimalSource>;
     upgrades: Upgrade[];
     treeNode: LayerTreeNode;
     pylons: Pylon[];
@@ -41,30 +38,16 @@ const layer: LayerCash = createLayer("cash", () => {
     const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
-    const oomps: () => JSX.Element = trackOOMPS(points);
     const treeNode = createLayerTreeNode(() => ({
         name: "$",
         layerID: "cash",
         color,
-        display: () => <>$</>
+        display: () => <>$</>,
+        append: false
     }));
     addTooltip(treeNode, () => ({
         display: () => <>{formatWhole(points.value)} Cash</>
     }));
-    //#endregion
-    //#region Point Gain
-    const pointGainModifier: WithRequired<Modifier, "description"> = createSequentialModifier(
-        () => [
-            createAdditiveModifier(() => ({
-                addend: 1,
-                description: "Unknown Source",
-                enabled() {
-                    return upgrades[0].bought.value;
-                }
-            }))
-        ]
-    );
-    const pointGain = computed(() => pointGainModifier.apply(0));
     //#endregion
     //#region Pylons
     const pylons: Pylon[] = [
@@ -91,10 +74,13 @@ const layer: LayerCash = createLayer("cash", () => {
     const upgrades: Upgrade[] = [];
     //#endregion
     //#region Return Object
+    const oomps: () => JSX.Element = trackOOMPS(points, pylons[0].effect);
     return {
         display: () => (
             <>
                 You have <ResourceVue resource={points} color={color} /> Cash
+                <br />
+                {oomps()}
                 <Spacer />
                 {renderRow(...pylons)}
             </>
@@ -103,7 +89,6 @@ const layer: LayerCash = createLayer("cash", () => {
         best,
         total,
         oomps,
-        pointGain,
         upgrades,
         treeNode,
         color,

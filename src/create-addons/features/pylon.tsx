@@ -1,5 +1,5 @@
-import { RepeatableOptions } from "./repeatable";
-import { computed, MaybeRef, MaybeRefOrGetter, Ref, unref } from "vue";
+import { RepeatableOptions } from "features/clickables/repeatable";
+import { computed, ComputedRef, MaybeRef, MaybeRefOrGetter, Ref, unref } from "vue";
 import Decimal, { DecimalSource, formatWhole } from "util/bignum";
 import { isJSXElement, Renderable, VueFeature, vueFeatureMixin, render } from "util/vue";
 import {
@@ -12,7 +12,7 @@ import {
 import { persistent, Persistent } from "game/persistence";
 import { MaybeGetter, processGetter } from "util/computed";
 import { createLazyProxy } from "util/proxies";
-import Clickable from "./Clickable.vue";
+import Clickable from "features/clickables/Clickable.vue";
 import { createVisibilityRequirement } from "game/requirements";
 import { findFeatures, Visibility } from "features/feature";
 import { Unsubscribe } from "nanoevents";
@@ -67,7 +67,7 @@ export interface Pylon extends VueFeature {
     /** How much amount can be increased by, or 1 if unclickable. **/
     amountToIncrease: Ref<DecimalSource>;
     /** The effect of the pylon. Can be used if target is not set. **/
-    effect: Ref<DecimalSource>;
+    effect: ComputedRef<DecimalSource>;
     /** The resource that the pylon is increasing. */
     target?: Ref<DecimalSource>;
     /** The amount of the target to increase per second. */
@@ -76,7 +76,12 @@ export interface Pylon extends VueFeature {
     type: typeof PylonType;
 }
 //#endregion
+
 //#region createPylon
+/**
+ * Lazily creates an pylon with the given options.
+ * @param optionsFunc Pylon options.
+ */
 export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
     const amount = persistent<DecimalSource>(0);
     const generated = persistent<DecimalSource>(0);

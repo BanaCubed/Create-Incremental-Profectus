@@ -10,7 +10,7 @@ import cash from "./layers/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist } from "game/persistence";
-import { render, renderRow } from "util/vue";
+import { render } from "util/vue";
 import { createUpgrade, Upgrade } from "features/clickables/upgrade";
 import { createBooleanRequirement } from "game/requirements";
 
@@ -73,7 +73,8 @@ export const main: LayerMain = createLayer("main", () => {
             requirements: createBooleanRequirement(() => true),
             classes() {
                 return {
-                    cash: true
+                    cash: true,
+                    creation: true
                 };
             },
             display() {
@@ -81,16 +82,23 @@ export const main: LayerMain = createLayer("main", () => {
                     <>
                         <h2>Create Cash</h2>
                         <br />
+                        <i>Comes 10 Cash, free of charge!</i>
+                        <br />
+                        <br />
                         Requires: Nothing
                     </>
                 );
+            },
+            visibility() {
+                return !upgrades[0].bought.value;
             }
         })),
         createUpgrade(() => ({
             requirements: createBooleanRequirement(() => false),
             classes() {
                 return {
-                    rebirth: true
+                    rebirth: true,
+                    creation: true
                 };
             },
             display() {
@@ -98,12 +106,25 @@ export const main: LayerMain = createLayer("main", () => {
                     <>
                         <h2>Create Rebirth</h2>
                         <br />
+                        <i>Very original concept, I know.</i>
+                        <br />
+                        <br />
                         Requires: {formatWhole(1e4)} Cash/s
                     </>
+                );
+            },
+            visibility() {
+                return (
+                    (upgrades[0].bought.value || upgrades[1].canPurchase.value) &&
+                    !upgrades[1].bought.value
                 );
             }
         }))
     ];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const boughtUpgrades = computed(() =>
+        upgrades.reduce((acc, u) => acc + (u.bought.value ? 1 : 0), 0)
+    );
     //#endregion
     //#region Return
     return {
@@ -113,7 +134,7 @@ export const main: LayerMain = createLayer("main", () => {
         display: () => (
             <>
                 <div>
-                    <div class="creationBox">{renderRow(...upgrades)}</div>
+                    <div id="creations">{upgrades.map(upgrade => render(upgrade))}</div>
                     {render(tree)}
                 </div>
             </>
@@ -145,7 +166,8 @@ export const hasWon = computed(() => {
 });
 
 /**
- * Given a player save data object being loaded with a different version, update the save data object to match the structure of the current version.
+ * Given a player save data object being loaded with a different version,
+ * update the save data object to match the structure of the current version.
  * @param oldVersion The version of the save being loaded in
  * @param player The save data being loaded in
  */

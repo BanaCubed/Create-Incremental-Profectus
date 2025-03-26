@@ -26,8 +26,8 @@ import projInfo from "data/projInfo.json";
 import { type Layer, layers } from "game/layers";
 import player from "game/player";
 import { computed, toRef, unref } from "vue";
-import LayerVue from "./Layer.vue";
-import Nav from "./Nav.vue";
+import LayerVue from "components/Layer.vue";
+import Nav from "components/Nav.vue";
 
 const tabs = toRef(player, "tabs");
 const layerKeys = computed(() => Object.keys(layers));

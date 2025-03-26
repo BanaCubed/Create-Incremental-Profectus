@@ -28,7 +28,7 @@ import state from "game/state";
 import { render } from "util/vue";
 import type { CSSProperties } from "vue";
 import { computed, toRef, unref } from "vue";
-import Game from "./components/Game.vue";
+import Game from "./data/Game.vue";
 import Nav from "./components/Nav.vue";
 import TPS from "./components/TPS.vue";
 import projInfo from "./data/projInfo.json";

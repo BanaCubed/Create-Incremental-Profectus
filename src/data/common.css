@@ -44,36 +44,7 @@
     translate: -30px 0;
 }
 
-.creationBox {
-    width: 100%;
-    height: 150px;
-    overflow: clip;
-}
-
-.primaryCreation {
-    scale: 1.2;
-    z-index: 1;
-}
-
-.primaryCreation > button {
-    border-radius: var(--border-radius) !important;
-}
-
-/* .primaryCreation + * {
-    opacity: 0.6;
-} */
-
-/* .primaryCreation + * > button {
-    border-radius: var(--border-radius) !important;
-} */
-
-/* .primaryCreation + * + *,
-.primaryCreation + * + * + *,
-.primaryCreation + * + * + * + * {
-    opacity: 0;
-} */
-
-.pylon > button {
+.pylon > .clickable {
     width: 290px !important;
     min-height: 110px !important;
     font-size: 8px;
@@ -82,7 +53,7 @@
     padding-left: 50px;
 }
 
-.pylon > button::before {
+.pylon > .clickable::before {
     content: "";
     position: absolute;
     left: 0;
