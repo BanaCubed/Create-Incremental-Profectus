@@ -16,7 +16,7 @@ import { noPersist } from "game/persistence";
 import { createCostRequirement } from "game/requirements";
 import { DecimalSource, formatWhole } from "util/bignum";
 import { renderRow } from "util/vue";
-import { Ref } from "vue";
+import { computed, Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 
@@ -56,7 +56,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 resource: noPersist(points),
                 cost: Formula.variable(pylons[0].amount).add(1).pow_base(10)
             })),
-            gain: 1,
+            gain: computed(() => 1),
             target: noPersist(points),
             display: {
                 title: () => <h3>Cash Pylon</h3>,

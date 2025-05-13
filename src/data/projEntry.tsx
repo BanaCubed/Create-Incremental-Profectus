@@ -4,15 +4,13 @@ import { createResource, Resource } from "../features/resources/resource";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
-import { DecimalSource, formatWhole } from "util/bignum";
+import { DecimalSource } from "util/bignum";
 import { computed } from "vue";
 import cash from "./layers/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist } from "game/persistence";
 import { render } from "util/vue";
-import { createUpgrade, Upgrade } from "features/clickables/upgrade";
-import { createBooleanRequirement } from "game/requirements";
 
 //#region Interface
 export interface LayerMain extends Layer {
@@ -21,7 +19,6 @@ export interface LayerMain extends Layer {
     hotkey: Hotkey;
     hotkeyEa: Hotkey;
     hotkeyEb: Hotkey;
-    upgrades: Upgrade[];
 }
 
 /**
@@ -67,65 +64,6 @@ export const main: LayerMain = createLayer("main", () => {
         }
     }));
     //#endregion
-    //#region Upgrades
-    const upgrades: Upgrade[] = [
-        createUpgrade(() => ({
-            requirements: createBooleanRequirement(() => true),
-            classes() {
-                return {
-                    cash: true,
-                    creation: true
-                };
-            },
-            display() {
-                return (
-                    <>
-                        <h2>Create Cash</h2>
-                        <br />
-                        <i>Comes 10 Cash, free of charge!</i>
-                        <br />
-                        <br />
-                        Requires: Nothing
-                    </>
-                );
-            },
-            visibility() {
-                return !upgrades[0].bought.value;
-            }
-        })),
-        createUpgrade(() => ({
-            requirements: createBooleanRequirement(() => false),
-            classes() {
-                return {
-                    rebirth: true,
-                    creation: true
-                };
-            },
-            display() {
-                return (
-                    <>
-                        <h2>Create Rebirth</h2>
-                        <br />
-                        <i>Very original concept, I know.</i>
-                        <br />
-                        <br />
-                        Requires: {formatWhole(1e4)} Cash/s
-                    </>
-                );
-            },
-            visibility() {
-                return (
-                    (upgrades[0].bought.value || upgrades[1].canPurchase.value) &&
-                    !upgrades[1].bought.value
-                );
-            }
-        }))
-    ];
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const boughtUpgrades = computed(() =>
-        upgrades.reduce((acc, u) => acc + (u.bought.value ? 1 : 0), 0)
-    );
-    //#endregion
     //#region Return
     return {
         name: "Tree",
@@ -133,18 +71,14 @@ export const main: LayerMain = createLayer("main", () => {
         minimizable: true,
         display: () => (
             <>
-                <div>
-                    <div id="creations">{upgrades.map(upgrade => render(upgrade))}</div>
-                    {render(tree)}
-                </div>
+                <div>{render(tree)}</div>
             </>
         ),
         tree,
         hotkey,
         progression,
         hotkeyEa,
-        hotkeyEb,
-        upgrades
+        hotkeyEb
     };
 });
 //#endregion
