@@ -1,4 +1,5 @@
 import "@fontsource/material-icons";
+import "@fontsource-variable/sono";
 import App from "App.vue";
 import projInfo from "data/projInfo.json";
 import "game/notifications";

@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@fontsource/material-icons": "^5.1.0",
-    "@fontsource/sono": "^5.1.0",
+    "@fontsource-variable/sono": "^5.1.0",
     "@pixi/app": "^6.5.10",
     "@pixi/constants": "~6.5.10",
     "@pixi/core": "^6.5.10",

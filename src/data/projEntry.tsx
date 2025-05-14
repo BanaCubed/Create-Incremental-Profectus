@@ -68,7 +68,6 @@ export const main: LayerMain = createLayer("main", () => {
     return {
         name: "Tree",
         links: tree.links,
-        minimizable: true,
         display: () => (
             <>
                 <div>{render(tree)}</div>

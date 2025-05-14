@@ -6,6 +6,7 @@
             class="tab"
             :style="unref(layers[tab]?.style)"
             :class="unref(layers[tab]?.classes)"
+            v-if="wide || tabs.indexOf(tab) === tabs.length - 1 /* what in the vue is wrong with this */" 
         >
             <Nav v-if="index === 0 && !useHeader" />
             <div class="inner-tab">
@@ -29,6 +30,7 @@ import { computed, toRef, unref } from "vue";
 import LayerVue from "components/Layer.vue";
 import Nav from "components/Nav.vue";
 
+const wide = computed(() => window.innerWidth >= 1250);
 const tabs = toRef(player, "tabs");
 const layerKeys = computed(() => Object.keys(layers));
 const useHeader = projInfo.useHeader;

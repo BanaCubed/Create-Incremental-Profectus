@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="tsx">
-import "@fontsource/sono";
 import Error from "components/Error.vue";
 import AddictionWarning from "components/modals/AddictionWarning.vue";
 import CloudSaveResolver from "components/modals/CloudSaveResolver.vue";

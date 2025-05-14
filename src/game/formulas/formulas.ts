@@ -1455,6 +1455,7 @@ export function calculateMaxAffordable(
         if (Decimal.eq(maxBulkAmount, 1)) {
             return Decimal.gte(resource.value, formula.evaluate()) ? Decimal.dOne : Decimal.dZero;
         }
+        if (Decimal.lt(resource.value, formula.evaluate())) return 0;
 
         const cumulativeCost = unref(computedCumulativeCost);
         const directSum = unref(computedDirectSum) ?? (cumulativeCost ? 10 : 0);
@@ -1477,7 +1478,9 @@ export function calculateMaxAffordable(
                     formula.invertIntegral(Decimal.add(resource.value, formula.evaluateIntegral()))
                 ).sub(unref(formula.innermostVariable) ?? 0);
             } else {
-                affordable = Decimal.floor(formula.invert(resource.value));
+                affordable = Decimal.floor(formula.invert(resource.value))
+                    .sub(unref(formula.innermostVariable) ?? 0)
+                    .add(1);
             }
         }
         affordable = Decimal.clampMax(affordable, maxBulkAmount);

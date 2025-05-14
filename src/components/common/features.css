@@ -11,7 +11,7 @@ button.feature,
     box-sizing: border-box;
     color: var(--feature-foreground);
     z-index: 0;
-    transition: all 0.5s, z-index 0s 0.5s;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), z-index 0s 0.5s;
 }
 
 .feature button {
@@ -26,10 +26,9 @@ button.can,
 
 button.can:hover,
 .can:hover button {
-    transform: scale(1.1, 1.1);
+    transform: scale(1.05, 1.05);
     box-shadow: 0 0 10px 5px var(--background);
     z-index: 1;
-    transition: all 0.5s, z-index 0s;
 }
 
 button.locked,
@@ -43,18 +42,3 @@ button.bought,
     background-color: var(--bought);
     cursor: default;
 }
-
-.super    > button.can { background-color: #d65029; }
-.rebirth  > button.can { background-color: #c60029; }
-.cash     > button.can { background-color: #0b8000; }
-.pylon    > button     { width: 180px !important; min-height: 90px !important; }
-.mystery  > button     { background-color: #332233; border-color: rgba(0, 0, 0, 0.25); color: var(--foreground); }
-.creation > button     { width: 150px !important; height: 150px; }
-
-.wide     > button     { width: 240px !important; }
-.halfwide > button     { width: 160px !important; }
-.tall     > button     { min-height: 240px !important; }
-.halftall > button     { min-height: 160px !important; }
-
-.wide180  > button     { width: 180px !important; }
-.wide270  > button     { width: 270px !important; }
