@@ -8,7 +8,7 @@ import { reactive, watch } from "vue";
 
 /** The player's settings object. */
 export interface Settings {
-    theme: any;
+    theme: unknown;
     /** The ID of the active save. */
     active: string;
     /** The IDs of all created saves. */
