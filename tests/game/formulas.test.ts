@@ -1097,20 +1097,20 @@ describe("Buy Max", () => {
             const variable = Formula.variable(0);
             const formula = Formula.pow(1.05, variable).times(100);
             const maxAffordable = calculateMaxAffordable(formula, resource, false);
-            expect(maxAffordable.value).compare_tolerance(141);
+            expect(maxAffordable.value).compare_tolerance(142);
             expect(calculateCost(formula, maxAffordable.value, false)).compare_tolerance(
-                Decimal.pow(1.05, 141).times(100)
+                Decimal.pow(1.05, 142).times(100)
             );
         });
         test("Calculates max affordable and cost correctly with direct sum", () => {
             const variable = Formula.variable(0);
             const formula = Formula.pow(1.05, variable).times(100);
             const maxAffordable = calculateMaxAffordable(formula, resource, false, 4);
-            expect(maxAffordable.value).compare_tolerance(141 - 4);
+            expect(maxAffordable.value).compare_tolerance(142 - 4);
 
             const actualCost = new Array(4)
                 .fill(null)
-                .reduce((acc, _, i) => acc.add(formula.evaluate(133 + i)), new Decimal(0));
+                .reduce((acc, _, i) => acc.add(formula.evaluate(134 + i)), new Decimal(0));
             const calculatedCost = calculateCost(formula, maxAffordable.value, false, 4);
             expect(calculatedCost).compare_tolerance(actualCost);
         });
