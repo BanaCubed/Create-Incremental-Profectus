@@ -6,7 +6,7 @@
             class="tab"
             :style="unref(layers[tab]?.style)"
             :class="unref(layers[tab]?.classes)"
-            v-if="wide || tabs.indexOf(tab) === tabs.length - 1 /* what in the vue is wrong with this */" 
+            v-if="/*wide || tabs.indexOf(tab) === tabs.length - 1 /* what in the vue is wrong with this */" 
         >
             <Nav v-if="index === 0 && !useHeader" />
             <div class="inner-tab">
