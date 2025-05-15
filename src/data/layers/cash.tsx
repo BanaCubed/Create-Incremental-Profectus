@@ -205,20 +205,57 @@ const layer: LayerCash = createLayer("cash", () => {
             },
             visibility: () =>
                 Decimal.gt(buyables[1].amount.value, 0) ? Visibility.Visible : Visibility.None
-        }))
+        })),
         //#endregion Buyable 3
+        //#region Buyable 4
+        createRepeatable(() => ({
+            requirements: createCostRequirement(() => ({
+                resource: noPersist(points),
+                cost: Formula.variable(buyables[3].amount)
+                    .pow_base(1.5)
+                    .pow_base(1.5)
+                    .mul(1e6)
+                    .div(1.5),
+                cumulativeCost: false
+            })),
+            display: () => (
+                <>
+                    <h3>Recreation</h3>
+                    <br />
+                    <i>
+                        Adds to "Inflation"'s base effect by +
+                        <b>{format(effects.buy4base.value)}</b> per purchase
+                    </i>
+                    <br />
+                    <br />
+                    Amount: {formatWhole(buyables[3].amount.value)}
+                    <br />
+                    Currently: +{format(effects.buy4effect.value)}
+                    <br />
+                    {displayRequirements(buyables[3].requirements)}
+                </>
+            ),
+            classes: {
+                repeatable: true
+            },
+            visibility: () =>
+                Decimal.gt(buyables[2].amount.value, 0) ? Visibility.Visible : Visibility.None
+        }))
+        //#endregion Buyable 4
     ];
     //#endregion Buyables
     //#region Effects
     const effects: Record<string, ComputedRef<DecimalSource>> = {
-        buy1base: computed(() => 1.65),
+        buy1base: computed(() => Decimal.add(1.65, effects.buy4effect.value)),
         buy1effect: computed(() => Decimal.pow(effects.buy1base.value, buyables[0].amount.value)),
         buy2base: computed(() =>
             Decimal.max(points.value, 1).log(10).add(1).log(3).add(1).mul(1.1)
         ),
         buy2effect: computed(() => Decimal.pow(effects.buy2base.value, buyables[1].amount.value)),
         buy3base: computed(() => Decimal.div(pylons[0].amount.value, 25).add(1)),
-        buy3effect: computed(() => Decimal.pow(effects.buy3base.value, buyables[2].amount.value))
+        buy3effect: computed(() => Decimal.pow(effects.buy3base.value, buyables[2].amount.value)),
+        buy4base: computed(() => 0.02),
+        buy4effect: computed(() => Decimal.mul(effects.buy4base.value, buyables[3].amount.value))
     };
     //#endregion
     //#region Return Object

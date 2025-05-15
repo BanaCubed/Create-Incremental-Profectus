@@ -313,10 +313,7 @@ export function formatSci(num: DecimalSource, precision: number = 2): JSX.Elemen
         e = e.floor().mul(3);
     }
     num = Decimal.div(num, Decimal.pow(10, e));
-    num = num
-        .mul(10 ** precision)
-        .trunc()
-        .div(10 ** precision);
+    num = num.clampMax(10 - 0.1 ** precision);
     return (
         <>
             {num.toStringWithDecimalPlaces(precision)}e{formatWhole(e)}
@@ -332,10 +329,7 @@ export function stringyFormatSci(num: DecimalSource, precision: number = 2): str
         e = e.floor().mul(3);
     }
     num = Decimal.div(num, Decimal.pow(10, e));
-    num = num
-        .mul(10 ** precision)
-        .trunc()
-        .div(10 ** precision);
+    num = num.clampMax(10 - 0.1 ** precision);
     return num.toStringWithDecimalPlaces(precision) + "e" + stringyFormatWhole(e);
 }
 
