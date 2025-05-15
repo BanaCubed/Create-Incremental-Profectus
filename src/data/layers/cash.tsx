@@ -53,7 +53,7 @@ const layer: LayerCash = createLayer("cash", () => {
         append: false,
         display: (
             <>
-                <img src="src/resources/c_c.png" height="85" />
+                <img src="c_c.png" height="85" />
             </>
         )
     }));
