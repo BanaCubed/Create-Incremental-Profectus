@@ -2,13 +2,13 @@
     <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
             <div class="header">
-                <h2>{{ settings.e === true ? 's' : 'S' }}<span @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
+                <h2>{{ settings.e === true ? 's' : 'S' }}<span style="font-weight: 700;" @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
                 <div class="option-tabs">
                     <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
                     <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behavior</button>
                     <button :class="{selected: isTab('saves')}" @click="setTab('saves')">Saves</button>
                     <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
-                    <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button>
+                    <!-- <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button> -->
                 </div>
             </div>
         </template>
@@ -188,16 +188,16 @@ export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; err
 settings.language = settings.language ?? 'en';
 
 const notationPreviews: [DecimalSource, JSX.Element][] = [
-    ["1",                      <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;One</>],
-    ["10",                     <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ten</>],
-    ["e3",                     <>&nbsp;&nbsp;Thousand</>],
-    ["e6",                     <>&nbsp;&nbsp;&nbsp;Million</>],
-    ["e9",                     <>&nbsp;&nbsp;&nbsp;Billion</>],
-    ["e12",                    <>&nbsp;&nbsp;Trillion</>],
-    ["e33",                    <>&nbsp;Decillion</>],
-    ["ee2",                    <>&nbsp;&nbsp;&nbsp;&nbsp;Googol</>],
-    ["e303",                   <>Centillion</>],
-    ["1.7976931348623159e308", <>&nbsp;&nbsp;Infinity</>]
+    ["1",           <>One</>],
+    ["10",          <>Ten</>],
+    ["e3",          <>Thousand</>],
+    ["e6",          <>Million</>],
+    ["e9",          <>Billion</>],
+    ["e12",         <>Trillion</>],
+    ["e33",         <>Decillion</>],
+    ["ee2",         <>Googol</>],
+    ["e303",        <>Centillion</>],
+    ["1.79769e308", <>Infinity</>]
 ]
 
 function constructNotationPreviewComponent(previews: [DecimalSource, JSX.Element][]) {
@@ -870,6 +870,6 @@ summary {
     padding: 10px;
     padding-bottom: 0;
     background: var(--raised-background);
-    border-radius: calc(var(--border-radius) - 4px);
+    border-radius: calc(var(--border-radius) - 4px) calc(var(--border-radius) - 4px) 0 0;
 }
 </style>

@@ -1,6 +1,6 @@
 import Spacer from "components/layout/Spacer.vue";
 import { createLayerTreeNode, LayerTreeNode } from "data/common";
-import { createPylon, Pylon } from "create-addons/features/pylon";
+import { createPylon, Pylon } from "ci-addons/features/pylon";
 import {
     createResource,
     trackBest,
@@ -34,14 +34,18 @@ export interface LayerCash extends Layer {
     pylons: Pylon[];
     effects: Record<string, ComputedRef>;
 }
+//#endregion Interface
 
+//#region Setup
 const color = "#0b8000";
 const layer: LayerCash = createLayer("cash", () => {
-    //#endregion
-    //#region Resources + Tree
+    //#endregion Setup
+    //#region Resources
     const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
+    //#endregion Resources
+    //#region Tree Node
     const treeNode = createLayerTreeNode(() => ({
         name: "$",
         layerID: "cash",
@@ -56,6 +60,8 @@ const layer: LayerCash = createLayer("cash", () => {
     addTooltip(treeNode, () => ({
         display: () => <>{formatWhole(points.value)} Cash</>
     }));
+    //#endregion Tree Node
+    //#region Cash Gain
     const cashGain = createSequentialModifier(() => [
         createMultiplicativeModifier(() => ({
             multiplier: effects.buy1effect
@@ -67,7 +73,7 @@ const layer: LayerCash = createLayer("cash", () => {
             multiplier: effects.buy3effect
         }))
     ]);
-    //#endregion
+    //#endregion Cash Gain
     //#region Pylons
     const pylons: Pylon[] = [
         //#region Pylon 1
@@ -218,6 +224,7 @@ const layer: LayerCash = createLayer("cash", () => {
     //#region Return Object
     const oomps: () => JSX.Element = trackOOMPS(points, pylons[0].effect);
     return {
+        //#region Display Function
         display: () => (
             <>
                 You have <ResourceVue resource={points} color={color} /> Cash
@@ -231,6 +238,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 </div>
             </>
         ),
+        //#endregion Display Function
         points,
         best,
         total,
@@ -242,6 +250,6 @@ const layer: LayerCash = createLayer("cash", () => {
         effects
     };
 });
-//#endregion
+//#endregion Return Object
 
 export default layer;

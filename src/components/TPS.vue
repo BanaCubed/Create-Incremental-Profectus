@@ -1,5 +1,9 @@
 <template>
-    <div class="tpsDisplay" v-if="!tps.isNan()"><span v-if="player.devSpeed === 0">Paused<br /></span>TPS: <TpsRender /><br />v0.5 &beta;6</div>
+    <div class="tpsDisplay" v-if="!tps.isNan()">
+        <span v-if="player.devSpeed === 0">Paused<br />
+        </span>TPS: <TpsRender />
+        <br />v0.5 - &beta;6<span v-if="commit !== null"> - {{ commit }}</span>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -8,6 +12,7 @@ import state from "game/state";
 import Decimal, { format } from "util/bignum";
 import { render } from "util/vue";
 import { computed } from "vue";
+import commit from "ci-addons/commit";
 
 const tps = computed(() =>
     Decimal.div(
