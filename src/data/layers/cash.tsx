@@ -14,7 +14,7 @@ import { noPersist, persistent, Persistent } from "game/persistence";
 import { createCostRequirement, displayRequirements } from "game/requirements";
 import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
-import { computed, ComputedRef, Ref, unref } from "vue";
+import { computed, ComputedRef, Ref, toValue, unref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createRepeatable, Repeatable } from "features/clickables/repeatable";
@@ -271,7 +271,11 @@ const layer: LayerCash = createLayer("cash", () => {
                 <div class="row" style="align-items: start;">
                     {renderCol(...pylons)}
                     <Spacer />
-                    {renderCol(...buyables)}
+                    {toValue(buyables[0].visibility) === 0 ? (
+                        renderCol(...buyables)
+                    ) : (
+                        <Spacer width="210px" />
+                    )}
                 </div>
             </>
         ),

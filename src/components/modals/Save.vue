@@ -157,6 +157,7 @@ function changeName() {
     align-items: center;
     min-height: 30px;
     border-radius: var(--border-radius);
+    transition: border 0.5s;
 }
 
 .save:not(:first-child) {
