@@ -2,7 +2,7 @@
     <div
         class="main-display-container"
         :class="classes ?? {}"
-        :style="[{ height: `${displayRef?.clientHeight ?? 0}px` }, style ?? {}]"
+        :style="[style ?? {}]"
     >
         <div class="main-display" ref="displayRef">
             <span v-if="showPrefix">You have </span>

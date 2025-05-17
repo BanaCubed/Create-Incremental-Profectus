@@ -49,7 +49,7 @@ export interface Settings {
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
     showHealthWarning: boolean;
-    /** Debug mode toggled by clicking the 'e' in 'Settings'. */
+    /** Debug mode. */
     e: boolean;
 }
 

@@ -145,7 +145,7 @@ export function createMultiplicativeModifier<
                                           : ""
                                   }
                               >
-                                  ×{formatSmall(unref(processedMultiplier))}
+                                  &times;{formatSmall(unref(processedMultiplier))}
                               </span>
                           </div>
                       )

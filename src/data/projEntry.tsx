@@ -13,6 +13,7 @@ import { noPersist } from "game/persistence";
 import { render } from "util/vue";
 import Spacer from "components/layout/Spacer.vue";
 import MainDisplay from "features/resources/MainDisplay.vue";
+import rebirth from "./layers/rebirth";
 
 //#region Interface
 export interface LayerMain extends Layer {
@@ -30,12 +31,12 @@ export interface LayerMain extends Layer {
  */
 export const main: LayerMain = createLayer("main", () => {
     //#region Resources
-    const progression = createResource(0, "progress");
+    const progression = createResource<DecimalSource>(0, "progress");
     //#endregion Resources
     //#region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
-        nodes: noPersist([[cash.treeNode]]),
+        nodes: noPersist([[cash.treeNode], [rebirth.treeNode]]),
         branches: [],
         resetPropagation: branchedResetPropagation
     })) as Tree;
@@ -59,9 +60,7 @@ export const main: LayerMain = createLayer("main", () => {
         onPress() {
             player.devSpeed = (player.devSpeed ?? 1) * 1.5;
         },
-        enabled() {
-            return settings.e === true;
-        }
+        enabled: () => settings.e === true
     }));
     //#endregion Accelerate Hotkey
     //#region Deccelerate Hotkey
@@ -71,9 +70,7 @@ export const main: LayerMain = createLayer("main", () => {
         onPress() {
             player.devSpeed = (player.devSpeed ?? 1) / 1.5;
         },
-        enabled() {
-            return settings.e === true;
-        }
+        enabled: () => settings.e === true
     }));
     //#endregion Deccelerate Hotkey
     //#endregion Hotkeys
@@ -90,6 +87,17 @@ export const main: LayerMain = createLayer("main", () => {
                                 <div key="0">
                                     <MainDisplay resource={cash.points} color={unref(cash.color)} />
                                     {cash.oomps()}
+                                </div>
+                            </>
+                        ) : null}
+                        {rebirth.pinned.value === true ? (
+                            <>
+                                <div key="1">
+                                    <MainDisplay
+                                        resource={rebirth.points}
+                                        color={unref(rebirth.color)}
+                                    />
+                                    {rebirth.oomps()}
                                 </div>
                             </>
                         ) : null}
@@ -119,7 +127,7 @@ export const main: LayerMain = createLayer("main", () => {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<Layer> => [main, cash];
+): Array<Layer> => [main, cash, rebirth];
 
 /**
  * A computed ref whose value is true whenever the game is over.

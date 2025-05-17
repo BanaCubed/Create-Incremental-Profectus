@@ -85,6 +85,10 @@
     translate: 0 -45px;
 }
 
+.pins-leave-active {
+    position: absolute;
+}
+
 .pins-enter-to {
     opacity: 1;
     translate: 0 0;
@@ -92,8 +96,12 @@
 
 .pin-trans > * {
     transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    vertical-align: top;
+    height: 48.2px;
 }
 
 .pin-trans {
     min-height: 48.2px;
+    display: flex;
+    flex-direction: row;
 }
