@@ -74,3 +74,26 @@
     border-radius: calc(var(--border-radius) - 4px);
     mask-image: linear-gradient(90deg, black, transparent 100px)
 }
+
+.pins-move {
+    transition: all 0.5s;
+}
+
+.pins-leave-to,
+.pins-enter-from {
+    opacity: 0;
+    translate: 0 -45px;
+}
+
+.pins-enter-to {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.pin-trans > * {
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.pin-trans {
+    min-height: 48.2px;
+}

@@ -2,12 +2,22 @@
     <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
             <div class="header">
-                <h2>{{ settings.e === true ? 's' : 'S' }}<span style="font-weight: 700;" @click="settings.e = settings.e !== true;">{{ settings.e === true ? 'E' : 'e' }}</span>ttings</h2>
+                <h2>{{ settings.e === true ? "sE" : "Se" }}ttings</h2>
+                <!-- debug mode funnie -->
                 <div class="option-tabs">
                     <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
-                    <button :class="{selected: isTab('behaviour')}" @click="setTab('behaviour')">Behavior</button>
-                    <button :class="{selected: isTab('saves')}" @click="setTab('saves')">Saves</button>
-                    <button :class="{selected: isTab('appearance')}" @click="setTab('appearance')">Appearance</button>
+                    <button :class="{ selected: isTab('behaviour') }" @click="setTab('behaviour')">
+                        Behavior
+                    </button>
+                    <button :class="{ selected: isTab('saves') }" @click="setTab('saves')">
+                        Saves
+                    </button>
+                    <button
+                        :class="{ selected: isTab('appearance') }"
+                        @click="setTab('appearance')"
+                    >
+                        Appearance
+                    </button>
                     <!-- <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button> -->
                 </div>
             </div>
@@ -62,7 +72,9 @@
                     </div>
                 </div>
                 <Toggle :title="autosaveTitle" v-model="autosave" />
-                <FeedbackButton v-if="!autosave" class="button save-button" @click="save()">Manually save</FeedbackButton>
+                <FeedbackButton v-if="!autosave" class="button save-button" @click="save()"
+                    >Manually save</FeedbackButton
+                >
             </div>
             <div v-if="isTab('appearance')">
                 <SettingFields />
@@ -70,21 +82,28 @@
                 <Toggle :title="alignModifierUnitsTitle" v-model="alignUnits" />
             </div>
             <div v-if="isTab('notation')">
-
                 <details open>
-                    <summary class="subtitle" style="margin-top: 12px;">Modifiers</summary>
-                    
+                    <summary class="subtitle" style="margin-top: 12px">Modifiers</summary>
+
                     <details open>
                         <summary class="notation-modifier-title">Unconditional Modifiers</summary>
                         <div class="notation-list">
                             <Tooltip :display="precisionTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span class="configurable-notation-modifier">Precision+</span>
-                                    <Toggle v-model="insanePrecision" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="insanePrecision"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                         </div>
-                        <Select v-if="settings.insanePrecision" :options="precisionPlusOptions" :title="precisionTitle" v-model="precisionBonus" />
+                        <Select
+                            v-if="settings.insanePrecision"
+                            :options="precisionPlusOptions"
+                            :title="precisionTitle"
+                            v-model="precisionBonus"
+                        />
                     </details>
 
                     <details>
@@ -93,38 +112,59 @@
                             <Tooltip :display="engineeringTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span>Engineering</span>
-                                    <Toggle v-model="engineering" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="engineering"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                             <Tooltip :display="lettersTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span class="configurable-notation-modifier">Letters</span>
-                                    <Toggle v-model="letterNumbers" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="letterNumbers"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                             <Tooltip :display="infinityTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span>Infinity</span>
-                                    <Toggle v-model="infinityNumbers" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="infinityNumbers"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                         </div>
-                        <Text v-if="settings.letterNumbers" :submitOnBlur="true" :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :title="lettersTitle" v-model="letters" />
+                        <Text
+                            v-if="settings.letterNumbers"
+                            :submitOnBlur="true"
+                            :placeholder="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
+                            :title="lettersTitle"
+                            v-model="letters"
+                        />
                     </details>
-                    
+
                     <details>
                         <summary class="notation-modifier-title">Full Overrides</summary>
                         <div class="notation-list">
                             <Tooltip :display="blindTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span>Blind Mode</span>
-                                    <Toggle v-model="blindNumbers" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="blindNumbers"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                             <Tooltip :display="yesnoTooltip" :direction="down">
                                 <div class="notation-modifier">
                                     <span>YES/NO</span>
-                                    <Toggle v-model="yesnoNumbers" style="background: transparent; padding: 0;" />
+                                    <Toggle
+                                        v-model="yesnoNumbers"
+                                        style="background: transparent; padding: 0"
+                                    />
                                 </div>
                             </Tooltip>
                         </div>
@@ -133,11 +173,23 @@
 
                 <details>
                     <summary class="subtitle">Thresholds</summary>
-                    <Select :options="thresholds"       :title="logarithmicTitle" v-model="logarithmicThreshold" />
-                    <Select :options="thresholds"       :title="scientificTitle"  v-model="scientificThreshold"  />
-                    <Select :options="thresholdsSimple" :title="standardTitle"    v-model="standardThreshold"    />
+                    <Select
+                        :options="thresholds"
+                        :title="logarithmicTitle"
+                        v-model="logarithmicThreshold"
+                    />
+                    <Select
+                        :options="thresholds"
+                        :title="scientificTitle"
+                        v-model="scientificThreshold"
+                    />
+                    <Select
+                        :options="thresholdsSimple"
+                        :title="standardTitle"
+                        v-model="standardThreshold"
+                    />
                 </details>
-                
+
                 <details open>
                     <summary class="subtitle">Preview</summary>
                     <div class="notation-modifier" id="notation-preview">
@@ -145,7 +197,8 @@
                     </div>
                 </details>
             </div>
-            <div v-if="isTab('lang')" islang> <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
+            <div v-if="isTab('lang')" islang>
+                <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
             </div>
         </template>
     </Modal>
@@ -185,26 +238,33 @@ import { JSX } from "vue/jsx-runtime";
 
 export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
 
-settings.language = settings.language ?? 'en';
+settings.language = settings.language ?? "en";
 
 const notationPreviews: [DecimalSource, JSX.Element][] = [
-    ["1",           <>One</>],
-    ["10",          <>Ten</>],
-    ["e3",          <>Thousand</>],
-    ["e6",          <>Million</>],
-    ["e9",          <>Billion</>],
-    ["e12",         <>Trillion</>],
-    ["e33",         <>Decillion</>],
-    ["ee2",         <>Googol</>],
-    ["e303",        <>Centillion</>],
+    ["1", <>One</>],
+    ["10", <>Ten</>],
+    ["e3", <>Thousand</>],
+    ["e6", <>Million</>],
+    ["e9", <>Billion</>],
+    ["e12", <>Trillion</>],
+    ["e33", <>Decillion</>],
+    ["ee2", <>Googol</>],
+    ["e303", <>Centillion</>],
     ["1.79769e308", <>Infinity</>]
-]
+];
 
 function constructNotationPreviewComponent(previews: [DecimalSource, JSX.Element][]) {
     let element = <></>;
     for (let i = 0; i < notationPreviews.length; i++) {
         const preview = notationPreviews[i];
-        element = <>{element}<p>{preview[1]} - {format(preview[0])}</p></>;
+        element = (
+            <>
+                {element}
+                <p>
+                    {preview[1]} - {format(preview[0])}
+                </p>
+            </>
+        );
     }
     return element;
 }
@@ -386,80 +446,80 @@ const currentTab = ref("behaviour");
 
 const thresholdsSimple: SelectOption[] = [
     {
-        label: '1',
-        value: 0,
+        label: "1",
+        value: 0
     },
     {
-        label: '1e3',
-        value: 1,
+        label: "1e3",
+        value: 1
     },
     {
-        label: '1e6',
-        value: 2,
+        label: "1e6",
+        value: 2
     },
     {
-        label: '1e9',
-        value: 3,
+        label: "1e9",
+        value: 3
     },
     {
-        label: '1e12',
-        value: 4,
+        label: "1e12",
+        value: 4
     }
-]
+];
 
 const thresholds: SelectOption[] = [
     {
-        label: '1',
-        value: 0,
+        label: "1",
+        value: 0
     },
     {
-        label: '1e3',
-        value: 1,
+        label: "1e3",
+        value: 1
     },
     {
-        label: '1e6',
-        value: 2,
+        label: "1e6",
+        value: 2
     },
     {
-        label: '1e9',
-        value: 3,
+        label: "1e9",
+        value: 3
     },
     {
-        label: '1e12',
-        value: 4,
+        label: "1e12",
+        value: 4
     },
     {
-        label: '1e33',
-        value: 5,
+        label: "1e33",
+        value: 5
     },
     {
-        label: '1e100',
-        value: 6,
+        label: "1e100",
+        value: 6
     },
     {
-        label: '1e303',
-        value: 7,
+        label: "1e303",
+        value: 7
     },
     {
-        label: '1e1000',
-        value: 8,
-    },
-]
+        label: "1e1000",
+        value: 8
+    }
+];
 
 const precisionPlusOptions: SelectOption[] = [
     {
-        label: '+1',
-        value: 1,
+        label: "+1",
+        value: 1
     },
     {
-        label: '+2',
-        value: 2,
+        label: "+2",
+        value: 2
     },
     {
-        label: '+3',
-        value: 3,
+        label: "+3",
+        value: 3
     }
-]
+];
 
 function isTab(tab: string): boolean {
     return tab == currentTab.value;
@@ -472,7 +532,7 @@ const down = Direction.Up; // dont ask
 
 const SettingFields = () => settingFields.map(f => render(f));
 
-const { 
+const {
     showTPS,
     language,
     unthrottled,
@@ -500,62 +560,87 @@ const isPaused = computed({
 });
 
 const engineeringTooltip = <>Replaces Scientific with Engineering</>;
-const precisionTooltip   = <>Increases decimal places [Configurable]</>;
-const lettersTooltip     = <>Replaces Standard with Letters [Configurable]</>;
-const blindTooltip       = <>Forces Blind notation</>;
-const yesnoTooltip       = <>Forces YES/NO notation</>;
-const infinityTooltip    = <>Replaces Logarithmic with Infinity</>;
+const precisionTooltip = <>Increases decimal places [Configurable]</>;
+const lettersTooltip = <>Replaces Standard with Letters [Configurable]</>;
+const blindTooltip = <>Forces Blind notation</>;
+const yesnoTooltip = <>Forces YES/NO notation</>;
+const infinityTooltip = <>Replaces Logarithmic with Infinity</>;
 const standardTitle = () => (
-    <span class="option-title">
-        {settings.letterNumbers ? 'Letters' : 'Standard'}
-    </span>
+    <span class="option-title">{settings.letterNumbers ? "Letters" : "Standard"}</span>
 );
 const scientificTitle = () => (
-    <span class="option-title">
-        {settings.engineering ? 'Engineering' : 'Scientific'}
-    </span>
+    <span class="option-title">{settings.engineering ? "Engineering" : "Scientific"}</span>
 );
 const logarithmicTitle = () => (
+    <span class="option-title">{settings.infinityNumbers ? "Infinity" : "Logarithmic"}</span>
+);
+const lettersTitle = (
     <span class="option-title">
-        {settings.infinityNumbers ? "Infinity" : "Logarithmic"}
+        Letters Config
+        <desc>Letters used in letters notation.</desc>
     </span>
 );
-const lettersTitle = <span class="option-title">
-    Letters Config
-    <desc>Letters used in letters notation.</desc>
-</span>;
-const precisionTitle = <span class="option-title">
-    Precision+ Config
-    <desc>Decimal places increase.</desc>
-</span>;
-const unthrottledTitle = <span class="option-title">
-    Unthrottled
-    <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
-</span>;
-const offlineProdTitle = <span class="option-title">
-    Offline Production<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-    <desc>Simulate production that occurs while the game is closed.</desc>
-</span>;
-const autosaveTitle = <span class="option-title">
-    Autosave<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-    <desc>Automatically save the game every second or when the game is closed.</desc>
-</span>;
-const isPausedTitle = <span class="option-title">
-    Pause game<Tooltip display="Save-specific" direction={Direction.Right}>*</Tooltip>
-    <desc>Stop everything from moving.<br />Pressing <Hotkey hotkey={main.hotkey} /> toggles this.</desc>
-</span>;
-const bigModalTitle = <span class="option-title">
-    Larger Modals
-    <desc>Makes modals bigger. Might have visual bugs.</desc>
-</span>;
-const showTPSTitle = <span class="option-title">
-    Show TPS
-    <desc>Show TPS meter at the bottom-left corner of the page.</desc>
-</span>;
-const alignModifierUnitsTitle = <span class="option-title">
-    Align modifier units
-    <desc>Align numbers to the beginning of the unit in modifier view.</desc>
-</span>;
+const precisionTitle = (
+    <span class="option-title">
+        Precision+ Config
+        <desc>Decimal places increase.</desc>
+    </span>
+);
+const unthrottledTitle = (
+    <span class="option-title">
+        Unthrottled
+        <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
+    </span>
+);
+const offlineProdTitle = (
+    <span class="option-title">
+        Offline Production
+        <Tooltip display="Save-specific" direction={Direction.Right}>
+            *
+        </Tooltip>
+        <desc>Simulate production that occurs while the game is closed.</desc>
+    </span>
+);
+const autosaveTitle = (
+    <span class="option-title">
+        Autosave
+        <Tooltip display="Save-specific" direction={Direction.Right}>
+            *
+        </Tooltip>
+        <desc>Automatically save the game every second or when the game is closed.</desc>
+    </span>
+);
+const isPausedTitle = (
+    <span class="option-title">
+        Pause game
+        <Tooltip display="Save-specific" direction={Direction.Right}>
+            *
+        </Tooltip>
+        <desc>
+            Stop everything from moving.
+            <br />
+            Pressing <Hotkey hotkey={main.hotkey} /> toggles this.
+        </desc>
+    </span>
+);
+const bigModalTitle = (
+    <span class="option-title">
+        Larger Modals
+        <desc>Makes modals bigger. Might have visual bugs.</desc>
+    </span>
+);
+const showTPSTitle = (
+    <span class="option-title">
+        Show TPS
+        <desc>Show TPS meter at the bottom-left corner of the page.</desc>
+    </span>
+);
+const alignModifierUnitsTitle = (
+    <span class="option-title">
+        Align modifier units
+        <desc>Align numbers to the beginning of the unit in modifier view.</desc>
+    </span>
+);
 
 defineExpose({
     isTab,
@@ -581,8 +666,8 @@ summary {
     display: inline-block;
     position: relative;
     top: 3px;
-    font-family: 'Material Icons';
-    content: 'tune';
+    font-family: "Material Icons";
+    content: "tune";
     font-weight: lighter;
     left: 10px;
 }
@@ -592,13 +677,14 @@ summary {
     break-inside: unset;
     display: block;
     padding: 10px;
-    margin-left: 10px; margin-right: 10px;
-    text-align: left
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: left;
 }
 
 #notation-preview > p {
     width: 259.6px;
-    margin: auto
+    margin: auto;
 }
 
 @media screen and (max-width: 600px) {
@@ -611,11 +697,11 @@ summary {
     width: 75%;
 }
 
-.notation-thresholds>tr>td:first-child {
+.notation-thresholds > tr > td:first-child {
     width: 60%;
 }
 
-.notation-thresholds>tr>td:last-child {
+.notation-thresholds > tr > td:last-child {
     width: 40%;
 }
 
@@ -626,7 +712,7 @@ summary {
     justify-content: flex-start;
     flex-direction: row;
     align-items: stretch;
-    margin-left: 10px
+    margin-left: 10px;
 }
 
 .notation-list + div {
@@ -637,7 +723,7 @@ summary {
     margin-top: -10px;
 }
 
-.notation-list>div {
+.notation-list > div {
     break-inside: avoid;
     margin: 0 10px 0 0;
     flex-grow: 1;
@@ -653,12 +739,12 @@ summary {
     min-width: 200px;
 }
 
-.notation-modifier>span {
+.notation-modifier > span {
     flex-grow: 1;
-    display: inline-block
+    display: inline-block;
 }
 
-.notation-modifier>label {
+.notation-modifier > label {
     max-width: 40px;
     max-height: 52px;
     display: inline;
@@ -764,10 +850,9 @@ summary {
     text-align: right;
     position: relative;
     overflow: clip;
-    --shadows:
-               6px  6px 12px -6px rgba(0, 0, 0, 0),
-              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
-        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0),
+        -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset 6px 6px 12px -6px rgba(0, 0, 0, 0),
         inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
     box-shadow: var(--shadows);
     cursor: pointer;
@@ -783,23 +868,21 @@ summary {
 }
 
 .lang:hover:not(.active) {
-    --shadows:
-               6px  6px 12px -6px rgba(0, 0, 0, 0.3),
-              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1),
-        inset  6px  6px 12px -6px rgba(0, 0, 0, 0),
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0.3),
+        -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1),
+        inset 6px 6px 12px -6px rgba(0, 0, 0, 0),
         inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
 }
 
 .lang.active {
-    --shadows:
-               6px  6px 12px -6px rgba(0, 0, 0, 0),
-              -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
-        inset  6px  6px 12px -6px rgba(0, 0, 0, 0.3),
+    --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0),
+        -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
+        inset 6px 6px 12px -6px rgba(0, 0, 0, 0.3),
         inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1);
     cursor: default;
 }
 
-[islang] table>tr>td {
+[islang] table > tr > td {
     width: 170px;
     height: 100px;
     box-sizing: border-box;

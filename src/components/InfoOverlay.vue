@@ -1,18 +1,20 @@
 <template>
     <TransitionGroup name="infos" tag="div" class="tpsDisplay">
-        <div key="0" style="--i: 0" v-if="!tps.isNan()">TPS: <TpsRender /></div>
-        <div key="1" style="--i: 1" v-if="devSpeed === 0">Paused</div>
+        <div key="0" v-if="!tps.isNan() && showTPS">TPS: <TpsRender /></div>
+        <div key="1" v-if="devSpeed === 0">Paused</div>
+        <div key="2" v-if="e">Debug Mode</div>
     </TransitionGroup>
 </template>
 
 <script setup lang="ts">
 import player from "game/player";
+import settings from "game/settings";
 import state from "game/state";
 import Decimal, { format } from "util/bignum";
-import { render } from "util/vue";
 import { computed, toRefs } from "vue";
 
 const { devSpeed } = toRefs(player);
+const { e, showTPS } = toRefs(settings);
 
 const tps = computed(() =>
     Decimal.div(
@@ -46,16 +48,12 @@ const TpsRender = () => format(tps.value, 0, false);
 .infos-leave-to {
     translate: -45px 0;
     opacity: 0;
+    scale: 1 0;
+    margin-top: -16px;
 }
 
-.infos-leave-to {
-    translate: -45px calc(var(--i) * -16px);
-}
-.infos-leave-from {
-    translate: 0 calc(var(--i) * -16px);
-}
-
-.infos-leave-active {
-    position: absolute;
+.infos-leave-from,
+.infos-enter-to {
+    margin-top: 0px;
 }
 </style>

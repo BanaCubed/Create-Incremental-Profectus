@@ -8,10 +8,9 @@ import {
     trackTotal,
     Resource
 } from "features/resources/resource";
-import ResourceVue from "features/resources/Resource.vue";
 import Formula from "game/formulas/formulas";
 import { createLayer, Layer } from "game/layers";
-import { noPersist } from "game/persistence";
+import { noPersist, persistent, Persistent } from "game/persistence";
 import { createCostRequirement, displayRequirements } from "game/requirements";
 import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
@@ -22,12 +21,14 @@ import { createRepeatable, Repeatable } from "features/clickables/repeatable";
 import { createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
 import { processGetter } from "util/computed";
 import { Visibility } from "features/feature";
+import MainDisplay from "features/resources/MainDisplay.vue";
 
 //#region Interface
 export interface LayerCash extends Layer {
     points: Resource<DecimalSource>;
     best: Ref<DecimalSource>;
     total: Ref<DecimalSource>;
+    pinned: Persistent<boolean>;
     oomps: () => JSX.Element;
     buyables: Repeatable[];
     treeNode: LayerTreeNode;
@@ -36,14 +37,14 @@ export interface LayerCash extends Layer {
 }
 //#endregion Interface
 
-//#region Setup
+//#region Layer
 const color = "#0b8000";
 const layer: LayerCash = createLayer("cash", () => {
-    //#endregion Setup
     //#region Resources
     const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
+    const pinned: Persistent<boolean> = persistent(true);
     //#endregion Resources
     //#region Tree Node
     const treeNode = createLayerTreeNode(() => ({
@@ -264,8 +265,7 @@ const layer: LayerCash = createLayer("cash", () => {
         //#region Display Function
         display: () => (
             <>
-                You have <ResourceVue resource={points} color={color} /> Cash
-                <br />
+                <MainDisplay resource={points} color={color} pin={pinned} />
                 {oomps()}
                 <Spacer />
                 <div class="row" style="align-items: start;">
@@ -279,6 +279,7 @@ const layer: LayerCash = createLayer("cash", () => {
         points,
         best,
         total,
+        pinned,
         oomps,
         buyables,
         treeNode,
@@ -286,7 +287,8 @@ const layer: LayerCash = createLayer("cash", () => {
         pylons,
         effects
     };
+    //#endregion Return Object
 });
-//#endregion Return Object
 
 export default layer;
+//#endregion Layer

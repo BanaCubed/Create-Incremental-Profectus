@@ -1,6 +1,6 @@
 import { RepeatableOptions } from "features/clickables/repeatable";
 import { computed, ComputedRef, MaybeRef, MaybeRefOrGetter, Ref, unref } from "vue";
-import Decimal, { DecimalSource, formatWhole } from "util/bignum";
+import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import { isJSXElement, Renderable, VueFeature, vueFeatureMixin, render } from "util/vue";
 import {
     displayRequirements,
@@ -18,6 +18,7 @@ import { findFeatures, Visibility } from "features/feature";
 import { Unsubscribe } from "nanoevents";
 import { globalBus } from "game/events";
 import { bonusAmountMixin } from "mixins/bonusAmount";
+import { Resource } from "features/resources/resource";
 
 /** A symbol used to identify {@link Pylon} features. */
 export const PylonType = Symbol("Pylon");
@@ -162,7 +163,11 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
                         </div>
                     )}
                     <div>
-                        Currently: {formatWhole(pylon.effect.value)} {render(targetName)}/s
+                        Currently:{" "}
+                        {((target as unknown as Resource)?.precision ?? 2) === 0
+                            ? formatWhole(pylon.effect.value)
+                            : format(pylon.effect.value)}{" "}
+                        {render(targetName)}/s
                     </div>
                     {unref(pylon.maxed) ? null : (
                         <div>

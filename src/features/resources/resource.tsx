@@ -136,8 +136,7 @@ export function trackOOMPS(
                 <>
                     {resource.precision === 0
                         ? formatWhole(pointGain.value)
-                        : format(pointGain.value, 2, resource.small)}
-                    &nbsp;
+                        : format(pointGain.value, 2, resource.small)}{" "}
                     {resource.displayName}/s
                 </>
             ) : (

@@ -5,12 +5,14 @@ import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
 import { DecimalSource } from "util/bignum";
-import { computed } from "vue";
+import { computed, TransitionGroup, unref } from "vue";
 import cash from "./layers/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist } from "game/persistence";
 import { render } from "util/vue";
+import Spacer from "components/layout/Spacer.vue";
+import MainDisplay from "features/resources/MainDisplay.vue";
 
 //#region Interface
 export interface LayerMain extends Layer {
@@ -20,22 +22,28 @@ export interface LayerMain extends Layer {
     hotkeyEa: Hotkey;
     hotkeyEb: Hotkey;
 }
+//#endregion Interface
 
+//#region Layer
 /**
  * @hidden
  */
 export const main: LayerMain = createLayer("main", () => {
-    //#endregion
-    //#region Resources + Tree
+    //#region Resources
     const progression = createResource(0, "progress");
+    //#endregion Resources
+    //#region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
         nodes: noPersist([[cash.treeNode]]),
         branches: [],
         resetPropagation: branchedResetPropagation
     })) as Tree;
-    //#endregion
+    //#endregion Tree
     //#region Hotkeys
+    // I've tried renaming the hotkeys but that causes and error for some reason.
+    // If someone could submit a MR that renames these to more descriptive names that would be nice
+    //#region Pause Hotkey
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
         key: "/",
@@ -43,6 +51,8 @@ export const main: LayerMain = createLayer("main", () => {
             player.devSpeed = (player.devSpeed ?? 1) <= 1e-3 ? 1 : 0;
         }
     }));
+    //#endregion Pause Hotkey
+    //#region Accelerate Hotkey
     const hotkeyEa = createHotkey(() => ({
         description: "Accelerate Time",
         key: "]",
@@ -53,6 +63,8 @@ export const main: LayerMain = createLayer("main", () => {
             return settings.e === true;
         }
     }));
+    //#endregion Accelerate Hotkey
+    //#region Deccelerate Hotkey
     const hotkeyEb = createHotkey(() => ({
         description: "Decelerate Time",
         key: "[",
@@ -63,24 +75,42 @@ export const main: LayerMain = createLayer("main", () => {
             return settings.e === true;
         }
     }));
-    //#endregion
-    //#region Return
+    //#endregion Deccelerate Hotkey
+    //#endregion Hotkeys
+    //#region Return Object
     return {
         name: "Tree",
         links: tree.links,
         display: () => (
             <>
-                <div>{render(tree)}</div>
+                <div class="pin-trans">
+                    <TransitionGroup name="pins">
+                        {cash.pinned.value === true ? (
+                            <>
+                                <div key="0">
+                                    <MainDisplay resource={cash.points} color={unref(cash.color)} />
+                                    {cash.oomps()}
+                                </div>
+                            </>
+                        ) : null}
+                    </TransitionGroup>
+                </div>
+                <Spacer />
+                {render(tree)}
             </>
         ),
         tree,
         hotkey,
         progression,
         hotkeyEa,
-        hotkeyEb
+        hotkeyEb,
+        classes: {
+            treeTab: true
+        }
     };
+    //#endregion Object
 });
-//#endregion
+//#endregion Layer
 
 /**
  * Given a player save data object being loaded, return a list of layers that should currently be enabled.
