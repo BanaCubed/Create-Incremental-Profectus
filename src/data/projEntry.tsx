@@ -5,7 +5,7 @@ import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
 import { DecimalSource } from "util/bignum";
-import { computed, TransitionGroup, unref } from "vue";
+import { computed, unref } from "vue";
 import cash from "./layers/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
@@ -81,27 +81,27 @@ export const main: LayerMain = createLayer("main", () => {
         display: () => (
             <>
                 <div class="pin-trans">
-                    <TransitionGroup name="pins">
-                        {cash.pinned.value === true ? (
-                            <>
-                                <div key="0">
-                                    <MainDisplay resource={cash.points} color={unref(cash.color)} />
-                                    {cash.oomps()}
-                                </div>
-                            </>
-                        ) : null}
-                        {rebirth.pinned.value === true ? (
-                            <>
-                                <div key="1">
-                                    <MainDisplay
-                                        resource={rebirth.points}
-                                        color={unref(rebirth.color)}
-                                    />
-                                    {rebirth.oomps()}
-                                </div>
-                            </>
-                        ) : null}
-                    </TransitionGroup>
+                    {/* <TransitionGroup name="pins"> */}
+                    {cash.pinned.value === true ? (
+                        <>
+                            <div key="0">
+                                <MainDisplay resource={cash.points} color={unref(cash.color)} />
+                                {cash.oomps()}
+                            </div>
+                        </>
+                    ) : null}
+                    {rebirth.pinned.value === true ? (
+                        <>
+                            <div key="1">
+                                <MainDisplay
+                                    resource={rebirth.points}
+                                    color={unref(rebirth.color)}
+                                />
+                                {rebirth.oomps()}
+                            </div>
+                        </>
+                    ) : null}
+                    {/* </TransitionGroup> */}
                 </div>
                 <Spacer />
                 {render(tree)}
