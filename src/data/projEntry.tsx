@@ -1,5 +1,5 @@
 import type { Tree } from "features/trees/tree";
-import { branchedResetPropagation, createTree } from "features/trees/tree";
+import { branchedResetPropagation, createTree, TreeBranch } from "features/trees/tree";
 import { createResource, Resource } from "../features/resources/resource";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
@@ -37,7 +37,12 @@ export const main: LayerMain = createLayer("main", () => {
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
         nodes: noPersist([[cash.treeNode], [rebirth.treeNode]]),
-        branches: [],
+        branches: noPersist<TreeBranch[]>([
+            {
+                startNode: rebirth.treeNode,
+                endNode: cash.treeNode
+            }
+        ]),
         resetPropagation: branchedResetPropagation
     })) as Tree;
     //#endregion Tree
