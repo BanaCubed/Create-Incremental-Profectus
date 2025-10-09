@@ -1,22 +1,13 @@
 <template>
-    <div class="tabs-container" :class="{ useHeader }">
-        <div
-            v-for="(tab, index) in tabs"
-            :key="index"
-            class="tab"
-            :style="unref(layers[tab]?.style)"
-            :class="unref(layers[tab]?.classes)"
-        >
-            <Nav v-if="index === 0 && !useHeader" />
-            <div class="inner-tab">
-                <LayerVue
-                    v-if="layerKeys.includes(tab)"
-                    v-bind="gatherLayerProps(layers[tab])"
-                    :index="index"
-                    @set-minimized="(value: boolean) => (layers[tab]!.minimized.value = value)"
-                />
-                <component :is="tab" :index="index" v-else />
-            </div>
+    <div id="game">
+        <div class="gameElement">
+            <!-- Tab Buttons -->
+        </div>
+        <div class="gameElement">
+            <!-- Game Content -->
+        </div>
+        <div class="gameElement">
+            <!-- Currencies Display -->
         </div>
     </div>
 </template>
@@ -25,12 +16,9 @@
 import projInfo from "data/projInfo.json";
 import { type Layer, layers } from "game/layers";
 import player from "game/player";
-import { computed, toRef, unref } from "vue";
-import LayerVue from "components/Layer.vue";
-import Nav from "components/Nav.vue";
+import { computed, toRefs } from "vue";
 
 const wide = computed(() => window.innerWidth >= 1250);
-const tabs = toRef(player, "tabs");
 const layerKeys = computed(() => Object.keys(layers));
 const useHeader = projInfo.useHeader;
 
@@ -59,52 +47,22 @@ function gatherLayerProps(layer: Layer) {
 </script>
 
 <style scoped>
-.tabs-container {
-    width: 100vw;
-    transition: none;
-    flex-grow: 1;
-    overflow-x: auto;
-    overflow-y: hidden;
+#game {
     display: flex;
-}
-
-.tabs-container:not(.useHeader) {
-    width: calc(100vw - 50px);
-    margin-left: 50px;
-}
-
-.tab {
-    position: relative;
     height: 100%;
-    flex-grow: 1;
-    transition-duration: 0s;
-    overflow-y: auto;
-    overflow-x: hidden;
+    width: 100%;
 }
 
-.inner-tab {
-    padding: 50px 0;
-    min-height: calc(100% - 100px);
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    flex-grow: 1;
+.gameElement {
+    height: 100%;
+    width: 250px;
+    box-sizing: border-box;
 }
 
-.tab + .tab > .inner-tab {
-    border-left: solid 4px var(--outline);
-}
-</style>
-
-<style>
-.tab hr {
-    height: 4px;
-    border: none;
-    background: var(--outline);
-    margin: var(--feature-margin) 0;
-}
-
-.tab .modal-body hr {
-    margin: 7px 0;
+.gameElement:nth-child(2) {
+    flex-grow: 20;
+    border: solid 4px white;
+    border-color: transparent white;
+    border-width: 0 4px;
 }
 </style>

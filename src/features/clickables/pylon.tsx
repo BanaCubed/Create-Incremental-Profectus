@@ -23,7 +23,7 @@ import { Resource } from "features/resources/resource";
 /** A symbol used to identify {@link Pylon} features. */
 export const PylonType = Symbol("Pylon");
 
-//#region Interfaces
+// #region Interfaces
 /** An object that configures a {@link Pylon}. */
 export interface PylonOptions extends RepeatableOptions {
     /** The resource that the pylon is increasing. */
@@ -76,9 +76,9 @@ export interface Pylon extends VueFeature {
     /** A symbol that helps identify features of the same type. */
     type: typeof PylonType;
 }
-//#endregion
+// #endregion Interfaces
 
-//#region createPylon
+// #region createPylon
 /**
  * Lazily creates an pylon with the given options.
  * @param optionsFunc Pylon options.
@@ -95,6 +95,7 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
             limit,
             gain,
             onClick,
+            visibility,
             ...props
         } = options;
 
@@ -109,15 +110,6 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
             }));
         }
 
-        const vueFeature = vueFeatureMixin("pylon", options, () => (
-            <Clickable
-                canClick={pylon.canClick}
-                onClick={pylon.onClick}
-                onHold={pylon.onClick}
-                display={pylon.display}
-            />
-        ));
-
         const limitRequirement = {
             requirementMet: computed(
                 (): DecimalSource => Decimal.sub(unref(pylon.limit), unref(amount))
@@ -130,8 +122,8 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
             ...(Array.isArray(_requirements) ? _requirements : [_requirements]),
             limitRequirement
         ];
-        if (vueFeature.visibility != null) {
-            requirements.push(createVisibilityRequirement(vueFeature.visibility));
+        if (visibility != null) {
+            requirements.push(createVisibilityRequirement(processGetter(visibility)));
         }
 
         let display;
@@ -184,7 +176,14 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
         const pylon = {
             type: PylonType,
             ...(props as Omit<typeof props, keyof VueFeature | keyof PylonOptions>),
-            ...vueFeature,
+            ...vueFeatureMixin("pylon", options, () => (
+                <Clickable
+                    canClick={pylon.canClick}
+                    onClick={pylon.onClick}
+                    onHold={pylon.onClick}
+                    display={pylon.display}
+                />
+            )),
             amount,
             generated,
             target,
@@ -198,13 +197,6 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
                     )
             ),
             limit: processGetter(limit) ?? Decimal.dInf,
-            classes: computed(() => {
-                const currClasses = unref(vueFeature.classes) || {};
-                if (unref(pylon.maxed)) {
-                    currClasses.bought = true;
-                }
-                return currClasses;
-            }),
             maxed: computed((): boolean => Decimal.gte(unref(amount), unref(pylon.limit))),
             canClick: computed(() => requirementsMet(requirements)),
             amountToIncrease: computed(() => Decimal.clampMin(maxRequirementsMet(requirements), 1)),
@@ -223,8 +215,9 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
         return pylon;
     });
 }
-//#endregion
-//#region Listeners
+// #endregion
+
+// #region Listeners
 const listeners: Record<string, Unsubscribe | undefined> = {};
 globalBus.on("addLayer", layer => {
     const pylons: Pylon[] = findFeatures(layer, PylonType) as Pylon[];
@@ -243,4 +236,4 @@ globalBus.on("removeLayer", layer => {
     listeners[layer.id]?.();
     listeners[layer.id] = undefined;
 });
-//#endregion
+// #endregion

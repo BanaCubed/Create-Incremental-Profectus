@@ -58,7 +58,17 @@ export interface Clickable extends VueFeature {
 export function createClickable<T extends ClickableOptions>(optionsFunc?: () => T) {
     return createLazyProxy(() => {
         const options = optionsFunc?.() ?? ({} as T);
-        const { canClick, display: _display, onClick: onClick, onHold: onHold, ...props } = options;
+        const {
+            display: _display,
+            classes: _classes,
+            style: _style,
+            canClick,
+            onClick,
+            onHold,
+            ...props
+        } = options;
+        options.classes = undefined;
+        options.style = undefined;
 
         let display: MaybeGetter<Renderable> | undefined = undefined;
         if (typeof _display === "object" && !isJSXElement(_display)) {
@@ -89,6 +99,8 @@ export function createClickable<T extends ClickableOptions>(optionsFunc?: () => 
                     onClick={clickable.onClick}
                     onHold={clickable.onClick}
                     display={clickable.display}
+                    class={processGetter(_classes)}
+                    style={processGetter(_style)}
                 />
             )),
             canClick: processGetter(canClick) ?? true,

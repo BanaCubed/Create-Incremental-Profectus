@@ -28,7 +28,7 @@ import { ClickableOptions } from "./clickable";
 /** A symbol used to identify {@link Upgrade} features. */
 export const UpgradeType = Symbol("Upgrade");
 
-//#region Interfaces
+// #region Interfaces
 /**
  * An object that configures a {@link Upgrade}.
  */
@@ -67,9 +67,9 @@ export interface Upgrade extends VueFeature {
     /** A symbol that helps identify features of the same type. */
     type: typeof UpgradeType;
 }
-//#endregion
+// #endregion
 
-//#region createUpgrade
+// #region createUpgrade
 /**
  * Lazily creates an upgrade with the given options.
  * @param optionsFunc Upgrade options.
@@ -153,9 +153,9 @@ export function createUpgrade<T extends UpgradeOptions>(optionsFunc: () => T) {
         return upgrade;
     });
 }
-//#endregion
+// #endregion
 
-//#region setupAutoPurchase
+// #region setupAutoPurchase
 /**
  * Utility to auto purchase a list of upgrades whenever they're affordable.
  * @param layer The layer the upgrades are apart of
@@ -177,4 +177,4 @@ export function setupAutoPurchase(
         }
     });
 }
-//#endregion
+// #endregion

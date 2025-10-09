@@ -37,6 +37,7 @@ const TpsRender = () => format(tps.value, 0, false);
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
+    user-select: none;
 }
 
 .tpsDisplay > * {

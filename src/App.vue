@@ -7,7 +7,7 @@
         <div class="app" :style="theme" :class="{ useHeader }">
             <Nav v-if="useHeader" />
             <Game />
-            <TPS />
+            <InfoOverlay />
             <AddictionWarning />
             <GameOverScreen />
             <NaNScreen />
@@ -29,7 +29,7 @@ import type { CSSProperties } from "vue";
 import { computed, toRef, unref } from "vue";
 import Game from "./data/Game.vue";
 import Nav from "./components/Nav.vue";
-import TPS from "./components/InfoOverlay.vue";
+import InfoOverlay from "./components/InfoOverlay.vue";
 import projInfo from "./data/projInfo.json";
 import themes from "./data/themes";
 import settings, { gameComponents } from "./game/settings";
@@ -37,7 +37,6 @@ import "./main.css";
 
 const useHeader = projInfo.useHeader;
 const theme = computed(() => themes.classic.variables as CSSProperties);
-const showTPS = toRef(settings, "showTPS");
 const appErrors = toRef(state, "errors");
 
 const GameComponent = () => gameComponents.map(c => render(c));

@@ -79,19 +79,26 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
         const {
             requirements: _requirements,
             display: _display,
+            style: _style,
             limit,
             onClick,
             initialAmount,
             ...props
         } = options;
+        options.style = undefined;
 
+        let _classes;
         if (options.classes == null) {
-            options.classes = computed(() => ({ bought: unref(repeatable.maxed) }));
+            _classes = computed(() => ({
+                bought: unref(repeatable.maxed),
+                repeatable: true
+            }));
         } else {
             const classes = processGetter(options.classes);
-            options.classes = computed(() => ({
+            _classes = computed(() => ({
                 ...unref(classes),
-                bought: unref(repeatable.maxed)
+                bought: unref(repeatable.maxed),
+                repeatable: true
             }));
         }
         const vueFeature = vueFeatureMixin("repeatable", options, () => (
@@ -100,6 +107,8 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
                 onClick={repeatable.onClick}
                 onHold={repeatable.onClick}
                 display={repeatable.display}
+                class={processGetter(_classes)}
+                style={processGetter(_style)}
             />
         ));
 

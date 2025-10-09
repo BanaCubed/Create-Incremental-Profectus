@@ -1,39 +1,37 @@
 import type { Tree } from "features/trees/tree";
 import { branchedResetPropagation, createTree, TreeBranch } from "features/trees/tree";
-import { createResource, Resource } from "../features/resources/resource";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
-import { DecimalSource } from "util/bignum";
 import { computed, unref } from "vue";
-import cash from "./layers/cash";
+import cash from "./layers/cash/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
-import { noPersist } from "game/persistence";
+import { noPersist, Persistent, persistent } from "game/persistence";
 import { render } from "util/vue";
 import Spacer from "components/layout/Spacer.vue";
 import MainDisplay from "features/resources/MainDisplay.vue";
-import rebirth from "./layers/rebirth";
+import rebirth from "./layers/rebirth/rebirth";
 
-//#region Interface
+// #region Interface
 export interface LayerMain extends Layer {
-    progression: Resource<DecimalSource>;
+    progression: Persistent<number>;
     tree: Tree;
     hotkey: Hotkey;
     hotkeyEa: Hotkey;
     hotkeyEb: Hotkey;
 }
-//#endregion Interface
+// #endregion Interface
 
-//#region Layer
+// #region Layer
 /**
  * @hidden
  */
 export const main: LayerMain = createLayer("main", () => {
-    //#region Resources
-    const progression = createResource<DecimalSource>(0, "progress");
-    //#endregion Resources
-    //#region Tree
+    // #region Resources
+    const progression = persistent<number>(0);
+    // #endregion Resources
+    // #region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
         nodes: noPersist([[cash.treeNode], [rebirth.treeNode]]),
@@ -45,11 +43,11 @@ export const main: LayerMain = createLayer("main", () => {
         ]),
         resetPropagation: branchedResetPropagation
     })) as Tree;
-    //#endregion Tree
-    //#region Hotkeys
-    // I've tried renaming the hotkeys but that causes and error for some reason.
-    // If someone could submit a MR that renames these to more descriptive names that would be nice
-    //#region Pause Hotkey
+    // #endregion Tree
+    // #region Hotkeys
+    // I've tried renaming the hotkey constants but that causes and error for some reason.
+    // If someone could submit a PR that renames these to more descriptive names that would be nice
+    // #region Pause Hotkey
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
         key: "/",
@@ -57,8 +55,8 @@ export const main: LayerMain = createLayer("main", () => {
             player.devSpeed = (player.devSpeed ?? 1) <= 1e-3 ? 1 : 0;
         }
     }));
-    //#endregion Pause Hotkey
-    //#region Accelerate Hotkey
+    // #endregion Pause Hotkey
+    // #region Accelerate Hotkey
     const hotkeyEa = createHotkey(() => ({
         description: "Accelerate Time",
         key: "]",
@@ -67,8 +65,8 @@ export const main: LayerMain = createLayer("main", () => {
         },
         enabled: () => settings.e === true
     }));
-    //#endregion Accelerate Hotkey
-    //#region Deccelerate Hotkey
+    // #endregion Accelerate Hotkey
+    // #region Deccelerate Hotkey
     const hotkeyEb = createHotkey(() => ({
         description: "Decelerate Time",
         key: "[",
@@ -77,9 +75,9 @@ export const main: LayerMain = createLayer("main", () => {
         },
         enabled: () => settings.e === true
     }));
-    //#endregion Deccelerate Hotkey
-    //#endregion Hotkeys
-    //#region Return Object
+    // #endregion Deccelerate Hotkey
+    // #endregion Hotkeys
+    // #region Return Object
     return {
         name: "Tree",
         links: tree.links,
@@ -121,10 +119,12 @@ export const main: LayerMain = createLayer("main", () => {
             treeTab: true
         }
     };
-    //#endregion Object
+    // #endregion Object
 });
-//#endregion Layer
+// #endregion Layer
 
+// #region Misc
+// #region Initial Layers
 /**
  * Given a player save data object being loaded, return a list of layers that should currently be enabled.
  * If your project does not use dynamic layers, this should just return all layers.
@@ -133,14 +133,18 @@ export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
 ): Array<Layer> => [main, cash, rebirth];
+// #endregion Initial Layers
 
+// #region Win Condition
 /**
  * A computed ref whose value is true whenever the game is over.
  */
 export const hasWon = computed(() => {
     return false;
 });
+// #endregion Win Condition
 
+// #region Fix Save
 /**
  * Given a player save data object being loaded with a different version,
  * update the save data object to match the structure of the current version.
@@ -154,3 +158,5 @@ export function fixOldSave(
     // eslint-disable-next-line @typescript-eslint/no-empty-function
 ): void {}
 /* eslint-enable @typescript-eslint/no-unused-vars */
+// #endregion Fix Save
+// #endregion Misc

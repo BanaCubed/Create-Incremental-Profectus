@@ -1,6 +1,6 @@
 import Spacer from "components/layout/Spacer.vue";
 import { createLayerTreeNode, LayerTreeNode } from "data/common";
-import { createPylon, Pylon } from "ci-addons/features/pylon";
+import { createPylon, Pylon } from "features/clickables/pylon";
 import {
     createResource,
     trackBest,
@@ -22,8 +22,9 @@ import { createMultiplicativeModifier, createSequentialModifier } from "game/mod
 import { processGetter } from "util/computed";
 import { Visibility } from "features/feature";
 import MainDisplay from "features/resources/MainDisplay.vue";
+import { createReset } from "features/reset";
 
-//#region Interface
+// #region Interface
 export interface LayerCash extends Layer {
     points: Resource<DecimalSource>;
     best: Ref<DecimalSource>;
@@ -33,20 +34,20 @@ export interface LayerCash extends Layer {
     buyables: Repeatable[];
     treeNode: LayerTreeNode;
     pylons: Pylon[];
-    effects: Record<string, ComputedRef>;
+    effects: Record<string, ComputedRef<DecimalSource>>;
 }
-//#endregion Interface
+// #endregion Interface
 
-//#region Layer
+// #region Layer
 const color = "#0b8000";
 const layer: LayerCash = createLayer("cash", () => {
-    //#region Resources
+    // #region Resources
     const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
     const pinned: Persistent<boolean> = persistent(true);
-    //#endregion Resources
-    //#region Tree Node
+    // #endregion Resources
+    // #region Tree Node
     const treeNode = createLayerTreeNode(() => ({
         name: "$",
         layerID: "cash",
@@ -56,13 +57,20 @@ const layer: LayerCash = createLayer("cash", () => {
             <>
                 <img src="c_c.png" height="85" />
             </>
-        )
+        ),
+        reset
     }));
     addTooltip(treeNode, () => ({
         display: () => <>{formatWhole(points.value)} Cash</>
     }));
-    //#endregion Tree Node
-    //#region Cash Gain
+    // #endregion Tree Node
+    // #region Reset
+    const reset = createReset(() => ({
+        thingsToReset: () => [points, best, total, pylons, buyables]
+    }));
+    // #endregion Reset
+
+    // #region Cash Gain
     const cashGain = createSequentialModifier(() => [
         createMultiplicativeModifier(() => ({
             multiplier: effects.buy1effect
@@ -74,10 +82,11 @@ const layer: LayerCash = createLayer("cash", () => {
             multiplier: effects.buy3effect
         }))
     ]);
-    //#endregion Cash Gain
-    //#region Pylons
+    // #endregion Cash Gain
+
+    // #region Pylons
     const pylons: Pylon[] = [
-        //#region Pylon 1
+        // #region Pylon 1
         createPylon(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -99,12 +108,12 @@ const layer: LayerCash = createLayer("cash", () => {
                 targetName: "Cash"
             }
         }))
-        //#endregion Pylon 1
+        // #endregion Pylon 1
     ];
-    //#endregion Pylons
-    //#region Buyables
+    // #endregion Pylons
+    // #region Buyables
     const buyables: Repeatable[] = [
-        //#region Buyable 1
+        // #region Buyable 1
         createRepeatable(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -131,14 +140,11 @@ const layer: LayerCash = createLayer("cash", () => {
                     {displayRequirements(buyables[0].requirements)}
                 </>
             ),
-            classes: {
-                repeatable: true
-            },
             visibility: () =>
                 Decimal.gt(pylons[0].amount.value, 0) ? Visibility.Visible : Visibility.None
         })),
-        //#endregion Buyable 1
-        //#region Buyable 2
+        // #endregion Buyable 1
+        // #region Buyable 2
         createRepeatable(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -164,14 +170,11 @@ const layer: LayerCash = createLayer("cash", () => {
                     {displayRequirements(buyables[1].requirements)}
                 </>
             ),
-            classes: {
-                repeatable: true
-            },
             visibility: () =>
                 Decimal.gt(buyables[0].amount.value, 0) ? Visibility.Visible : Visibility.None
         })),
-        //#endregion Buyable 2
-        //#region Buyable 3
+        // #endregion Buyable 2
+        // #region Buyable 3
         createRepeatable(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -201,14 +204,11 @@ const layer: LayerCash = createLayer("cash", () => {
                     {displayRequirements(buyables[2].requirements)}
                 </>
             ),
-            classes: {
-                repeatable: true
-            },
             visibility: () =>
                 Decimal.gt(buyables[1].amount.value, 0) ? Visibility.Visible : Visibility.None
         })),
-        //#endregion Buyable 3
-        //#region Buyable 4
+        // #endregion Buyable 3
+        // #region Buyable 4
         createRepeatable(() => ({
             requirements: createCostRequirement(() => ({
                 resource: noPersist(points),
@@ -236,16 +236,14 @@ const layer: LayerCash = createLayer("cash", () => {
                     {displayRequirements(buyables[3].requirements)}
                 </>
             ),
-            classes: {
-                repeatable: true
-            },
             visibility: () =>
                 Decimal.gt(buyables[2].amount.value, 0) ? Visibility.Visible : Visibility.None
         }))
-        //#endregion Buyable 4
+        // #endregion Buyable 4
     ];
-    //#endregion Buyables
-    //#region Effects
+    // #endregion Buyables
+
+    // #region Effects
     const effects: Record<string, ComputedRef<DecimalSource>> = {
         buy1base: computed(() => Decimal.add(1.65, effects.buy4effect.value)),
         buy1effect: computed(() => Decimal.pow(effects.buy1base.value, buyables[0].amount.value)),
@@ -258,11 +256,11 @@ const layer: LayerCash = createLayer("cash", () => {
         buy4base: computed(() => 0.02),
         buy4effect: computed(() => Decimal.mul(effects.buy4base.value, buyables[3].amount.value))
     };
-    //#endregion
-    //#region Return Object
+    // #endregion
+    // #region Return Object
     const oomps: () => JSX.Element = trackOOMPS(points, pylons[0].effect);
     return {
-        //#region Display Function
+        // #region Display Function
         display: () => (
             <>
                 <MainDisplay resource={points} color={color} pin={pinned} />
@@ -279,7 +277,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 </div>
             </>
         ),
-        //#endregion Display Function
+        // #endregion Display Function
         points,
         best,
         total,
@@ -291,8 +289,8 @@ const layer: LayerCash = createLayer("cash", () => {
         pylons,
         effects
     };
-    //#endregion Return Object
+    // #endregion Return Object
 });
 
 export default layer;
-//#endregion Layer
+// #endregion Layer

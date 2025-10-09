@@ -44,7 +44,7 @@
     translate: -30px 0;
 }
 
-.repeatable > .clickable {
+.repeatable .clickable {
     width: 210px !important;
     min-height: 120px !important;
     text-align: left;
@@ -52,7 +52,7 @@
     padding-left: 10px;
 }
 
-.pylon > .clickable {
+.pylon .clickable {
     width: 290px !important;
     min-height: 130px !important;
     text-align: right;
@@ -60,7 +60,7 @@
     padding-left: 50px;
 }
 
-.pylon > .clickable::before {
+.pylon .clickable::before {
     content: "";
     position: absolute;
     left: 0;

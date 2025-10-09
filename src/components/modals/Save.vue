@@ -87,7 +87,7 @@ import Text from "../fields/Text.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
 import Decimal, { formatWhole } from "util/bignum";
 import { main } from "data/projEntry";
-import cash from "data/layers/cash";
+import cash from "data/layers/cash/cash";
 import { render } from "util/vue";
 
 const props = defineProps<{
