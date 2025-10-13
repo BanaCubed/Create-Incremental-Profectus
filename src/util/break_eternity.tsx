@@ -19,25 +19,39 @@ const thresholds = [
     new Decimal("1e1000")
 ];
 
-// IMPORTANT!!
-// DO NOT ACCESS PLAYER SETTINGS FROM IMPORTED `settings` (this causes errors - idk why)
-// INSTEAD ACCESS SETTINGS FROM GLOBALLY ACCESSABLE `window.settings`
-
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: JSX.Element
+): JSX.Element;
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: string
+): string;
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: string | JSX.Element
+): string | JSX.Element;
 /**
  * Formats an inputted number, taking the notation options from `window.settings`.
- * @param {DecimalSource} num The value to format
- * @param {number} precision Amount of digits to include past the decimal point
- * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
- * @returns {JSX.Element} Formatted version of num
+ * @param num The value to format
+ * @param precision Amount of digits to include past the decimal point
+ * @param small Whether or not format small numbers accurately or return `0`
+ * @returns Formatted version of num
  */
 export function format(
     num: DecimalSource,
     precision?: number,
     small?: boolean,
     stringy: string | JSX.Element = <></>
-): typeof stringy {
+): JSX.Element | string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
-    const str: boolean = stringy === "" ? true : false;
+    const str: boolean = typeof stringy === "string" ? true : false;
     if (precision < 0) {
         precision = 0;
     }

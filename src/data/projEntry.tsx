@@ -3,14 +3,11 @@ import { branchedResetPropagation, createTree, TreeBranch } from "features/trees
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
-import { computed, unref } from "vue";
+import { computed } from "vue";
 import cash from "./layers/cash/cash";
 import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist, Persistent, persistent } from "game/persistence";
-import { render } from "util/vue";
-import Spacer from "components/layout/Spacer.vue";
-import MainDisplay from "features/resources/MainDisplay.vue";
 import rebirth from "./layers/rebirth/rebirth";
 
 // #region Interface
@@ -82,33 +79,7 @@ export const main: LayerMain = createLayer("main", () => {
         name: "Tree",
         links: tree.links,
         display: () => (
-            <>
-                <div class="pin-trans">
-                    {/* <TransitionGroup name="pins"> */}
-                    {cash.pinned.value === true ? (
-                        <>
-                            <div key="0">
-                                <MainDisplay resource={cash.points} color={unref(cash.color)} />
-                                {cash.oomps()}
-                            </div>
-                        </>
-                    ) : null}
-                    {rebirth.pinned.value === true ? (
-                        <>
-                            <div key="1">
-                                <MainDisplay
-                                    resource={rebirth.points}
-                                    color={unref(rebirth.color)}
-                                />
-                                {rebirth.oomps()}
-                            </div>
-                        </>
-                    ) : null}
-                    {/* </TransitionGroup> */}
-                </div>
-                <Spacer />
-                {render(tree)}
-            </>
+            <>This tab exists purely for debugging purposes and will be made inaccessible "soon"</>
         ),
         tree,
         hotkey,

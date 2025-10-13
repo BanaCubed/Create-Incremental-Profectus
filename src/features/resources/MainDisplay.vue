@@ -9,12 +9,6 @@
             <ResourceVue :resource="resource" :color="color || 'white'" />
             {{ resource.displayName
             }}<!-- remove whitespace -->
-            <span
-                v-if="typeof pinRef === 'boolean'"
-                class="material-icons"
-                @click="(props.pin as unknown as Ref<boolean>).value = props.pin?.value !== true"
-                >{{ pinRef === true ? "visibility_off" : "visibility" }}</span
-            >
             <span v-if="effectDisplay">, <Effect /></span>
         </div>
     </div>
@@ -35,12 +29,10 @@ const props = defineProps<{
     classes?: Record<string, boolean>;
     style?: CSSProperties;
     effectDisplay?: MaybeGetter<Renderable>;
-    pin?: Ref<boolean>;
 }>();
 
 const displayRef = ref<Element | null>(null);
 
-const pinRef = props.pin ?? ref(undefined);
 const Effect = () => toValue(props.effectDisplay);
 
 const showPrefix = computed(() => {

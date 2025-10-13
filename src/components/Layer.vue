@@ -1,8 +1,6 @@
 <template>
     <ErrorVue v-if="errors.length > 0" :errors="errors" />
     <div class="layer-container" :style="{ '--layer-color': unref(color) }" v-bind="$attrs" v-else>
-        <button v-if="showGoBack" class="goBack material-icons" @click="goBack">close</button>
-
         <button
             class="layer-tab minimized"
             v-if="unref(minimized)"
@@ -11,7 +9,7 @@
             <MinimizedComponent v-if="minimizedDisplay" />
             <div v-else>{{ unref(name) }}</div>
         </button>
-        <div class="layer-tab" :class="{ showGoBack }" v-else>
+        <div class="layer-tab" v-else>
             <Context @update-nodes="updateNodes">
                 <Component />
             </Context>
@@ -24,12 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import projInfo from "data/projInfo.json";
 import { type FeatureNode } from "game/layers";
-import player from "game/player";
 import { MaybeGetter } from "util/computed";
 import { render, Renderable } from "util/vue";
-import { computed, MaybeRef, onErrorCaptured, Ref, ref, unref } from "vue";
+import { MaybeRef, onErrorCaptured, Ref, ref, unref } from "vue";
 import Context from "./Context.vue";
 import ErrorVue from "./Error.vue";
 
@@ -46,14 +42,8 @@ const props = defineProps<{
 }>();
 
 const Component = () => render(props.display);
-const MinimizedComponent = () => props.minimizedDisplay == null ? undefined : render(props.minimizedDisplay);
-const showGoBack = computed(
-    () => projInfo.allowGoBack && !unref(props.forceHideGoBack) && props.index > 0 && !unref(props.minimized)
-);
-
-function goBack() {
-    player.tabs.splice(unref(props.index), Infinity);
-}
+const MinimizedComponent = () =>
+    props.minimizedDisplay == null ? undefined : render(props.minimizedDisplay);
 
 function updateNodes(nodes: Record<string, FeatureNode | undefined>) {
     props.nodes.value = nodes;
@@ -62,9 +52,7 @@ function updateNodes(nodes: Record<string, FeatureNode | undefined>) {
 const errors = ref<Error[]>([]);
 onErrorCaptured((err, instance, info) => {
     console.warn(`Error caught in "${props.name}" layer`, err, instance, info);
-    errors.value.push(
-        err instanceof Error ? (err as Error) : new Error(JSON.stringify(err))
-    );
+    errors.value.push(err instanceof Error ? (err as Error) : new Error(JSON.stringify(err)));
     return false;
 });
 </script>

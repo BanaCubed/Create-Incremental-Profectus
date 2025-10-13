@@ -107,8 +107,8 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
                 onClick={repeatable.onClick}
                 onHold={repeatable.onClick}
                 display={repeatable.display}
-                class={processGetter(_classes)}
-                style={processGetter(_style)}
+                class={_classes.value}
+                style={unref(processGetter(_style))}
             />
         ));
 

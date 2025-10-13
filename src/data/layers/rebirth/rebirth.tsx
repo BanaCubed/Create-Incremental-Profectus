@@ -8,7 +8,7 @@ import {
     Resource
 } from "features/resources/resource";
 import { createLayer, Layer } from "game/layers";
-import { noPersist, persistent, Persistent } from "game/persistence";
+import { noPersist } from "game/persistence";
 import Decimal, { DecimalSource, formatWhole } from "util/bignum";
 import { Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
@@ -25,7 +25,6 @@ export interface LayerRebirth extends Layer {
     points: Resource<DecimalSource>;
     best: Ref<DecimalSource>;
     total: Ref<DecimalSource>;
-    pinned: Persistent<boolean>;
     oomps: () => JSX.Element;
     treeNode: LayerTreeNode;
 }
@@ -38,7 +37,6 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
     const points: Resource<DecimalSource> = createResource(0, "Rebirth Points", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
-    const pinned: Persistent<boolean> = persistent(false);
     // #endregion Resources
     // #region Tree Node
     const treeNode = createLayerTreeNode(() => ({
@@ -83,7 +81,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
         // #region Display Function
         display: () => (
             <>
-                <MainDisplay resource={points} color={color} pin={pinned} />
+                <MainDisplay resource={points} color={color} />
                 {oomps()}
                 <Spacer />
                 {render(resetButton)}
@@ -97,7 +95,6 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
         points,
         best,
         total,
-        pinned,
         oomps,
         treeNode,
         color

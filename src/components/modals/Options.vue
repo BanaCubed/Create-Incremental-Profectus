@@ -197,7 +197,7 @@
                     </div>
                 </details>
             </div>
-            <div v-if="isTab('lang')" islang>
+            <div v-if="isTab('lang')" is-language>
                 <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
             </div>
         </template>
@@ -838,7 +838,7 @@ summary {
     translate: 0 -1px;
 }
 
-.lang {
+.language-option {
     width: 160px;
     height: 90px;
     background-color: var(--background);
@@ -858,23 +858,23 @@ summary {
     cursor: pointer;
 }
 
-[islang] table {
+[is-language] table {
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-.langPortion {
+.language-portion {
     font-size: 0.6rem;
 }
 
-.lang:hover:not(.active) {
+.language-option:hover:not(.active) {
     --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0.3),
         -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 1),
         inset 6px 6px 12px -6px rgba(0, 0, 0, 0),
         inset -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0);
 }
 
-.lang.active {
+.language-option.active {
     --shadows: 6px 6px 12px -6px rgba(0, 0, 0, 0),
         -6px -6px 12px -6px rgb(from var(--raised-background) r g b / 0),
         inset 6px 6px 12px -6px rgba(0, 0, 0, 0.3),
@@ -882,19 +882,19 @@ summary {
     cursor: default;
 }
 
-[islang] table > tr > td {
+[is-language] table > tr > td {
     width: 170px;
     height: 100px;
     box-sizing: border-box;
     padding: 0;
 }
 
-.lang span {
+.language-option span {
     z-index: 20;
     position: relative;
 }
 
-.lang::before {
+.language-option::before {
     content: attr(lang);
     position: absolute;
     bottom: 50%;

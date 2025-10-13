@@ -3,7 +3,7 @@ import { Achievement } from "features/achievements/achievement";
 import type { Clickable, ClickableOptions } from "features/clickables/clickable";
 import { createClickable } from "features/clickables/clickable";
 import { Conversion } from "features/conversion";
-import { getFirstFeature } from "features/feature";
+import { getFirstFeature, Visibility } from "features/feature";
 import { displayResource, Resource } from "../features/resources/resource";
 import type { Tree, TreeNode, TreeNodeOptions } from "features/trees/tree";
 import { createTreeNode } from "features/trees/tree";
@@ -24,6 +24,7 @@ import { computed, ref, unref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import "./common.css";
 import Modal from "components/modals/Modal.vue";
+import cash from "./layers/cash/cash";
 
 /** An object that configures a {@link ResetButton} */
 export interface ResetButtonOptions extends ClickableOptions {
@@ -180,22 +181,12 @@ export interface LayerTreeNodeOptions extends TreeNodeOptions {
     layerID: string;
     /** The color to display this tree node as */
     color: MaybeRefOrGetter<string>; // marking as required
-    /** Whether or not to append the layer to the tabs list.
-     * If set to false, then the tree node will instead always remove all tabs to its right and then add the layer tab.
-     * Defaults to true.
-     */
-    append?: MaybeRefOrGetter<boolean>;
 }
 
 /** A tree node that is associated with a given layer, and which opens the layer when clicked. */
 export interface LayerTreeNode extends TreeNode {
     /** The ID of the layer this tree node is associated with */
     layerID: string;
-    /** Whether or not to append the layer to the tabs list.
-     * If set to false, then the tree node will instead always remove all tabs to its right and then add the layer tab.
-     * Defaults to true.
-     */
-    append?: MaybeRef<boolean>;
 }
 
 /**
@@ -205,24 +196,14 @@ export interface LayerTreeNode extends TreeNode {
 export function createLayerTreeNode<T extends LayerTreeNodeOptions>(optionsFunc: () => T) {
     const layerTreeNode = createTreeNode(() => {
         const options = optionsFunc();
-        const { display, append, layerID, ...props } = options;
+        const { display, layerID, ...props } = options;
 
         return {
             ...(props as Omit<typeof props, keyof LayerTreeNodeOptions>),
             layerID,
             display: display ?? layerID,
-            append: processGetter(append) ?? true,
             onClick() {
-                if (unref<boolean>(layerTreeNode.append)) {
-                    if (player.tabs.includes(layerID)) {
-                        const index = player.tabs.lastIndexOf(layerID);
-                        player.tabs.splice(index, 1);
-                    } else {
-                        player.tabs.push(layerID);
-                    }
-                } else {
-                    player.tabs.splice(1, 1, layerID);
-                }
+                player.tab = layerID;
             }
         };
     }) satisfies LayerTreeNode;
@@ -557,3 +538,22 @@ export function setupSelectable<T>() {
         selected
     };
 }
+
+/**
+ * Array containing all currencies in the game that appear on the sidebar.
+ */
+export const currencies: ComputedRef<
+    {
+        resource: Resource;
+        visible: Visibility;
+        image: string;
+        color: string;
+    }[]
+> = computed(() => [
+    {
+        resource: cash.points,
+        visible: Visibility.Visible,
+        image: "currency_cash.png",
+        color: cash.color as string
+    }
+]);

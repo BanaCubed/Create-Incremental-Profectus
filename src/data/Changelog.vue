@@ -1,7 +1,7 @@
 <template>
     <div id="changelog"> <!-- This is in reversed order compared to ingame so that the auto-version number filling works properly -->
         <details>
-            <summary class="major">Rebirth - <time>2024-04-04</time></summary>
+            <summary class="major-update">Rebirth - <time>2024-04-04</time></summary>
             Initial release
             <ul>
                 <li class="feature">Cash</li>
@@ -12,7 +12,7 @@
         </details>
 
         <details>
-            <summary class="major">Super - <time>2024-04-07</time></summary>
+            <summary class="major-update">Super - <time>2024-04-07</time></summary>
             Addition of Super Rebirth
             <ul>
                 <li class="feature">Super Rebirth</li>
@@ -22,7 +22,7 @@
         </details>
 
         <details>
-            <summary class="minor">Power - <time>2024-04-09</time></summary>
+            <summary class="minor-update">Power - <time>2024-04-09</time></summary>
             Addition of Power
             <ul>
                 <li class="feature">Power</li>
@@ -32,7 +32,7 @@
         </details>
 
         <details>
-            <summary class="major">Hyper - <time>2024-04-13</time></summary>
+            <summary class="major-update">Hyper - <time>2024-04-13</time></summary>
             Addition of Hyper Rebirth
             <ul>
                 <li class="feature">Hyper Rebirth</li>
@@ -46,7 +46,7 @@
         </details>
 
         <details>
-            <summary class="minor">Matter - <time>2024-05-15</time></summary>
+            <summary class="minor-update">Matter - <time>2024-05-15</time></summary>
             Addition of the Matters
             <ul>
                 <li class="feature">Matter Paths</li>
@@ -63,23 +63,15 @@
         </details>
 
         <details open>
-            <summary class="majorer">Universal - <time>202X-XX-XX</time></summary>
-            Port to Profectus, Rebalance, and Addition of Universes
+            <summary class="major-update">Profectus - <time>202X-XX-XX</time></summary>
+            Port to Profectus, and complete Rebalance
             <ul>
                 <li class="breaking">Ported to Profectus</li>
                 <li class="breaking">Fully rebalanced existing content</li>
-                <li class="feature">Many Notation Options</li>
+                <li class="feature">Notation Options</li>
                 <li class="feature">Breakdown Modals</li>
                 <li class="feature">Help Menu</li>
                 <li class="feature">This Changelog</li>
-                <li class="feature">Save Bank</li>
-                <li class="feature">Auto Machine</li>
-                <li class="feature">Universal Time</li>
-                <li class="fix">Fixed Most NaN Bugs</li>
-                <li class="fix">Fixed Multiple Typos (Hopefully)</li>
-                <li class="change">Changed Various Colours</li>
-                <li class="change">Changed Achievements</li>
-                <li class="change">Changed Certain Other Features</li>
             </ul>
         </details>
     </div>
@@ -94,25 +86,25 @@ details {
 #changelog {
     display: flex;
     flex-direction: column-reverse;
-    counter-reset: version-majorer 0 version-major 0 version-minor 0;
+    counter-reset: version-very-major 0 version-major 0 version-minor 0;
 }
 
-.minor {
+.minor-update {
     counter-increment: version-minor 1;
 }
 
-.major {
+.major-update {
     counter-increment: version-major 1;
     counter-set: version-minor 0;
 }
 
-.majorer {
-    counter-increment: version-majorer 1;
+.very-major-update {
+    counter-increment: version-very-major 1;
     counter-set: version-major 0 version-minor 0;
 }
 
 summary::before {
-    content: "v" counter(version-majorer) "." counter(version-major) "." counter(version-minor) " - "
+    content: "v" counter(version-very-major) "." counter(version-major) "." counter(version-minor) " - "
 }
 
 summary {

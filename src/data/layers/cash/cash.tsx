@@ -10,7 +10,7 @@ import {
 } from "features/resources/resource";
 import Formula from "game/formulas/formulas";
 import { createLayer, Layer } from "game/layers";
-import { noPersist, persistent, Persistent } from "game/persistence";
+import { noPersist } from "game/persistence";
 import { createCostRequirement, displayRequirements } from "game/requirements";
 import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
@@ -29,7 +29,6 @@ export interface LayerCash extends Layer {
     points: Resource<DecimalSource>;
     best: Ref<DecimalSource>;
     total: Ref<DecimalSource>;
-    pinned: Persistent<boolean>;
     oomps: () => JSX.Element;
     buyables: Repeatable[];
     treeNode: LayerTreeNode;
@@ -39,13 +38,12 @@ export interface LayerCash extends Layer {
 // #endregion Interface
 
 // #region Layer
-const color = "#0b8000";
 const layer: LayerCash = createLayer("cash", () => {
+    const color: string = "#0b8000";
     // #region Resources
     const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
-    const pinned: Persistent<boolean> = persistent(true);
     // #endregion Resources
     // #region Tree Node
     const treeNode = createLayerTreeNode(() => ({
@@ -55,7 +53,7 @@ const layer: LayerCash = createLayer("cash", () => {
         append: false,
         display: (
             <>
-                <img src="c_c.png" height="85" />
+                <img src="currency_cash.png" height="85" />
             </>
         ),
         reset
@@ -263,7 +261,7 @@ const layer: LayerCash = createLayer("cash", () => {
         // #region Display Function
         display: () => (
             <>
-                <MainDisplay resource={points} color={color} pin={pinned} />
+                <MainDisplay resource={points} color={color} />
                 {oomps()}
                 <Spacer />
                 <div class="row" style="align-items: start;">
@@ -281,7 +279,6 @@ const layer: LayerCash = createLayer("cash", () => {
         points,
         best,
         total,
-        pinned,
         oomps,
         buyables,
         treeNode,
