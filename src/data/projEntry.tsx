@@ -28,6 +28,7 @@ export const main: LayerMain = createLayer("main", () => {
     // #region Resources
     const progression = persistent<number>(0);
     // #endregion Resources
+
     // #region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
     const tree = createTree(() => ({
@@ -41,9 +42,11 @@ export const main: LayerMain = createLayer("main", () => {
         resetPropagation: branchedResetPropagation
     })) as Tree;
     // #endregion Tree
+
     // #region Hotkeys
     // I've tried renaming the hotkey constants but that causes and error for some reason.
     // If someone could submit a PR that renames these to more descriptive names that would be nice
+
     // #region Pause Hotkey
     const hotkey = createHotkey(() => ({
         description: "Toggle Pause",
@@ -53,6 +56,7 @@ export const main: LayerMain = createLayer("main", () => {
         }
     }));
     // #endregion Pause Hotkey
+
     // #region Accelerate Hotkey
     const hotkeyEa = createHotkey(() => ({
         description: "Accelerate Time",
@@ -63,6 +67,7 @@ export const main: LayerMain = createLayer("main", () => {
         enabled: () => settings.e === true
     }));
     // #endregion Accelerate Hotkey
+
     // #region Deccelerate Hotkey
     const hotkeyEb = createHotkey(() => ({
         description: "Decelerate Time",
@@ -74,12 +79,27 @@ export const main: LayerMain = createLayer("main", () => {
     }));
     // #endregion Deccelerate Hotkey
     // #endregion Hotkeys
+
     // #region Return Object
     return {
         name: "Tree",
         links: tree.links,
         display: () => (
-            <>This tab exists purely for debugging purposes and will be made inaccessible "soon"</>
+            <>
+                <span>
+                    This tab exists purely for debugging purposes and will be made inaccessible
+                    "soon".
+                    <br />
+                    While you're here feel free to enable debug mode:{" "}
+                    <button
+                        onClick={() => {
+                            settings.e = settings.e !== true;
+                        }}
+                    >
+                        button 😎👍
+                    </button>
+                </span>
+            </>
         ),
         tree,
         hotkey,

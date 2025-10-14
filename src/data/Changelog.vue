@@ -1,5 +1,6 @@
 <template>
-    <div id="changelog"> <!-- This is in reversed order compared to ingame so that the auto-version number filling works properly -->
+    <div id="changelog">
+        <!-- This is in reversed order compared to ingame so that the auto-version number filling works properly -->
         <details>
             <summary class="major-update">Rebirth - <time>2024-04-04</time></summary>
             Initial release
@@ -104,7 +105,8 @@ details {
 }
 
 summary::before {
-    content: "v" counter(version-very-major) "." counter(version-major) "." counter(version-minor) " - "
+    content: "v" counter(version-very-major) "." counter(version-major) "." counter(version-minor)
+        " - ";
 }
 
 summary {

@@ -45,6 +45,7 @@ const layer: LayerCash = createLayer("cash", () => {
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
     // #endregion Resources
+
     // #region Tree Node
     const treeNode = createLayerTreeNode(() => ({
         name: "$",
@@ -62,6 +63,7 @@ const layer: LayerCash = createLayer("cash", () => {
         display: () => <>{formatWhole(points.value)} Cash</>
     }));
     // #endregion Tree Node
+
     // #region Reset
     const reset = createReset(() => ({
         thingsToReset: () => [points, best, total, pylons, buyables]
@@ -109,6 +111,7 @@ const layer: LayerCash = createLayer("cash", () => {
         // #endregion Pylon 1
     ];
     // #endregion Pylons
+
     // #region Buyables
     const buyables: Repeatable[] = [
         // #region Buyable 1
@@ -254,7 +257,8 @@ const layer: LayerCash = createLayer("cash", () => {
         buy4base: computed(() => 0.02),
         buy4effect: computed(() => Decimal.mul(effects.buy4base.value, buyables[3].amount.value))
     };
-    // #endregion
+    // #endregion Effects
+
     // #region Return Object
     const oomps: () => JSX.Element = trackOOMPS(points, pylons[0].effect);
     return {

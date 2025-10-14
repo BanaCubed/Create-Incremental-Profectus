@@ -2,8 +2,7 @@
     <Modal v-model="isOpen" ref="modal">
         <template v-slot:header>
             <div class="header">
-                <h2>{{ settings.e === true ? "sE" : "Se" }}ttings</h2>
-                <!-- debug mode funnie -->
+                <h2>{{ settings.e === true ? "Settings - Debug Mode Enabled" : "Settings" }}</h2>
                 <div class="option-tabs">
                     <!-- <button :class="{selected: isTab('lang')}" @click="setTab('lang')">Language</button> -->
                     <button :class="{ selected: isTab('behaviour') }" @click="setTab('behaviour')">

@@ -15,12 +15,7 @@
         </div>
         <div class="game-element">
             <!-- Currencies Display -->
-            <div id="currencies">
-                <div v-for="item in currencies">
-                    {{ item.color }}
-                    <component v-bind:is="format(item.resource.value)" />
-                </div>
-            </div>
+            <SideDisplay />
         </div>
     </div>
 </template>
@@ -31,8 +26,7 @@ import player from "game/player";
 import { computed, ref, toRef } from "vue";
 import Select, { SelectOption } from "components/fields/Select.vue";
 import LayerVue from "components/Layer.vue";
-import { currencies } from "./common";
-import { format, stringyFormat } from "util/bignum";
+import SideDisplay from "features/resources/SideDisplay.vue";
 
 const wide = computed(() => window.innerWidth >= 1250);
 const layerKeys = computed(() => Object.keys(layers));
@@ -43,7 +37,7 @@ const TEMP_selectOptions: SelectOption[] = [
         value: "cash"
     },
     {
-        label: "Main",
+        label: "\"Secret\" Tab",
         value: "main"
     }
 ];
@@ -79,8 +73,8 @@ function gatherLayerProps(layer: Layer) {
 
 .game-element:nth-child(2) {
     flex-grow: 20;
-    border: solid 4px white;
-    border-color: transparent white;
+    border: solid 4px var(--foreground);
+    border-color: transparent var(--foreground);
     border-width: 0 4px;
 }
 </style>

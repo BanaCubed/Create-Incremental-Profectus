@@ -25,6 +25,7 @@ import { JSX } from "vue/jsx-runtime";
 import "./common.css";
 import Modal from "components/modals/Modal.vue";
 import cash from "./layers/cash/cash";
+import rebirth from "./layers/rebirth/rebirth";
 
 /** An object that configures a {@link ResetButton} */
 export interface ResetButtonOptions extends ClickableOptions {
@@ -548,12 +549,21 @@ export const currencies: ComputedRef<
         visible: Visibility;
         image: string;
         color: string;
+        oomps: () => JSX.Element;
     }[]
 > = computed(() => [
     {
         resource: cash.points,
         visible: Visibility.Visible,
         image: "currency_cash.png",
-        color: cash.color as string
+        color: cash.color as string,
+        oomps: cash.oomps
+    },
+    {
+        resource: rebirth.points,
+        visible: Visibility.Visible,
+        image: "currency_rebirthpoints.png",
+        color: rebirth.color as string,
+        oomps: rebirth.oomps
     }
 ]);

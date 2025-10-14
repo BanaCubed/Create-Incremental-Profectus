@@ -38,6 +38,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
     // #endregion Resources
+
     // #region Tree Node
     const treeNode = createLayerTreeNode(() => ({
         name: "R",
@@ -56,6 +57,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
         display: () => <>{formatWhole(points.value)} Rebirth Points</>
     }));
     // #endregion Tree Node
+
     // #region Reset
     // #region Conversion
     const conversion = createCumulativeConversion(() => ({
@@ -64,6 +66,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
         formula: x => x.max(1).div(1e9).log(3)
     }));
     // #endregion Conversion
+
     // #region Reset Button
     const resetButton = createResetButton(() => ({
         conversion,
@@ -71,8 +74,10 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
         tree: main.tree
     }));
     // #endregion Reset Button
+
     // #region Actual Reset
     // #endregion Actual Reset
+
     // #endregion Reset
 
     // #region Return Object
