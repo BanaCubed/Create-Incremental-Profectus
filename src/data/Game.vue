@@ -37,6 +37,10 @@ const TEMP_selectOptions: SelectOption[] = [
         value: "cash"
     },
     {
+        label: "Rebirth",
+        value: "rebirth"
+    },
+    {
         label: "\"Secret\" Tab",
         value: "main"
     }
