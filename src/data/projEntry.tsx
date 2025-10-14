@@ -88,7 +88,7 @@ export const main: LayerMain = createLayer("main", () => {
             <>
                 <span>
                     This tab exists purely for debugging purposes and will be made inaccessible
-                    "soon".
+                    "soon" (probably about the same time that the bad tab select is overwritten).
                     <br />
                     While you're here feel free to enable debug mode:{" "}
                     <button
@@ -98,6 +98,9 @@ export const main: LayerMain = createLayer("main", () => {
                     >
                         button 😎👍
                     </button>
+                    <br />
+                    <br />
+                    Also sorry about dissapearing for most of the year.
                 </span>
             </>
         ),
