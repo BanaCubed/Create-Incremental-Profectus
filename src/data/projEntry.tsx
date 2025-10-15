@@ -9,6 +9,7 @@ import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist, Persistent, persistent } from "game/persistence";
 import rebirth from "./layers/rebirth/rebirth";
+import { Icon } from "@iconify/vue";
 
 // #region Interface
 export interface LayerMain extends Layer {
@@ -86,7 +87,7 @@ export const main: LayerMain = createLayer("main", () => {
         links: tree.links,
         display: () => (
             <>
-                <span>
+                <div>
                     This tab exists purely for debugging purposes and will be made inaccessible
                     "soon" (probably about the same time that the bad tab select is overwritten).
                     <br />
@@ -101,7 +102,43 @@ export const main: LayerMain = createLayer("main", () => {
                     <br />
                     <br />
                     Also sorry about dissapearing for most of the year.
-                </span>
+                </div>
+                <div>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td>PC</td>
+                            <td>Mobile</td>
+                        </tr>
+                        <tr>
+                            <td>Playable</td>
+                            <td>
+                                <Icon icon="material-symbols:check" width="24" height="24" />
+                            </td>
+                            <td>
+                                <Icon icon="material-symbols:close" width="24" height="24" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Keyboard Only</td>
+                            <td>
+                                <Icon icon="material-symbols:close" width="24" height="24" />
+                            </td>
+                            <td>
+                                <Icon icon="material-symbols:close" width="24" height="24" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Screen Reader Support</td>
+                            <td>
+                                <Icon icon="material-symbols:close" width="24" height="24" />
+                            </td>
+                            <td>
+                                <Icon icon="material-symbols:close" width="24" height="24" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </>
         ),
         tree,

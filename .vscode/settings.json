@@ -1,6 +1,7 @@
 {
     "vitest.commandLine": "npx vitest",
     "editor.codeActionsOnSave": {
+        "source.removeUnusedImports": "explicit",
         "source.fixAll.eslint": "explicit"
     },
     "editor.defaultFormatter": "esbenp.prettier-vscode",

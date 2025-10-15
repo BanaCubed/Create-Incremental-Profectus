@@ -77,7 +77,6 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
 
     // #region Actual Reset
     // #endregion Actual Reset
-
     // #endregion Reset
 
     // #region Return Object

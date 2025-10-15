@@ -14,7 +14,7 @@ import { noPersist } from "game/persistence";
 import { createCostRequirement, displayRequirements } from "game/requirements";
 import Decimal, { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
-import { computed, ComputedRef, Ref, toValue, unref } from "vue";
+import { computed, Ref, toValue, unref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import { createRepeatable, Repeatable } from "features/clickables/repeatable";
@@ -23,6 +23,8 @@ import { processGetter } from "util/computed";
 import { Visibility } from "features/feature";
 import MainDisplay from "features/resources/MainDisplay.vue";
 import { createReset } from "features/reset";
+import settings from "game/settings";
+import effects, { EffectNames } from "../effects";
 
 // #region Interface
 export interface LayerCash extends Layer {
@@ -33,7 +35,6 @@ export interface LayerCash extends Layer {
     buyables: Repeatable[];
     treeNode: LayerTreeNode;
     pylons: Pylon[];
-    effects: Record<string, ComputedRef<DecimalSource>>;
 }
 // #endregion Interface
 
@@ -66,20 +67,23 @@ const layer: LayerCash = createLayer("cash", () => {
 
     // #region Reset
     const reset = createReset(() => ({
-        thingsToReset: () => [points, best, total, pylons, buyables]
+        thingsToReset: () => {
+            const things = [points, best, total, pylons, buyables];
+            return things;
+        }
     }));
     // #endregion Reset
 
     // #region Cash Gain
     const cashGain = createSequentialModifier(() => [
         createMultiplicativeModifier(() => ({
-            multiplier: effects.buy1effect
+            multiplier: effects[EffectNames.CRe1Effect]
         })),
         createMultiplicativeModifier(() => ({
-            multiplier: effects.buy2effect
+            multiplier: effects[EffectNames.CRe2Effect]
         })),
         createMultiplicativeModifier(() => ({
-            multiplier: effects.buy3effect
+            multiplier: effects[EffectNames.CRe3Effect]
         }))
     ]);
     // #endregion Cash Gain
@@ -95,7 +99,7 @@ const layer: LayerCash = createLayer("cash", () => {
             gain: computed(() => cashGain.apply(1)),
             target: noPersist(points),
             display: {
-                title: () => <h3>Cash Pylon</h3>,
+                title: () => <h3>Cash Pylon{settings.e ? " {CPy1}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
@@ -126,17 +130,17 @@ const layer: LayerCash = createLayer("cash", () => {
             })),
             display: () => (
                 <>
-                    <h3>Inflation</h3>
+                    <h3>Inflation{settings.e ? " {CRe1}" : ""}</h3>
                     <br />
                     <i>
                         Multiplies cash gain by &times;
-                        <b>{format(effects.buy1base.value)}</b> per purchase
+                        <b>{format(effects[EffectNames.CRe1Base].value)}</b> per purchase
                     </i>
                     <br />
                     <br />
                     Amount: {formatWhole(buyables[0].amount.value)}
                     <br />
-                    Currently: &times;{format(effects.buy1effect.value)}
+                    Currently: &times;{format(effects[EffectNames.CRe1Effect].value)}
                     <br />
                     {displayRequirements(buyables[0].requirements)}
                 </>
@@ -154,11 +158,11 @@ const layer: LayerCash = createLayer("cash", () => {
             })),
             display: () => (
                 <>
-                    <h3>Synergism</h3>
+                    <h3>Synergism{settings.e ? " {CRe2}" : ""}</h3>
                     <br />
                     <i>
                         Multiplies cash gain by &times;
-                        <b>{format(effects.buy2base.value)}</b> per purchase
+                        <b>{format(effects[EffectNames.CRe2Base].value)}</b> per purchase
                         <br />
                         Based on Cash
                     </i>
@@ -166,7 +170,7 @@ const layer: LayerCash = createLayer("cash", () => {
                     <br />
                     Amount: {formatWhole(buyables[1].amount.value)}
                     <br />
-                    Currently: &times;{format(effects.buy2effect.value)}
+                    Currently: &times;{format(effects[EffectNames.CRe2Effect].value)}
                     <br />
                     {displayRequirements(buyables[1].requirements)}
                 </>
@@ -188,11 +192,11 @@ const layer: LayerCash = createLayer("cash", () => {
             })),
             display: () => (
                 <>
-                    <h3>Overcharged</h3>
+                    <h3>Overcharged{settings.e ? " {CRe3}" : ""}</h3>
                     <br />
                     <i>
                         Multiplies cash gain by &times;
-                        <b>{format(effects.buy3base.value)}</b> per purchase
+                        <b>{format(effects[EffectNames.CRe3Base].value)}</b> per purchase
                         <br />
                         Based on Cash Pylons bought
                     </i>
@@ -200,7 +204,7 @@ const layer: LayerCash = createLayer("cash", () => {
                     <br />
                     Amount: {formatWhole(buyables[2].amount.value)}
                     <br />
-                    Currently: &times;{format(effects.buy3effect.value)}
+                    Currently: &times;{format(effects[EffectNames.CRe3Effect].value)}
                     <br />
                     {displayRequirements(buyables[2].requirements)}
                 </>
@@ -222,17 +226,17 @@ const layer: LayerCash = createLayer("cash", () => {
             })),
             display: () => (
                 <>
-                    <h3>Recreation</h3>
+                    <h3>Recreation{settings.e ? " {CRe4}" : ""}</h3>
                     <br />
                     <i>
                         Adds to "Inflation"'s base effect by +
-                        <b>{format(effects.buy4base.value)}</b> per purchase
+                        <b>{format(effects[EffectNames.CRe4Base].value)}</b> per purchase
                     </i>
                     <br />
                     <br />
                     Amount: {formatWhole(buyables[3].amount.value)}
                     <br />
-                    Currently: +{format(effects.buy4effect.value)}
+                    Currently: +{format(effects[EffectNames.CRe4Effect].value)}
                     <br />
                     {displayRequirements(buyables[3].requirements)}
                 </>
@@ -243,21 +247,6 @@ const layer: LayerCash = createLayer("cash", () => {
         // #endregion Buyable 4
     ];
     // #endregion Buyables
-
-    // #region Effects
-    const effects: Record<string, ComputedRef<DecimalSource>> = {
-        buy1base: computed(() => Decimal.add(1.65, effects.buy4effect.value)),
-        buy1effect: computed(() => Decimal.pow(effects.buy1base.value, buyables[0].amount.value)),
-        buy2base: computed(() =>
-            Decimal.max(points.value, 1).log(10).add(1).log(3).add(1).mul(1.1)
-        ),
-        buy2effect: computed(() => Decimal.pow(effects.buy2base.value, buyables[1].amount.value)),
-        buy3base: computed(() => Decimal.div(pylons[0].amount.value, 25).add(1)),
-        buy3effect: computed(() => Decimal.pow(effects.buy3base.value, buyables[2].amount.value)),
-        buy4base: computed(() => 0.02),
-        buy4effect: computed(() => Decimal.mul(effects.buy4base.value, buyables[3].amount.value))
-    };
-    // #endregion Effects
 
     // #region Return Object
     const oomps: () => JSX.Element = trackOOMPS(points, pylons[0].effect);
@@ -287,8 +276,7 @@ const layer: LayerCash = createLayer("cash", () => {
         buyables,
         treeNode,
         color,
-        pylons,
-        effects
+        pylons
     };
     // #endregion Return Object
 });

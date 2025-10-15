@@ -5,7 +5,7 @@
             Temporary tab selection system (bad)
             <Select :options="TEMP_selectOptions" v-model="tab" />
         </div>
-        <div class="game-element">
+        <div class="game-element" id="active-layer-tab">
             <!-- Game Content -->
             <LayerVue
                 v-if="layerKeys.includes(tab)"
@@ -28,7 +28,7 @@ import Select, { SelectOption } from "components/fields/Select.vue";
 import LayerVue from "components/Layer.vue";
 import SideDisplay from "features/resources/SideDisplay.vue";
 
-const wide = computed(() => window.innerWidth >= 1250);
+const wide = computed(() => window.innerWidth >= 1200);
 const layerKeys = computed(() => Object.keys(layers));
 
 const TEMP_selectOptions: SelectOption[] = [
@@ -63,6 +63,13 @@ function gatherLayerProps(layer: Layer) {
 </script>
 
 <style scoped>
+#active-layer-tab {
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    display: flex;
+}
+
 #game {
     display: flex;
     height: 100%;
