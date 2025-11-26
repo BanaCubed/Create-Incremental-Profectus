@@ -87,11 +87,13 @@ export const main: LayerMain = createLayer("main", () => {
         links: tree.links,
         display: () => (
             <>
-                <div>
+                <div style="max-width: 720px;">
                     This tab exists purely for debugging purposes and will be made inaccessible
                     "soon" (probably about the same time that the bad tab select is overwritten).
                     <br />
-                    While you're here feel free to enable debug mode:{" "}
+                    <br />
+                    While you're here feel free to enable debug mode:
+                    <br />
                     <button
                         onClick={() => {
                             settings.e = settings.e !== true;
@@ -101,7 +103,8 @@ export const main: LayerMain = createLayer("main", () => {
                     </button>
                     <br />
                     <br />
-                    Also sorry about dissapearing for most of the year.
+                    Also sorry about dissapearing for most of the year (it'll probably happen
+                    again).
                 </div>
                 <div>
                     <table>

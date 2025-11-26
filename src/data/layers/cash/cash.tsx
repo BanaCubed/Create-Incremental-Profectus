@@ -42,7 +42,7 @@ export interface LayerCash extends Layer {
 const layer: LayerCash = createLayer("cash", () => {
     const color: string = "#0b8000";
     // #region Resources
-    const points: Resource<DecimalSource> = createResource(10, "Cash", 0);
+    const points: Resource<DecimalSource> = createResource(10, "Cash", 2);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
     // #endregion Resources
@@ -96,14 +96,15 @@ const layer: LayerCash = createLayer("cash", () => {
                 resource: noPersist(points),
                 cost: Formula.variable(pylons[0].amount).add(1).pow_base(10)
             })),
-            gain: computed(() => cashGain.apply(1)),
+            gain: computed(() => cashGain.apply(0.01)),
             target: noPersist(points),
             display: {
                 title: () => <h3>Cash Pylon{settings.e ? " {CPy1}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
-                            Generates <b>{format(unref(processGetter(pylons[0].gain)))}</b> Cash/s
+                            Generates <b>{format(unref(processGetter(pylons[0].gain)))}</b> Cash
+                            each second
                             <br />
                             Somehow...
                         </i>
