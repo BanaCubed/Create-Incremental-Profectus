@@ -663,7 +663,7 @@ summary {
 .header {
     margin: 0px;
     margin-bottom: 30px;
-    padding: 10px;
+    padding-top: 10px;
     padding-bottom: 0;
     background: var(--raised-background);
     /* border-radius: calc(var(--border-radius) - 4px) calc(var(--border-radius) - 4px) 0 0; */

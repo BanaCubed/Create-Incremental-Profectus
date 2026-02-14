@@ -60,21 +60,24 @@ onErrorCaptured((err, instance, info) => {
 <style scoped>
 .layer-container {
     min-width: 100%;
-    min-height: 100%;
+    min-height: 100vh;
     margin: 0;
     flex-grow: 1;
     display: flex;
     isolation: isolate;
+    overflow-y: auto;
+    overflow-x: clip;
+    flex-direction: column;
 }
 
 .layer-tab:not(.minimized) {
     padding-top: 0px;
     padding-bottom: 20px;
-    min-height: 100%;
+    /* min-height: 100%; */
     flex-grow: 1;
     text-align: center;
     position: relative;
-    max-width: 100%;
+    min-width: 100%;
 }
 
 .inner-tab > .layer-container > .layer-tab:not(.minimized) {

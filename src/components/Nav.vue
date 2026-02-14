@@ -40,7 +40,7 @@ import { galaxy, syncedSaves } from "util/galaxy";
 import { computed, ref } from "vue";
 import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import Info from "./modals/Info.vue";
-import Options from "./modals/Options.vue";
+import Options from "./options/Options.vue";
 import SavesManager from "./modals/SavesManager.vue";
 
 const info = ref<typeof Info | null>(null);

@@ -13,7 +13,7 @@ import { createTabFamily, TabFamily } from "features/tabs/tabFamily";
 import { createTab } from "features/tabs/tab";
 import Behaviour from "components/options/Behaviour.vue";
 import Saves from "components/options/Saves.vue";
-import Options from "components/modals/Options.vue";
+import Options from "components/options/Options.vue";
 
 // #region Interface
 export interface LayerMain extends Layer {

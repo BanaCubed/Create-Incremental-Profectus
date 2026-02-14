@@ -71,7 +71,7 @@ const isPausedTitle = (
 
 <style lang="css" scoped>
 .settings-tab > * {
-    max-width: 480px;
+    max-width: 600px;
 }
 
 .settings-tab {
