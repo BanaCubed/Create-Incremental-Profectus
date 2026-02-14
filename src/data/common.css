@@ -57,10 +57,10 @@
     min-height: 130px !important;
     text-align: right;
     padding-right: 10px;
-    padding-left: 50px;
+    padding-left: 10px;
 }
 
-.pylon .clickable::before {
+/* .pylon .clickable::before {
     content: "";
     position: absolute;
     left: 0;
@@ -73,4 +73,4 @@
     z-index: -1;
     border-radius: calc(var(--border-radius) - 4px);
     mask-image: linear-gradient(90deg, black, transparent 100px)
-}
+} */

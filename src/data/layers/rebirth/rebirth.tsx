@@ -9,7 +9,7 @@ import {
 } from "features/resources/resource";
 import { createLayer, Layer } from "game/layers";
 import { noPersist } from "game/persistence";
-import Decimal, { DecimalSource, formatWhole } from "util/bignum";
+import { DecimalSource, formatWhole } from "util/bignum";
 import { Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
@@ -50,8 +50,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
                 <img src="c_r.png" height="85" />
             </>
         ),
-        visibility: () =>
-            Decimal.gte(cash.buyables[3].amount.value, 1) ? Visibility.Visible : Visibility.None
+        visibility: () => Visibility.None
     }));
     addTooltip(treeNode, () => ({
         display: () => <>{formatWhole(points.value)} Rebirth Points</>

@@ -68,7 +68,7 @@ onErrorCaptured((err, instance, info) => {
 }
 
 .layer-tab:not(.minimized) {
-    padding-top: 20px;
+    padding-top: 0px;
     padding-bottom: 20px;
     min-height: 100%;
     flex-grow: 1;

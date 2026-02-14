@@ -41,8 +41,8 @@ const TEMP_selectOptions: SelectOption[] = [
         value: "rebirth"
     },
     {
-        label: "\"Secret\" Tab",
-        value: "main"
+        label: "Settings",
+        value: "settings"
     }
 ];
 const tab = toRef(player, "tab");

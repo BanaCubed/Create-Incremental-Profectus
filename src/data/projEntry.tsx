@@ -9,7 +9,9 @@ import { createHotkey, Hotkey } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist, Persistent, persistent } from "game/persistence";
 import rebirth from "./layers/rebirth/rebirth";
-import { Icon } from "@iconify/vue";
+import { createTabFamily, TabFamily } from "features/tabs/tabFamily";
+import { createTab } from "features/tabs/tab";
+import { render } from "util/vue";
 
 // #region Interface
 export interface LayerMain extends Layer {
@@ -88,59 +90,8 @@ export const main: LayerMain = createLayer("main", () => {
         display: () => (
             <>
                 <div style="max-width: 720px;">
-                    This tab exists purely for debugging purposes and will be made inaccessible
-                    "soon" (probably about the same time that the bad tab select is overwritten).
+                    This tab exists purely for debugging purposes.
                     <br />
-                    <br />
-                    While you're here feel free to enable debug mode:
-                    <br />
-                    <button
-                        onClick={() => {
-                            settings.e = settings.e !== true;
-                        }}
-                    >
-                        button 😎👍
-                    </button>
-                    <br />
-                    <br />
-                    Also sorry about dissapearing for most of the year (it'll probably happen
-                    again).
-                </div>
-                <div>
-                    <table>
-                        <tr>
-                            <td></td>
-                            <td>PC</td>
-                            <td>Mobile</td>
-                        </tr>
-                        <tr>
-                            <td>Playable</td>
-                            <td>
-                                <Icon icon="material-symbols:check" width="24" height="24" />
-                            </td>
-                            <td>
-                                <Icon icon="material-symbols:close" width="24" height="24" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Keyboard Only</td>
-                            <td>
-                                <Icon icon="material-symbols:close" width="24" height="24" />
-                            </td>
-                            <td>
-                                <Icon icon="material-symbols:close" width="24" height="24" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Screen Reader Support</td>
-                            <td>
-                                <Icon icon="material-symbols:close" width="24" height="24" />
-                            </td>
-                            <td>
-                                <Icon icon="material-symbols:close" width="24" height="24" />
-                            </td>
-                        </tr>
-                    </table>
                 </div>
             </>
         ),
@@ -157,6 +108,38 @@ export const main: LayerMain = createLayer("main", () => {
 });
 // #endregion Layer
 
+// #region Settings Layer
+// It's not worth it to make an interface for this layer's type
+export const settingsLayer: Layer = createLayer("settings", () => {
+    const tabFamily: TabFamily = createTabFamily({
+        gameplay: () => ({
+            tab: createTab(() => ({
+                display: <>Gameplay settings go here</>
+            })),
+            display: <>Gameplay</>
+        }),
+        visuals: () => ({
+            tab: createTab(() => ({
+                display: <>Visual settings go here</>
+            })),
+            display: <>Visual</>
+        }),
+        save: () => ({
+            tab: createTab(() => ({
+                display: <>Save settings go here</>
+            })),
+            display: <>Save</>
+        })
+    });
+
+    return {
+        color: "ffffff",
+        display: () => render(tabFamily),
+        tabFamily
+    };
+});
+// #endregion Settings Layer
+
 // #region Misc
 // #region Initial Layers
 /**
@@ -166,7 +149,7 @@ export const main: LayerMain = createLayer("main", () => {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<Layer> => [main, cash, rebirth];
+): Array<Layer> => [main, cash, rebirth, settingsLayer];
 // #endregion Initial Layers
 
 // #region Win Condition
