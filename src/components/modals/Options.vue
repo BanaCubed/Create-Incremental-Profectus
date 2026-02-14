@@ -1,6 +1,6 @@
 <template>
-    <Modal v-model="isOpen" ref="modal">
-        <template v-slot:header>
+    <!-- <Modal v-model="isOpen" ref="modal">
+        <template v-slot:header> -->
             <div class="header">
                 <h2>{{ settings.e === true ? "Settings - Debug Mode Enabled" : "Settings" }}</h2>
                 <div class="option-tabs">
@@ -20,60 +20,13 @@
                     <!-- <button :class="{selected: isTab('notation')}" @click="setTab('notation')">Notation</button> -->
                 </div>
             </div>
-        </template>
-        <template #body="{ shown }">
+        <!-- </template>
+        <template #body="{ shown }"> -->
             <div v-if="isTab('behaviour')">
-                <Toggle :title="unthrottledTitle" v-model="unthrottled" />
-                <Toggle v-if="projInfo.enablePausing" :title="isPausedTitle" v-model="isPaused" />
-                <Toggle :title="offlineProdTitle" v-model="offlineProd" />
-                <!-- <Toggle :title="showHealthWarningTitle" v-model="showHealthWarning" v-if="!projInfo.disableHealthWarning" /> -->
+                <Behaviour />
             </div>
             <div v-if="isTab('saves')">
-                <div v-if="showNotSyncedWarning" style="color: var(--danger)">
-                    Not all saves are synced! You may need to delete stale saves.
-                </div>
-                <Draggable
-                    :list="settings.saves"
-                    handle=".handle"
-                    v-if="shown"
-                    :itemKey="(save: string) => save"
-                >
-                    <template #item="{ element }">
-                        <Save
-                            :save="saves[element]"
-                            @open="openSave(element)"
-                            @export="exportSave(element)"
-                            @editName="(name: string) => editSave(element, name)"
-                            @duplicate="duplicateSave(element)"
-                            @delete="deleteSave(element)"
-                        />
-                    </template>
-                </Draggable>
-                <Text
-                    v-model="saveToImport"
-                    title="Import Save"
-                    placeholder="Paste your save here!"
-                    :class="{ importingFailed }"
-                />
-                <div class="field">
-                    <span class="field-title">Create Save</span>
-                    <div class="field-buttons">
-                        <button class="button" @click="openSave(newSave().id)">New Game</button>
-                        <!-- <Select
-                            v-if="Object.keys(bank).length > 0"
-                            :options="bank"
-                            :modelValue="selectedPreset"
-                            @update:modelValue="(preset: unknown) => newFromPreset(preset as string)"
-                            closeOnSelect
-                            placeholder="Select preset"
-                            class="presets"
-                        /> -->
-                    </div>
-                </div>
-                <Toggle :title="autosaveTitle" v-model="autosave" />
-                <FeedbackButton v-if="!autosave" class="button save-button" @click="save()"
-                    >Manually save</FeedbackButton
-                >
+                <Saves />
             </div>
             <div v-if="isTab('appearance')">
                 <SettingFields />
@@ -199,41 +152,27 @@
             <div v-if="isTab('lang')" is-language>
                 <!-- Currently unfinished and unplanned system, potential v2.0 content? -->
             </div>
-        </template>
-    </Modal>
+        <!-- </template>
+    </Modal> -->
 </template>
 
 <script setup lang="tsx">
-import Modal from "components/modals/Modal.vue";
-import projInfo from "data/projInfo.json";
-import { galaxy, syncedSaves } from "util/galaxy";
-import player, { stringifySave } from "game/player";
-import LZString from "lz-string";
 import settings, { settingFields } from "game/settings";
 import { Direction } from "util/common";
 import { render } from "util/vue";
-import { computed, ref, toRefs, nextTick, watch } from "vue";
+import { ref, toRefs } from "vue";
 import Select, { SelectOption } from "../fields/Select.vue";
 import Toggle from "../fields/Toggle.vue";
 import Tooltip from "wrappers/tooltips/Tooltip.vue";
-import FeedbackButton from "../fields/FeedbackButton.vue";
-import Hotkey from "../Hotkey.vue";
-import Draggable from "vuedraggable";
 import {
-    clearCachedSave,
-    decodeSave,
-    getCachedSave,
-    getUniqueID,
-    loadSave,
-    newSave,
     save
 } from "util/save";
 import type { Player } from "game/player";
-import { main } from "data/projEntry";
 import Text from "components/fields/Text.vue";
 import Decimal, { DecimalSource, format } from "util/bignum";
-import Save from "./Save.vue";
 import { JSX } from "vue/jsx-runtime";
+import Behaviour from "components/options/Behaviour.vue";
+import Saves from "components/options/Saves.vue";
 
 export type LoadablePlayerData = Omit<Partial<Player>, "id"> & { id: string; error?: unknown };
 
@@ -269,176 +208,6 @@ function constructNotationPreviewComponent(previews: [DecimalSource, JSX.Element
 }
 
 const NotationPreviewComponent = () => render(constructNotationPreviewComponent(notationPreviews));
-
-const importingFailed = ref(false);
-const saveToImport = ref("");
-const selectedPreset = ref<string | null>(null);
-
-let bankContext = import.meta.glob("./../../../saves/*.txt", { query: "?raw", eager: true });
-let bank = ref(
-    Object.keys(bankContext).reduce((acc: Array<{ label: string; value: string }>, curr) => {
-        acc.push({
-            // .slice(2, -4) strips the leading ./ and the trailing .txt
-            label: curr.split("/").slice(-1)[0].slice(0, -4),
-            // Have to perform this unholy cast because globEager's typing doesn't appear to know
-            // adding { as: "raw" } will make the object contain strings rather than modules
-            value: bankContext[curr] as unknown as string
-        });
-        return acc;
-    }, [])
-);
-
-watch(saveToImport, importedSave => {
-    if (importedSave) {
-        nextTick(() => {
-            try {
-                importedSave = decodeSave(importedSave) ?? "";
-                if (importedSave === "") {
-                    console.warn("Unable to determine preset encoding", importedSave);
-                    importingFailed.value = true;
-                    return;
-                }
-                const playerData = JSON.parse(importedSave);
-                if (typeof playerData !== "object") {
-                    importingFailed.value = true;
-                    return;
-                }
-                const id = getUniqueID();
-                playerData.id = id;
-                save(playerData);
-                saveToImport.value = "";
-                importingFailed.value = false;
-
-                settings.saves.push(id);
-            } catch (e) {
-                importingFailed.value = true;
-            }
-        });
-    } else {
-        importingFailed.value = false;
-    }
-});
-
-const showNotSyncedWarning = computed(
-    () => galaxy.value?.loggedIn === true && settings.saves.length < syncedSaves.value.length
-);
-
-const saves = computed(() =>
-    settings.saves.reduce((acc: Record<string, LoadablePlayerData>, curr: string) => {
-        acc[curr] = getCachedSave(curr);
-        return acc;
-    }, {})
-);
-
-function newFromPreset(preset: string) {
-    // Reset preset dropdown
-    selectedPreset.value = preset;
-    nextTick(() => {
-        selectedPreset.value = null;
-    });
-
-    preset = decodeSave(preset) ?? "";
-    if (preset === "") {
-        console.warn("Unable to determine preset encoding", preset);
-        return;
-    }
-    const playerData = JSON.parse(preset);
-    playerData.id = getUniqueID();
-    save(playerData as Player);
-
-    settings.saves.push(playerData.id);
-
-    openSave(playerData.id);
-}
-
-function editSave(id: string, newName: string) {
-    const currSave = saves.value[id];
-    if (currSave != null) {
-        currSave.name = newName;
-        if (player.id === id) {
-            player.name = newName;
-            save();
-        } else {
-            save(currSave as Player);
-            clearCachedSave(id);
-        }
-    }
-}
-
-function exportSave(id: string) {
-    let saveToExport;
-    if (player.id === id) {
-        saveToExport = stringifySave(player);
-    } else {
-        saveToExport = JSON.stringify(saves.value[id]);
-    }
-    switch (projInfo.exportEncoding) {
-        default:
-            console.warn(`Unknown save encoding: ${projInfo.exportEncoding}. Defaulting to lz`);
-        case "lz":
-            saveToExport = LZString.compressToUTF16(saveToExport);
-            break;
-        case "base64":
-            saveToExport = btoa(unescape(encodeURIComponent(saveToExport)));
-            break;
-        case "plain":
-            break;
-    }
-
-    // Put on clipboard. Using the clipboard API asks for permissions and stuff
-    const el = document.createElement("textarea");
-    el.value = saveToExport;
-    document.body.appendChild(el);
-    el.select();
-    el.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    document.body.removeChild(el);
-}
-
-function duplicateSave(id: string) {
-    if (player.id === id) {
-        save();
-    }
-
-    const playerData = { ...saves.value[id], id: getUniqueID() };
-    save(playerData as Player);
-
-    settings.saves.push(playerData.id);
-}
-
-function deleteSave(id: string) {
-    if (galaxy.value?.loggedIn === true) {
-        galaxy.value.getSaveList().then(list => {
-            const slot = Object.keys(list).find(slot => {
-                const content = list[slot as unknown as number].content;
-                try {
-                    if (JSON.parse(content).id === id) {
-                        return true;
-                    }
-                } catch (e) {
-                    return false;
-                }
-            });
-            if (slot != null) {
-                galaxy.value?.save(parseInt(slot), "", "").catch(console.error);
-            }
-        });
-    }
-    settings.saves = settings.saves.filter((save: string) => save !== id);
-    localStorage.removeItem(id);
-    clearCachedSave(id);
-}
-
-function openSave(id: string) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    saves.value[player.id]!.time = player.time;
-    save();
-    clearCachedSave(player.id);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    loadSave(saves.value[id]!);
-    // Delete cached version in case of opening it again
-    clearCachedSave(id);
-}
 
 const isOpen = ref(false);
 const currentTab = ref("behaviour");
@@ -532,9 +301,6 @@ const down = Direction.Up; // dont ask
 const SettingFields = () => settingFields.map(f => render(f));
 
 const {
-    showTPS,
-    language,
-    unthrottled,
     alignUnits,
     engineering,
     insanePrecision,
@@ -548,15 +314,6 @@ const {
     precisionBonus,
     infinityNumbers
 } = toRefs(settings);
-const { autosave, offlineProd } = toRefs(player);
-const isPaused = computed({
-    get() {
-        return player.devSpeed === 0;
-    },
-    set(value: boolean) {
-        player.devSpeed = value ? 0 : null;
-    }
-});
 
 const engineeringTooltip = <>Replaces Scientific with Engineering</>;
 const precisionTooltip = <>Increases decimal places [Configurable]</>;
@@ -585,53 +342,10 @@ const precisionTitle = (
         <desc>Decimal places increase.</desc>
     </span>
 );
-const unthrottledTitle = (
-    <span class="option-title">
-        Unthrottled
-        <desc>Allow the game to run as fast as possible. Not battery friendly.</desc>
-    </span>
-);
-const offlineProdTitle = (
-    <span class="option-title">
-        Offline Production
-        <Tooltip display="Save-specific" direction={Direction.Right}>
-            *
-        </Tooltip>
-        <desc>Simulate production that occurs while the game is closed.</desc>
-    </span>
-);
-const autosaveTitle = (
-    <span class="option-title">
-        Autosave
-        <Tooltip display="Save-specific" direction={Direction.Right}>
-            *
-        </Tooltip>
-        <desc>Automatically save the game every second or when the game is closed.</desc>
-    </span>
-);
-const isPausedTitle = (
-    <span class="option-title">
-        Pause game
-        <Tooltip display="Save-specific" direction={Direction.Right}>
-            *
-        </Tooltip>
-        <desc>
-            Stop everything from moving.
-            <br />
-            Pressing <Hotkey hotkey={main.hotkey} /> toggles this.
-        </desc>
-    </span>
-);
-const bigModalTitle = (
+const bigModalTitle = ( // why the fuck does this exist
     <span class="option-title">
         Larger Modals
         <desc>Makes modals bigger. Might have visual bugs.</desc>
-    </span>
-);
-const showTPSTitle = (
-    <span class="option-title">
-        Show TPS
-        <desc>Show TPS meter at the bottom-left corner of the page.</desc>
     </span>
 );
 const alignModifierUnitsTitle = (
@@ -947,11 +661,11 @@ summary {
 }
 
 .header {
-    margin: -20px;
-    margin-bottom: 0;
+    margin: 0px;
+    margin-bottom: 30px;
     padding: 10px;
     padding-bottom: 0;
     background: var(--raised-background);
-    border-radius: calc(var(--border-radius) - 4px) calc(var(--border-radius) - 4px) 0 0;
+    /* border-radius: calc(var(--border-radius) - 4px) calc(var(--border-radius) - 4px) 0 0; */
 }
 </style>

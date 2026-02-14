@@ -114,9 +114,9 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 
 const progressDisplay = () => {
     if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
-        return <>1-0 // Null & Void</>
+        return <>? // Progress Indeterminate</>
     } else {
-        return <>1-1 // Cash // {formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
+        return <>1 // Cash // {formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
     }
 };
 

@@ -11,7 +11,9 @@ import { noPersist, Persistent, persistent } from "game/persistence";
 import rebirth from "./layers/rebirth/rebirth";
 import { createTabFamily, TabFamily } from "features/tabs/tabFamily";
 import { createTab } from "features/tabs/tab";
-import { render } from "util/vue";
+import Behaviour from "components/options/Behaviour.vue";
+import Saves from "components/options/Saves.vue";
+import Options from "components/modals/Options.vue";
 
 // #region Interface
 export interface LayerMain extends Layer {
@@ -112,29 +114,37 @@ export const main: LayerMain = createLayer("main", () => {
 // It's not worth it to make an interface for this layer's type
 export const settingsLayer: Layer = createLayer("settings", () => {
     const tabFamily: TabFamily = createTabFamily({
-        gameplay: () => ({
+        behaviour: () => ({
             tab: createTab(() => ({
-                display: <>Gameplay settings go here</>
+                display: (
+                    <>
+                        <Behaviour />
+                    </>
+                )
             })),
-            display: <>Gameplay</>
+            display: () => <>Behaviour</>
         }),
-        visuals: () => ({
+        save: () => ({
+            tab: createTab(() => ({
+                display: (
+                    <>
+                        <Saves />
+                    </>
+                )
+            })),
+            display: <>Save</>
+        }),
+        appearance: () => ({
             tab: createTab(() => ({
                 display: <>Visual settings go here</>
             })),
             display: <>Visual</>
-        }),
-        save: () => ({
-            tab: createTab(() => ({
-                display: <>Save settings go here</>
-            })),
-            display: <>Save</>
         })
     });
 
     return {
         color: "ffffff",
-        display: () => render(tabFamily),
+        display: () => <Options />,
         tabFamily
     };
 });
