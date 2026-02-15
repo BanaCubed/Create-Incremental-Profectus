@@ -14,6 +14,7 @@ import { createTab } from "features/tabs/tab";
 import Behaviour from "components/options/Behaviour.vue";
 import Saves from "components/options/Saves.vue";
 import Options from "components/options/Options.vue";
+import { save } from "util/save";
 
 // #region Interface
 export interface LayerMain extends Layer {
@@ -22,6 +23,7 @@ export interface LayerMain extends Layer {
     hotkey: Hotkey;
     hotkeyEa: Hotkey;
     hotkeyEb: Hotkey;
+    saveHotkey: Hotkey;
 }
 // #endregion Interface
 
@@ -49,7 +51,7 @@ export const main: LayerMain = createLayer("main", () => {
     // #endregion Tree
 
     // #region Hotkeys
-    // I've tried renaming the hotkey constants but that causes and error for some reason.
+    // I've tried renaming the hotkey constants but that causes an error for some reason.
     // If someone could submit a PR that renames these to more descriptive names that would be nice
 
     // #region Pause Hotkey
@@ -83,6 +85,17 @@ export const main: LayerMain = createLayer("main", () => {
         enabled: () => settings.e === true
     }));
     // #endregion Deccelerate Hotkey
+
+    // #region Save Hotkey
+    const saveHotkey = createHotkey(() => ({
+        description: "Save Game",
+        key: "ctrl+s",
+        onPress() {
+            save();
+        },
+        enabled: () => player.autosave === false
+    }));
+    // #endregion Save Hotkey
     // #endregion Hotkeys
 
     // #region Return Object
@@ -104,7 +117,8 @@ export const main: LayerMain = createLayer("main", () => {
         hotkeyEb,
         classes: {
             treeTab: true
-        }
+        },
+        saveHotkey
     };
     // #endregion Object
 });

@@ -93,11 +93,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 title: () => <h3>Cash Printer{settings.e ? " {CPyA}" : ""}</h3>,
                 description: () => (
                     <>
-                        <i>
-                            Generates Cash each second
-                            <br />
-                            Somehow...
-                        </i>
+                        <i>Generates NaN Cash every second</i>
                     </>
                 ),
                 targetName: "Cash"
@@ -117,7 +113,9 @@ const layer: LayerCash = createLayer("cash", () => {
                 title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
                 description: () => (
                     <>
-                        <i>Multiplies Cash generation by &times;1.65 exponentially.</i>
+                        <i>
+                            Multiplies Cash generation by <b>&times;1.65</b> exponentially.
+                        </i>
                     </>
                 )
             }
@@ -131,6 +129,7 @@ const layer: LayerCash = createLayer("cash", () => {
         // #region Display Function
         display: () => (
             <>
+                <Spacer />
                 <MainDisplay resource={points} color={color} />
                 {oomps()}
                 <Spacer />

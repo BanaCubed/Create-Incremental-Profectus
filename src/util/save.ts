@@ -177,7 +177,7 @@ setInterval(() => {
     if (player.autosave) {
         save();
     }
-}, 1000);
+}, 5000);
 window.onbeforeunload = () => {
     if (player.autosave) {
         save();

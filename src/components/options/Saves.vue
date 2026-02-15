@@ -45,6 +45,11 @@
         <FeedbackButton v-if="!autosave" class="button save-button" @click="save()"
             >Manually save</FeedbackButton
         >
+        <span v-if="!autosave" class="option-title">
+            <desc>
+                Press <Hotkey :hotkey="main.saveHotkey" /> to save from another tab
+            </desc>
+        </span>
     </div>
 </template>
 
@@ -72,6 +77,8 @@ import Draggable from 'vuedraggable';
 import Text from 'components/fields/Text.vue';
 import Toggle from 'components/fields/Toggle.vue';
 import FeedbackButton from 'components/fields/FeedbackButton.vue';
+import Hotkey from 'components/Hotkey.vue';
+import { main } from 'data/projEntry';
 
 const { autosave } = toRefs(player);
 
@@ -251,7 +258,7 @@ const autosaveTitle = (
         <Tooltip display="Save-specific" direction={Direction.Right}>
             *
         </Tooltip>
-        <desc>Automatically save the game every second or when the game is closed.</desc>
+        <desc>Automatically saves the game frequently and when the game is closed.</desc>
     </span>
 );
 </script>
@@ -287,6 +294,16 @@ const autosaveTitle = (
     padding: 10px;
     padding-bottom: 10px;
     background: var(--raised-background);
+}
+
+.option-title desc {
+    margin: 0;
+    width: 400px;
+}
+
+.option-title {
+    width: 400px;
+    display: block;
 }
 </style>
 
