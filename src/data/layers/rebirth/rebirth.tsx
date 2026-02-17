@@ -1,5 +1,11 @@
 import Spacer from "components/layout/Spacer.vue";
-import { createLayerTreeNode, createResetButton, LayerTreeNode } from "data/common";
+import {
+    createLayerTreeNode,
+    createResetButton,
+    LayerTreeNode,
+    LayerTreeNodeOptions,
+    ResetButtonOptions
+} from "data/common";
 import {
     createResource,
     trackBest,
@@ -16,7 +22,7 @@ import { addTooltip } from "wrappers/tooltips/tooltip";
 import MainDisplay from "features/resources/MainDisplay.vue";
 import cash from "../cash/cash";
 import { Visibility } from "features/feature";
-import { createCumulativeConversion } from "features/conversion";
+import { ConversionOptions, createCumulativeConversion } from "features/conversion";
 import { main } from "data/projEntry";
 import { render } from "util/vue";
 
@@ -40,7 +46,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
     // #endregion Resources
 
     // #region Tree Node
-    const treeNode = createLayerTreeNode(() => ({
+    const treeNode = createLayerTreeNode<LayerTreeNodeOptions>(() => ({
         name: "R",
         layerID: "rebirth",
         color,
@@ -59,7 +65,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
 
     // #region Reset
     // #region Conversion
-    const conversion = createCumulativeConversion(() => ({
+    const conversion = createCumulativeConversion<ConversionOptions>(() => ({
         baseResource: noPersist(cash.points),
         gainResource: noPersist(points),
         formula: x => x.max(1).div(1e9).log(3)
@@ -67,7 +73,7 @@ const layer: LayerRebirth = createLayer("rebirth", () => {
     // #endregion Conversion
 
     // #region Reset Button
-    const resetButton = createResetButton(() => ({
+    const resetButton = createResetButton<ResetButtonOptions>(() => ({
         conversion,
         treeNode,
         tree: main.tree

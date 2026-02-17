@@ -1,11 +1,11 @@
 import type { Tree } from "features/trees/tree";
-import { branchedResetPropagation, createTree, TreeBranch } from "features/trees/tree";
+import { branchedResetPropagation, createTree, TreeBranch, TreeOptions } from "features/trees/tree";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
 import { computed } from "vue";
 import cash from "./layers/cash/cash";
-import { createHotkey, Hotkey } from "features/hotkey";
+import { createHotkey, Hotkey, HotkeyOptions } from "features/hotkey";
 import settings from "game/settings";
 import { noPersist, Persistent, persistent } from "game/persistence";
 import rebirth from "./layers/rebirth/rebirth";
@@ -38,7 +38,7 @@ export const main: LayerMain = createLayer("main", () => {
 
     // #region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
-    const tree = createTree(() => ({
+    const tree = createTree<TreeOptions>(() => ({
         nodes: noPersist([[cash.treeNode], [rebirth.treeNode]]),
         branches: noPersist<TreeBranch[]>([
             {
@@ -55,7 +55,7 @@ export const main: LayerMain = createLayer("main", () => {
     // If someone could submit a PR that renames these to more descriptive names that would be nice
 
     // #region Pause Hotkey
-    const hotkey = createHotkey(() => ({
+    const hotkey = createHotkey<HotkeyOptions>(() => ({
         description: "Toggle Pause",
         key: "/",
         onPress() {
@@ -65,7 +65,7 @@ export const main: LayerMain = createLayer("main", () => {
     // #endregion Pause Hotkey
 
     // #region Accelerate Hotkey
-    const hotkeyEa = createHotkey(() => ({
+    const hotkeyEa = createHotkey<HotkeyOptions>(() => ({
         description: "Accelerate Time",
         key: "]",
         onPress() {
@@ -76,7 +76,7 @@ export const main: LayerMain = createLayer("main", () => {
     // #endregion Accelerate Hotkey
 
     // #region Deccelerate Hotkey
-    const hotkeyEb = createHotkey(() => ({
+    const hotkeyEb = createHotkey<HotkeyOptions>(() => ({
         description: "Decelerate Time",
         key: "[",
         onPress() {
@@ -87,7 +87,7 @@ export const main: LayerMain = createLayer("main", () => {
     // #endregion Deccelerate Hotkey
 
     // #region Save Hotkey
-    const saveHotkey = createHotkey(() => ({
+    const saveHotkey = createHotkey<HotkeyOptions>(() => ({
         description: "Save Game",
         key: "ctrl+s",
         onPress() {

@@ -1,6 +1,6 @@
 import Spacer from "components/layout/Spacer.vue";
-import { createLayerTreeNode, LayerTreeNode } from "data/common";
-import { createPylon, Pylon } from "features/clickables/pylon";
+import { createLayerTreeNode, LayerTreeNode, LayerTreeNodeOptions } from "data/common";
+import { createPylon, Pylon, PylonOptions } from "features/clickables/pylon";
 import {
     createResource,
     trackBest,
@@ -11,17 +11,21 @@ import {
 import Formula from "game/formulas/formulas";
 import { createLayer, Layer } from "game/layers";
 import { noPersist } from "game/persistence";
-import { createCostRequirement } from "game/requirements";
+import { CostRequirementOptions, createCostRequirement } from "game/requirements";
 import { DecimalSource, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
 import { computed, Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
-import { createMultiplicativeModifier, createSequentialModifier } from "game/modifiers";
+import {
+    createMultiplicativeModifier,
+    createSequentialModifier,
+    MultiplicativeModifierOptions
+} from "game/modifiers";
 import MainDisplay from "features/resources/MainDisplay.vue";
-import { createReset } from "features/reset";
+import { createReset, ResetOptions } from "features/reset";
 import settings from "game/settings";
-import { createRepeatable, Repeatable } from "features/clickables/repeatable";
+import { createRepeatable, Repeatable, RepeatableOptions } from "features/clickables/repeatable";
 import effects, { EffectNames } from "../effects";
 
 // #region Interface
@@ -46,7 +50,7 @@ const layer: LayerCash = createLayer("cash", () => {
     // #endregion Resources
 
     // #region Tree Node
-    const treeNode = createLayerTreeNode(() => ({
+    const treeNode = createLayerTreeNode<LayerTreeNodeOptions>(() => ({
         name: "$",
         layerID: "cash",
         color,
@@ -64,7 +68,7 @@ const layer: LayerCash = createLayer("cash", () => {
     // #endregion Tree Node
 
     // #region Reset
-    const reset = createReset(() => ({
+    const reset = createReset<ResetOptions>(() => ({
         thingsToReset: () => {
             const things = [points, best, total, pylons, repeatables];
             return things;
@@ -74,7 +78,7 @@ const layer: LayerCash = createLayer("cash", () => {
 
     // #region Cash Gain
     const cashGain = createSequentialModifier(() => [
-        createMultiplicativeModifier(() => ({
+        createMultiplicativeModifier<MultiplicativeModifierOptions>(() => ({
             multiplier: effects[EffectNames.CReAEffect]
         }))
     ]);
@@ -82,8 +86,8 @@ const layer: LayerCash = createLayer("cash", () => {
 
     // #region Pylons
     const pylons: Record<string, Pylon> = {
-        CPyA: createPylon(() => ({
-            requirements: createCostRequirement(() => ({
+        CPyA: createPylon<PylonOptions>(() => ({
+            requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
                 cost: Formula.variable(pylons.CPyA.amount).add(1).pow_base(2.5).mul(4)
             })),
@@ -104,8 +108,24 @@ const layer: LayerCash = createLayer("cash", () => {
 
     // #region Repeatables
     const repeatables: Record<string, Repeatable> = {
-        CReA: createRepeatable(() => ({
-            requirements: createCostRequirement(() => ({
+        CReA: createRepeatable<RepeatableOptions>(() => ({
+            requirements: createCostRequirement<CostRequirementOptions>(() => ({
+                resource: noPersist(points),
+                cost: Formula.variable(repeatables.CReA.amount).pow_base(5).mul(15)
+            })),
+            display: {
+                title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
+                description: () => (
+                    <>
+                        <i>
+                            Multiplies Cash generation by <b>&times;1.65</b> exponentially.
+                        </i>
+                    </>
+                )
+            }
+        })),
+        CReB: createRepeatable<RepeatableOptions>(() => ({
+            requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
                 cost: Formula.variable(repeatables.CReA.amount).pow_base(5).mul(15)
             })),
