@@ -12,7 +12,7 @@ import Formula from "game/formulas/formulas";
 import { createLayer, Layer } from "game/layers";
 import { noPersist } from "game/persistence";
 import { CostRequirementOptions, createCostRequirement } from "game/requirements";
-import { DecimalSource, formatWhole } from "util/bignum";
+import { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
 import { computed, Ref } from "vue";
 import { JSX } from "vue/jsx-runtime";
@@ -39,6 +39,15 @@ export interface LayerCash extends Layer {
     repeatables: Record<string, Repeatable>;
 }
 // #endregion Interface
+
+export enum CashPylonNames {
+    A = "CPyA"
+}
+
+export enum CashRepeatableNames {
+    A = "CReA",
+    B = "CReB"
+}
 
 // #region Layer
 const layer: LayerCash = createLayer("cash", () => {
@@ -80,16 +89,19 @@ const layer: LayerCash = createLayer("cash", () => {
     const cashGain = createSequentialModifier(() => [
         createMultiplicativeModifier<MultiplicativeModifierOptions>(() => ({
             multiplier: effects[EffectNames.CReAEffect]
+        })),
+        createMultiplicativeModifier<MultiplicativeModifierOptions>(() => ({
+            multiplier: effects[EffectNames.CReBEffect]
         }))
     ]);
     // #endregion Cash Gain
 
     // #region Pylons
-    const pylons: Record<string, Pylon> = {
-        CPyA: createPylon<PylonOptions>(() => ({
+    const pylons: Record<CashPylonNames, Pylon> = {
+        [CashPylonNames.A]: createPylon<PylonOptions>(() => ({
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
-                cost: Formula.variable(pylons.CPyA.amount).add(1).pow_base(2.5).mul(4)
+                cost: Formula.variable(pylons[CashPylonNames.A].amount).add(1).pow_base(2.5).mul(4)
             })),
             gain: computed(() => cashGain.apply(1)),
             target: noPersist(points),
@@ -107,34 +119,44 @@ const layer: LayerCash = createLayer("cash", () => {
     // #endregion Pylons
 
     // #region Repeatables
-    const repeatables: Record<string, Repeatable> = {
-        CReA: createRepeatable<RepeatableOptions>(() => ({
+    const repeatables: Record<CashRepeatableNames, Repeatable> = {
+        [CashRepeatableNames.A]: createRepeatable<RepeatableOptions>(() => ({
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
-                cost: Formula.variable(repeatables.CReA.amount).pow_base(5).mul(15)
+                cost: Formula.variable(repeatables[CashRepeatableNames.A].amount)
+                    .pow_base(5)
+                    .mul(15)
             })),
             display: {
                 title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
-                            Multiplies Cash generation by <b>&times;1.65</b> exponentially.
+                            Multiplies Cash generation by{" "}
+                            <b>&times;{format(effects[EffectNames.CReAEffectBase].value)}</b>{" "}
+                            exponentially.
                         </i>
                     </>
                 )
             }
         })),
-        CReB: createRepeatable<RepeatableOptions>(() => ({
+        [CashRepeatableNames.B]: createRepeatable<RepeatableOptions>(() => ({
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
-                cost: Formula.variable(repeatables.CReA.amount).pow_base(5).mul(15)
+                cost: Formula.variable(repeatables[CashRepeatableNames.B].amount)
+                    .pow_base(16)
+                    .mul(25)
             })),
             display: {
-                title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
+                title: () => <h3>untitled{settings.e ? " {CReB}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
-                            Multiplies Cash generation by <b>&times;1.65</b> exponentially.
+                            Multiplies Cash generation by{" "}
+                            <b>&times;{format(effects[EffectNames.CReBEffectBase].value)}</b>{" "}
+                            exponentially.
+                            <br />
+                            Multiplier is based on current Cash amount.
                         </i>
                     </>
                 )
@@ -156,7 +178,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 <div class="row" style="align-items: start;">
                     {renderCol(pylons.CPyA)}
                     <Spacer />
-                    {renderCol(repeatables.CReA)}
+                    {renderCol(repeatables.CReA, repeatables.CReB)}
                 </div>
             </>
         ),
