@@ -48,9 +48,15 @@ export interface Settings {
     /** Whether or not a new layer replaces the old one. */
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
-    showHealthWarning: boolean;
+    showHealthWarning: boolean; // Create Incremental manually removes the ability to disable this
     /** Debug mode. */
     e: boolean;
+    /**
+     * Whether the player has reached Rebirth in any save.
+     *
+     * This has to be in the settings object since otherwise a hard reset would fuck with things.
+     */
+    tabsUnlocked: boolean;
 }
 
 const state = reactive<Partial<Settings>>({
@@ -74,7 +80,8 @@ const state = reactive<Partial<Settings>>({
     language: "en",
     appendLayers: false,
     showHealthWarning: true,
-    e: false
+    e: false,
+    tabsUnlocked: false
 });
 
 watch(

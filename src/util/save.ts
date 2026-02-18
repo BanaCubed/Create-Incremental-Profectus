@@ -86,6 +86,11 @@ export function newSave(): Player {
     const player = setupInitialStore({ id });
     save(player);
 
+    // Prevent the current tab from changing unexpectedly.
+    if (settings.saves.length === 0 && settings.tabsUnlocked === true) {
+        player.tab = "settings";
+    }
+
     settings.saves.push(id);
 
     return player;

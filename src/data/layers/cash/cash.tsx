@@ -124,8 +124,10 @@ const layer: LayerCash = createLayer("cash", () => {
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
                 cost: Formula.variable(repeatables[CashRepeatableNames.A].amount)
+                    .step(20, x => x.pow(2))
                     .pow_base(5)
-                    .mul(15)
+                    .mul(15),
+                cumulativeCost: false
             })),
             display: {
                 title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
@@ -144,8 +146,10 @@ const layer: LayerCash = createLayer("cash", () => {
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
                 cost: Formula.variable(repeatables[CashRepeatableNames.B].amount)
-                    .pow_base(16)
-                    .mul(25)
+                    .step(10, x => x.pow(2.5))
+                    .pow_base(100)
+                    .mul(25),
+                cumulativeCost: false
             })),
             display: {
                 title: () => <h3>untitled{settings.e ? " {CReB}" : ""}</h3>,
@@ -166,7 +170,7 @@ const layer: LayerCash = createLayer("cash", () => {
     // #endregion Repeatables
 
     // #region Return Object
-    const oomps: () => JSX.Element = trackOOMPS(points, pylons.CPyA.effect);
+    const oomps: () => JSX.Element = trackOOMPS(points, pylons[CashPylonNames.A].effect);
     return {
         // #region Display Function
         display: () => (
@@ -176,9 +180,12 @@ const layer: LayerCash = createLayer("cash", () => {
                 {oomps()}
                 <Spacer />
                 <div class="row" style="align-items: start;">
-                    {renderCol(pylons.CPyA)}
+                    {renderCol(pylons[CashPylonNames.A])}
                     <Spacer />
-                    {renderCol(repeatables.CReA, repeatables.CReB)}
+                    {renderCol(
+                        repeatables[CashRepeatableNames.A],
+                        repeatables[CashRepeatableNames.B]
+                    )}
                 </div>
             </>
         ),

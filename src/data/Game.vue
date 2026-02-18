@@ -1,6 +1,6 @@
 <template>
     <div id="game">
-        <div class="game-element">
+        <div class="game-element" v-if="main.progression.value >= 1">
             <!-- Tab Buttons -->
             Temporary tab selection system (bad)
             <Select :options="TEMP_selectOptions" v-model="tab" />
@@ -13,7 +13,7 @@
                 :index="0"
             />
         </div>
-        <div class="game-element">
+        <div class="game-element" v-if="main.progression.value >= 1">
             <!-- Currencies Display -->
             <SideDisplay />
         </div>
@@ -27,6 +27,7 @@ import { computed, ref, toRef } from "vue";
 import Select, { SelectOption } from "components/fields/Select.vue";
 import LayerVue from "components/Layer.vue";
 import SideDisplay from "features/resources/SideDisplay.vue";
+import { main } from "./projEntry";
 
 const wide = computed(() => window.innerWidth >= 1200);
 const layerKeys = computed(() => Object.keys(layers));

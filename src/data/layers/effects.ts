@@ -30,7 +30,7 @@ const effects: Record<Partial<EffectNames>, ComputedRef<DecimalSource>> = {
         )
     ),
     [EffectNames.CReBEffectBase]: computed(() =>
-        Decimal.max(cash.points.value, 1).log(150).add(1).pow(2)
+        Decimal.max(cash.points.value, 1).log(100).pow(2).add(1)
     ),
     [EffectNames.CReBEffect]: computed(() =>
         Decimal.pow(
