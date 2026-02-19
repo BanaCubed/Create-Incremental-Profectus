@@ -13,7 +13,7 @@ import { createLayer, Layer } from "game/layers";
 import { noPersist } from "game/persistence";
 import { CostRequirementOptions, createCostRequirement } from "game/requirements";
 import { DecimalSource, format, formatWhole } from "util/bignum";
-import { renderCol } from "util/vue";
+import { renderRow } from "util/vue";
 import { computed, Ref, unref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
@@ -28,6 +28,7 @@ import settings from "game/settings";
 import { createRepeatable, Repeatable, RepeatableOptions } from "features/clickables/repeatable";
 import effects, { EffectNames } from "../effects";
 import { processGetter } from "util/computed";
+import Column from "components/layout/Column.vue";
 
 // #region Interface
 export interface LayerCash extends Layer {
@@ -240,16 +241,16 @@ const layer: LayerCash = createLayer("cash", () => {
                 <MainDisplay resource={points} color={color} />
                 {oomps()}
                 <Spacer />
-                <div class="row" style="align-items: start;">
-                    {renderCol(pylons[CashPylonNames.A])}
-                    <Spacer />
-                    {renderCol(
+                <Column dontMerge={true}>
+                    {renderRow(pylons[CashPylonNames.A])}
+                    <Spacer />{" "}
+                    {renderRow(
                         repeatables[CashRepeatableNames.A],
                         repeatables[CashRepeatableNames.B],
                         repeatables[CashRepeatableNames.C],
                         repeatables[CashRepeatableNames.D]
                     )}
-                </div>
+                </Column>
             </>
         ),
         // #endregion Display Function
