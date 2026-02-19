@@ -17,5 +17,5 @@ const props = defineProps<{
 }>();
 
 const mergeAdjacent = computed(() =>
-    themes[settings.theme].mergeAdjacent && props.dontMerge !== true);
+    themes.classic.mergeAdjacent && props.dontMerge !== true);
 </script>

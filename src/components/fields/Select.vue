@@ -56,6 +56,10 @@ function onUpdate(value: SelectOption) {
     border-radius: var(--border-radius);
 }
 
+.vue-select:first-child {
+    width: 100%;
+}
+
 .field-buttons .vue-select {
     width: unset;
 }

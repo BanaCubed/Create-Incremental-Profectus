@@ -40,9 +40,7 @@ const Component = () => {
     return render(activeTab);
 };
 
-const floating = computed(() => {
-    return themes[settings.theme].floatingTabs;
-});
+const floating = computed(() => true);
 
 const TabButtons = () => Object.values(props.tabs).map(tab => render(tab));
 

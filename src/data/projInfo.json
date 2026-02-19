@@ -3,13 +3,13 @@
 
 	"title": "Create Incremental",
 	"description": "A project made in Profectus",
-	"id": "CreateIncremental",
+	"id": "CreateIncrementalProfectus",
 	"author": "BanaCubed",
 	"discordName": "Create Incremental Server",
 	"discordLink": "https://discord.gg/wt5XyPRtte",
 
-	"versionNumber": "1.0",
-	"versionTitle": "Universal // β5: Notations++",
+	"versionNumber": "0.5",
+	"versionTitle": "Profectus",
 
 	"allowGoBack": true,
 	"defaultShowSmall": true,
@@ -20,7 +20,7 @@
 	"initialTabs": [ "main" ],
 
 	"maxTickLength": 3600,
-	"offlineLimit": 1,
+	"offlineLimit": 24,
 	"enablePausing": true,
 	"exportEncoding": "base64",
 	"disableHealthWarning": false

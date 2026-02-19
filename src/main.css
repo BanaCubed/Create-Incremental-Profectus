@@ -4,8 +4,8 @@
 
 * {
 	transition-duration: 0.5s;
-	font-family: "Sono", "Roboto Mono", monospace;
-	font-weight: bold;
+	font-family: "Sono Variable", "Roboto Mono", monospace;
+	font-weight: 550;
 	margin: auto;
 	text-size-adjust: none;
 	user-select: none;
@@ -32,6 +32,7 @@ html, body, #app {
 
 h1, h2, h3, b, input {
 	display: inline;
+	font-weight: 700;
 }
 
 button {

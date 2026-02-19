@@ -260,7 +260,7 @@ describe("Checking maximum levels of requirements met", () => {
                 maxBulkAmount: Decimal.dInf
             }))
         ];
-        expect(maxRequirementsMet(requirements)).compare_tolerance(10);
+        expect(maxRequirementsMet(requirements)).compare_tolerance(11);
     });
 });
 

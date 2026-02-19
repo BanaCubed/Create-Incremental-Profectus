@@ -36,7 +36,7 @@
                 @confirmingChanged="(value: boolean) => (isConfirming = value)"
             >
                 <Tooltip display="Delete" :direction="Direction.Left" class="info">
-                    <span class="material-icons" style="margin: -2px">delete</span>
+                    <span class="material-icons save-delete-button-omg-so-scary" style="margin: 2px">delete</span>
                 </Tooltip>
             </DangerButton>
         </div>
@@ -87,9 +87,7 @@ import Text from "../fields/Text.vue";
 import { galaxy, syncedSaves } from "util/galaxy";
 import Decimal, { formatWhole } from "util/bignum";
 import { main } from "data/projEntry";
-import cash from "data/layers/cash";
-import rebirth from "data/layers/rebirth";
-import srebirth from "data/layers/super";
+import cash from "data/layers/cash/cash";
 import { render } from "util/vue";
 
 const props = defineProps<{
@@ -116,13 +114,9 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 
 const progressDisplay = () => {
     if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, -0.1)) {
-        return <>?-? // Progress Unknown</>
-    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 0.9)) {
-        return <>1-1 // Cash // {formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
-    } else if (Decimal.lt((props.save?.layers?.main as LayerData<typeof main> | undefined)?.progression ?? -1, 3.9)) {
-        return <>1-2 // Rebirth // {formatWhole((props.save?.layers?.rebirth as LayerData<typeof rebirth> | undefined)?.points ?? 0)} RP</>
+        return <>? // Progress Indeterminate</>
     } else {
-        return <>1-3 // Super Rebirth // {formatWhole((props.save?.layers?.super as LayerData<typeof srebirth> | undefined)?.points ?? 0)} SRP</>
+        return <>1 // Cash // {formatWhole((props.save?.layers?.cash as LayerData<typeof cash> | undefined)?.points ?? 0)} Cash</>
     }
 };
 
@@ -156,13 +150,14 @@ function changeName() {
 .save {
     position: relative;
     border: solid 4px var(--outline);
-    padding: 4px;
+    padding: 8px;
     background: var(--raised-background);
     margin: 0 10px;
     display: flex;
     align-items: center;
     min-height: 30px;
     border-radius: var(--border-radius);
+    transition: border 0.5s;
 }
 
 .save:not(:first-child) {

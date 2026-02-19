@@ -1,6 +1,7 @@
 {
     "vitest.commandLine": "npx vitest",
     "editor.codeActionsOnSave": {
+        "source.removeUnusedImports": "explicit",
         "source.fixAll.eslint": "explicit"
     },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -8,5 +9,6 @@
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": false
 }

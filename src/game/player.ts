@@ -9,8 +9,8 @@ export interface Player {
     devSpeed: number | null;
     /** The display name of this save. */
     name: string;
-    /** The open tabs. */
-    tabs: Array<string>;
+    /** The open tab's ID. */
+    tab: string;
     /** The current time this save was last opened at, in ms since the unix epoch. */
     time: number;
     /** Whether or not to automatically save every couple of seconds and on tab close. */
@@ -48,7 +48,7 @@ const player = reactive<Player>({
     id: "",
     devSpeed: 1,
     name: "",
-    tabs: [],
+    tab: "cash",
     time: -1,
     autosave: true,
     offlineProd: true,

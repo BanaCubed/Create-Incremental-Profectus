@@ -29,7 +29,6 @@
             </p>
         </template>
     </Modal>
-    <SavesManager ref="savesManager" />
 </template>
 
 <script setup lang="ts">
@@ -51,6 +50,8 @@ watchEffect(() => {
     }
 });
 
+// If someone complains about this being removed I'll readd it
+// Until then its probably best to remain inaccessible
 function neverShow() {
     settings.showHealthWarning = false;
     isOpen.value = false;

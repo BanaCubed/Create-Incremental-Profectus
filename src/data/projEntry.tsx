@@ -1,135 +1,171 @@
 import type { Tree } from "features/trees/tree";
-import { branchedResetPropagation, createTree } from "features/trees/tree";
-import Node from "components/Node.vue";
-import { createResource } from "../features/resources/resource";
+import { branchedResetPropagation, createTree, TreeBranch, TreeOptions } from "features/trees/tree";
 import type { Layer } from "game/layers";
 import { createLayer } from "game/layers";
 import player, { Player } from "game/player";
-import Decimal, { format, formatTime } from "util/bignum";
-import { render } from "util/vue";
 import { computed } from "vue";
-import rebirth from "./layers/rebirth";
-import cash from "./layers/cash";
-import { createHotkey } from "features/hotkey";
-import ResourceVue from "features/resources/Resource.vue";
-import srebirth from "./layers/super";
+import cash from "./layers/cash/cash";
+import { createHotkey, Hotkey, HotkeyOptions } from "features/hotkey";
 import settings from "game/settings";
-import { noPersist } from "game/persistence";
+import { noPersist, Persistent, persistent } from "game/persistence";
+import rebirth from "./layers/rebirth/rebirth";
+import { createTabFamily, TabFamily } from "features/tabs/tabFamily";
+import { createTab } from "features/tabs/tab";
+import Behaviour from "components/options/Behaviour.vue";
+import Saves from "components/options/Saves.vue";
+import Options from "components/options/Options.vue";
+import { save } from "util/save";
 
-/* eslint @typescript-eslint/no-explicit-any: 0 */
+// #region Interface
+export interface LayerMain extends Layer {
+    progression: Persistent<number>;
+    tree: Tree;
+    hotkey: Hotkey;
+    hotkeyEa: Hotkey;
+    hotkeyEb: Hotkey;
+    saveHotkey: Hotkey;
+}
+// #endregion Interface
 
+// #region Layer
 /**
  * @hidden
  */
-export const main: any = createLayer("main", () => {
-    const progression = createResource(0, "progress");
+export const main: LayerMain = createLayer("main", () => {
+    // #region Resources
+    const progression = persistent<number>(0);
+    // #endregion Resources
 
+    // #region Tree
     // Note: Casting as generic tree to avoid recursive type definitions
-    const tree = createTree(() => ({
-        nodes: [
-            [noPersist(cash.treeNode)],
-            [noPersist(rebirth.treeNode)],
-            [noPersist(srebirth.treeNode)]
-        ],
-        branches: [
+    const tree = createTree<TreeOptions>(() => ({
+        nodes: noPersist([[cash.treeNode], [rebirth.treeNode]]),
+        branches: noPersist<TreeBranch[]>([
             {
-                startNode: noPersist(rebirth.treeNode),
-                endNode: noPersist(cash.treeNode),
-                visibility:
-                    cash.upgs.eight.bought.value === true || Decimal.gte(progression.value, 0.9)
-                        ? 1
-                        : 0
-            },
-            {
-                startNode: noPersist(srebirth.treeNode),
-                endNode: noPersist(rebirth.treeNode),
-                visibility:
-                    rebirth.upgs.eleven.bought.value === true || Decimal.gte(progression.value, 3.9)
-                        ? 1
-                        : 0
+                startNode: rebirth.treeNode,
+                endNode: cash.treeNode
             }
-        ],
+        ]),
         resetPropagation: branchedResetPropagation
     })) as Tree;
+    // #endregion Tree
 
-    const hotkey = createHotkey(() => ({
+    // #region Hotkeys
+    // I've tried renaming the hotkey constants but that causes an error for some reason.
+    // If someone could submit a PR that renames these to more descriptive names that would be nice
+
+    // #region Pause Hotkey
+    const hotkey = createHotkey<HotkeyOptions>(() => ({
         description: "Toggle Pause",
         key: "/",
         onPress() {
             player.devSpeed = (player.devSpeed ?? 1) <= 1e-3 ? 1 : 0;
         }
     }));
+    // #endregion Pause Hotkey
 
-    const hotkeyEa = createHotkey(() => ({
+    // #region Accelerate Hotkey
+    const hotkeyEa = createHotkey<HotkeyOptions>(() => ({
         description: "Accelerate Time",
         key: "]",
         onPress() {
             player.devSpeed = (player.devSpeed ?? 1) * 1.5;
         },
-        enabled() {
-            return settings.e === true;
-        }
+        enabled: () => settings.e === true
     }));
+    // #endregion Accelerate Hotkey
 
-    const hotkeyEb = createHotkey(() => ({
+    // #region Deccelerate Hotkey
+    const hotkeyEb = createHotkey<HotkeyOptions>(() => ({
         description: "Decelerate Time",
         key: "[",
         onPress() {
             player.devSpeed = (player.devSpeed ?? 1) / 1.5;
         },
-        enabled() {
-            return settings.e === true;
-        }
+        enabled: () => settings.e === true
     }));
+    // #endregion Deccelerate Hotkey
 
-    // Note: layers don't _need_ a reference to everything,
-    //  but I'd recommend it over trying to remember what does and doesn't need to be included.
-    // Officially all you need are anything with persistency or that you want to access elsewhere
+    // #region Save Hotkey
+    const saveHotkey = createHotkey<HotkeyOptions>(() => ({
+        description: "Save Game",
+        key: "ctrl+s",
+        onPress() {
+            save();
+        },
+        enabled: () => player.autosave === false
+    }));
+    // #endregion Save Hotkey
+    // #endregion Hotkeys
+
+    // #region Return Object
     return {
         name: "Tree",
         links: tree.links,
-        minimizable: true,
         display: () => (
             <>
-                {player.devSpeed != null && player.devSpeed !== 0 && player.devSpeed !== 1 ? (
-                    <div>
-                        Dev Speed: {format(player.devSpeed)}&times;
-                        <Node id="devspeed" />
-                    </div>
-                ) : player.devSpeed === 0 ? (
-                    <div>
-                        Game Paused
-                        <Node id="paused" />
-                    </div>
-                ) : (
+                <div style="max-width: 720px;">
+                    This tab exists purely for debugging purposes.
                     <br />
-                )}
-                {player.offlineTime != null && player.offlineTime !== 0 ? (
-                    <div>
-                        Offline Time: {formatTime(player.offlineTime)}
-                        <Node id="offline" />
-                    </div>
-                ) : (
-                    <br />
-                )}
-                You have <ResourceVue resource={cash.points} color={cash.color} /> Cash
-                {Decimal.gt(cash.pointGain.value, 0) ? (
-                    <div>
-                        ({cash.oomps()})
-                        <Node id="oomps" />
-                    </div>
-                ) : null}
-                {render(tree)}
+                </div>
             </>
         ),
         tree,
         hotkey,
         progression,
         hotkeyEa,
-        hotkeyEb
+        hotkeyEb,
+        classes: {
+            treeTab: true
+        },
+        saveHotkey
+    };
+    // #endregion Object
+});
+// #endregion Layer
+
+// #region Settings Layer
+// It's not worth it to make an interface for this layer's type
+export const settingsLayer: Layer = createLayer("settings", () => {
+    const tabFamily: TabFamily = createTabFamily({
+        behaviour: () => ({
+            tab: createTab(() => ({
+                display: (
+                    <>
+                        <Behaviour />
+                    </>
+                )
+            })),
+            display: () => <>Behaviour</>
+        }),
+        save: () => ({
+            tab: createTab(() => ({
+                display: (
+                    <>
+                        <Saves />
+                    </>
+                )
+            })),
+            display: <>Save</>
+        }),
+        appearance: () => ({
+            tab: createTab(() => ({
+                display: <>Visual settings go here</>
+            })),
+            display: <>Visual</>
+        })
+    });
+
+    return {
+        color: "ffffff",
+        display: () => <Options />,
+        tabFamily
     };
 });
+// #endregion Settings Layer
 
+// #region Misc
+// #region Initial Layers
 /**
  * Given a player save data object being loaded, return a list of layers that should currently be enabled.
  * If your project does not use dynamic layers, this should just return all layers.
@@ -137,17 +173,22 @@ export const main: any = createLayer("main", () => {
 export const getInitialLayers = (
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     player: Partial<Player>
-): Array<Layer> => [main, rebirth, cash, srebirth];
+): Array<Layer> => [main, cash, rebirth, settingsLayer];
+// #endregion Initial Layers
 
+// #region Win Condition
 /**
  * A computed ref whose value is true whenever the game is over.
  */
 export const hasWon = computed(() => {
     return false;
 });
+// #endregion Win Condition
 
+// #region Fix Save
 /**
- * Given a player save data object being loaded with a different version, update the save data object to match the structure of the current version.
+ * Given a player save data object being loaded with a different version,
+ * update the save data object to match the structure of the current version.
  * @param oldVersion The version of the save being loaded in
  * @param player The save data being loaded in
  */
@@ -158,3 +199,5 @@ export function fixOldSave(
     // eslint-disable-next-line @typescript-eslint/no-empty-function
 ): void {}
 /* eslint-enable @typescript-eslint/no-unused-vars */
+// #endregion Fix Save
+// #endregion Misc

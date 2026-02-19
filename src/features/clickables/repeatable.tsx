@@ -79,19 +79,26 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
         const {
             requirements: _requirements,
             display: _display,
+            style: _style,
             limit,
             onClick,
             initialAmount,
             ...props
         } = options;
+        options.style = undefined;
 
+        let _classes;
         if (options.classes == null) {
-            options.classes = computed(() => ({ bought: unref(repeatable.maxed) }));
+            _classes = computed(() => ({
+                bought: unref(repeatable.maxed),
+                repeatable: true
+            }));
         } else {
             const classes = processGetter(options.classes);
-            options.classes = computed(() => ({
+            _classes = computed(() => ({
                 ...unref(classes),
-                bought: unref(repeatable.maxed)
+                bought: unref(repeatable.maxed),
+                repeatable: true
             }));
         }
         const vueFeature = vueFeatureMixin("repeatable", options, () => (
@@ -100,6 +107,8 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
                 onClick={repeatable.onClick}
                 onHold={repeatable.onClick}
                 display={repeatable.display}
+                class={_classes.value}
+                style={unref(processGetter(_style))}
             />
         ));
 
@@ -133,24 +142,34 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
                         </div>
                     )}
                     {render(description)}
+                    {showAmount === false &&
+                    effectDisplay == null &&
+                    unref(repeatable.maxed) ? null : (
+                        <>
+                            <br />
+                            <br />
+                        </>
+                    )}
                     {showAmount === false ? null : (
                         <div>
-                            <br />
-                            <>Amount: {formatWhole(unref(amount))}</>
+                            <>
+                                Amount: <b>{formatWhole(unref(amount))}</b>
+                            </>
                             {Decimal.isFinite(unref(repeatable.limit)) ? (
-                                <> / {formatWhole(unref(repeatable.limit))}</>
+                                <>
+                                    {" "}
+                                    / <b>{formatWhole(unref(repeatable.limit))}</b>
+                                </>
                             ) : undefined}
                         </div>
                     )}
                     {effectDisplay == null ? null : (
                         <div>
-                            <br />
-                            Currently: {render(effectDisplay)}
+                            Currently: <b>{render(effectDisplay)}</b>
                         </div>
                     )}
                     {unref(repeatable.maxed) ? null : (
                         <div>
-                            <br />
                             {displayRequirements(requirements, unref(repeatable.amountToIncrease))}
                         </div>
                     )}

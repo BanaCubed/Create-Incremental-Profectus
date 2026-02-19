@@ -3,5 +3,6 @@
     "endOfLine": "auto",
     "printWidth": 100,
     "tabWidth": 4,
+    "useTabs": false,
     "trailingComma": "none"
 }

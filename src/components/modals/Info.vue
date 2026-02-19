@@ -25,7 +25,7 @@
                 </div>
                 <div v-if="isTab('credits')">
                     <div>Created by:<br>
-                    <a target="_blank" href="https://banacubed.github.io/" style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb terminal palette</span>BanaCubed</a><br>
+                    <a target="_blank" href="https://banacubed.github.io/" style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb terminal palette</span>BanaCubed<span class="material-icons user-thingy">launch</span></a><br>
                     <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb palette</span>adoplayzz</span><br>
                     <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>Create_Incremental_Boy</span><br>
                     <span style="width: fit-content; display: inline;"><span class="material-icons user-thingy">lightbulb</span>EchoingLycanthrope</span><br>
@@ -58,7 +58,7 @@
                         </div>
                         <div>
                             <a
-                                href="https://github.com/BanaCubed/Create-Incremental/issues"
+                                href="https://github.com/BanaCubed/Create-Incremental-Profectus/issues"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -68,7 +68,7 @@
                         </div><br>
                         <div>
                             <a
-                                href="https://raw.githack.com/BanaCubed/Create-Incremental/beta-deploy/index.html"
+                                href="https://raw.githack.com/BanaCubed/Create-Incremental-Profectus/beta-deploy/index.html"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -78,7 +78,7 @@
                         </div>
                         <div>
                             <a
-                                href="https://banacubed.github.io/CI-Legacy"
+                                href="https://banacubed.github.io/Create-Incremental"
                                 class="info-modal-discord-link"
                                 target="_blank"
                             >
@@ -196,6 +196,7 @@ defineExpose({
     margin-bottom: 0;
     background: var(--raised-background);
     align-items: center;
+    border-radius: calc(var(--border-radius) - 4px) calc(var(--border-radius) - 4px) 0 0;
 }
 
 .info-modal-header * {

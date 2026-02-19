@@ -13,7 +13,7 @@
 
 .row {
 	display: flex;
-	flex-flow: row wrap;
+	flex-flow: row nowrap;
 	justify-content: center;
 	align-items: stretch;
 	max-width: 100%;
@@ -29,9 +29,9 @@
 	margin: 10px 0;
 }
 
-.row.mergeAdjacent *,
-.row.mergeAdjacent button.feature,
-.row.mergeAdjacent .feature button {
+.row *,
+.row button.feature,
+.row .feature button {
     margin-left: 0;
     margin-right: 0;
 }

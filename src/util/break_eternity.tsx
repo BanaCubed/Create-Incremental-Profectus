@@ -19,25 +19,39 @@ const thresholds = [
     new Decimal("1e1000")
 ];
 
-// IMPORTANT!!
-// DO NOT ACCESS PLAYER SETTINGS FROM IMPORTED `settings` (this causes errors - idk why)
-// INSTEAD ACCESS SETTINGS FROM GLOBALLY ACCESSABLE `window.settings`
-
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: JSX.Element
+): JSX.Element;
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: string
+): string;
+export function format(
+    num: DecimalSource,
+    precision?: number,
+    small?: boolean,
+    stringy?: string | JSX.Element
+): string | JSX.Element;
 /**
  * Formats an inputted number, taking the notation options from `window.settings`.
- * @param {DecimalSource} num The value to format
- * @param {number} precision Amount of digits to include past the decimal point
- * @param {boolean | undefined} small Whether or not format small numbers accurately or return `0`
- * @returns {JSX.Element} Formatted version of num
+ * @param num The value to format
+ * @param precision Amount of digits to include past the decimal point
+ * @param small Whether or not format small numbers accurately or return `0`
+ * @returns Formatted version of num
  */
 export function format(
     num: DecimalSource,
     precision?: number,
     small?: boolean,
     stringy: string | JSX.Element = <></>
-): typeof stringy {
+): JSX.Element | string {
     if (precision == null) precision = projInfo.defaultDecimalsShown;
-    const str: boolean = stringy === "" ? true : false;
+    const str: boolean = typeof stringy === "string" ? true : false;
     if (precision < 0) {
         precision = 0;
     }
@@ -100,6 +114,13 @@ export function format(
     if (num.gte(10000)) {
         return str ? formatCom(num, 0) : <>{formatCom(num, 0)}</>;
     }
+    if (num.gte(1000)) {
+        precision--;
+    }
+    if (num.gte(100)) {
+        precision--;
+    }
+    precision = Math.max(precision, 0);
     return str ? formatReg(num, precision) : <>{formatReg(num, precision)}</>;
 }
 
@@ -306,10 +327,7 @@ export function formatSci(num: DecimalSource, precision: number = 2): JSX.Elemen
         e = e.floor().mul(3);
     }
     num = Decimal.div(num, Decimal.pow(10, e));
-    num = num
-        .mul(10 ** precision)
-        .trunc()
-        .div(10 ** precision);
+    num = num.clampMax(10 - 0.1 ** precision);
     return (
         <>
             {num.toStringWithDecimalPlaces(precision)}e{formatWhole(e)}
@@ -325,10 +343,7 @@ export function stringyFormatSci(num: DecimalSource, precision: number = 2): str
         e = e.floor().mul(3);
     }
     num = Decimal.div(num, Decimal.pow(10, e));
-    num = num
-        .mul(10 ** precision)
-        .trunc()
-        .div(10 ** precision);
+    num = num.clampMax(10 - 0.1 ** precision);
     return num.toStringWithDecimalPlaces(precision) + "e" + stringyFormatWhole(e);
 }
 

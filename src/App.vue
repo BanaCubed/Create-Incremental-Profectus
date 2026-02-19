@@ -7,7 +7,7 @@
         <div class="app" :style="theme" :class="{ useHeader }">
             <Nav v-if="useHeader" />
             <Game />
-            <TPS v-if="unref(showTPS)" />
+            <InfoOverlay />
             <AddictionWarning />
             <GameOverScreen />
             <NaNScreen />
@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="tsx">
-import "@fontsource/roboto-mono";
 import Error from "components/Error.vue";
 import AddictionWarning from "components/modals/AddictionWarning.vue";
 import CloudSaveResolver from "components/modals/CloudSaveResolver.vue";
@@ -28,17 +27,16 @@ import state from "game/state";
 import { render } from "util/vue";
 import type { CSSProperties } from "vue";
 import { computed, toRef, unref } from "vue";
-import Game from "./components/Game.vue";
+import Game from "./data/Game.vue";
 import Nav from "./components/Nav.vue";
-import TPS from "./components/TPS.vue";
+import InfoOverlay from "./components/InfoOverlay.vue";
 import projInfo from "./data/projInfo.json";
 import themes from "./data/themes";
 import settings, { gameComponents } from "./game/settings";
 import "./main.css";
 
 const useHeader = projInfo.useHeader;
-const theme = computed(() => themes[settings.theme].variables as CSSProperties);
-const showTPS = toRef(settings, "showTPS");
+const theme = computed(() => themes.classic.variables as CSSProperties);
 const appErrors = toRef(state, "errors");
 
 const GameComponent = () => gameComponents.map(c => render(c));

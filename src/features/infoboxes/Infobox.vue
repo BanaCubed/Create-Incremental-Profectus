@@ -42,7 +42,7 @@ const props = defineProps<{
 const Title = () => render(props.title);
 const Body = () => render(props.display);
 
-const stacked = computed(() => themes[settings.theme].mergeAdjacent);
+const stacked = computed(() => true);
 </script>
 
 <style scoped>

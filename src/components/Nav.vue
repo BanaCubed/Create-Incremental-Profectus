@@ -1,30 +1,5 @@
 <template>
-    <div class="nav" v-if="useHeader" v-bind="$attrs">
-        <img v-if="banner" :src="banner" class="banner" :alt="title" />
-        <div v-else class="title">{{ title }}</div>
-        <div @click="changelog?.open()" class="version-container">
-            <Tooltip display="Changelog" :direction="Direction.Down" class="version"
-                ><span>v{{ versionNumber }}</span></Tooltip
-            >
-        </div>
-        <div style="flex-grow: 1; cursor: unset"></div>
-        <div style="flex-grow: 1; cursor: unset"></div>
-        <div class="discord">
-            <span @click="openDiscord" class="material-icons">discord</span>
-            <ul class="discord-links">
-                <li v-if="discordLink">
-                    <a :href="discordLink" target="_blank">{{ discordName }}</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/yJ4fjnjU54" target="_blank">Profectus & Friends</a>
-                </li>
-                <li>
-                    <a href="https://discord.gg/F3xveHV" target="_blank">The Modding Tree</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div v-else class="overlay-nav" v-bind="$attrs">
+    <div class="overlay-nav" v-bind="$attrs">
         <div @click="options?.open()">
             <Tooltip display="Settings" :direction="Direction.Right">
                 <span class="material-icons">settings</span>
@@ -65,7 +40,7 @@ import { galaxy, syncedSaves } from "util/galaxy";
 import { computed, ref } from "vue";
 import Tooltip from "wrappers/tooltips/Tooltip.vue";
 import Info from "./modals/Info.vue";
-import Options from "./modals/Options.vue";
+import Options from "./options/Options.vue";
 import SavesManager from "./modals/SavesManager.vue";
 
 const info = ref<typeof Info | null>(null);
@@ -205,7 +180,7 @@ const needsSync = computed(
 }
 
 .material-icons:hover, .version:hover span {
-    text-shadow: 5px 0 10px var(--link), -3px 0 12px var(--foreground);
+    text-shadow: 0 0 15px var(--foreground);
 }
 
 .nav .version-container {

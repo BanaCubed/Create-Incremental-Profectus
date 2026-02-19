@@ -1,5 +1,4 @@
 import projInfo from "data/projInfo.json";
-import { Themes } from "data/themes";
 import { globalBus } from "game/events";
 import LZString from "lz-string";
 import { MaybeGetter } from "util/computed";
@@ -9,14 +8,13 @@ import { reactive, watch } from "vue";
 
 /** The player's settings object. */
 export interface Settings {
+    theme: unknown;
     /** The ID of the active save. */
     active: string;
     /** The IDs of all created saves. */
     saves: string[];
     /** Whether or not to show the current ticks per second in the lower left corner of the page. */
     showTPS: boolean;
-    /** The current theme to display the game in. */
-    theme: Themes;
     /** Whether or not to cap the project at 20 ticks per second. */
     unthrottled: boolean;
     /** Whether to align modifiers to the unit. */
@@ -50,16 +48,21 @@ export interface Settings {
     /** Whether or not a new layer replaces the old one. */
     appendLayers: boolean;
     /** Whether or not to show a video game health warning after playing excessively. */
-    showHealthWarning: boolean;
-    /** Debug mode toggled by clicking the 'e' in 'Settings'. */
+    showHealthWarning: boolean; // Create Incremental manually removes the ability to disable this
+    /** Debug mode. */
     e: boolean;
+    /**
+     * Whether the player has reached Rebirth in any save.
+     *
+     * This has to be in the settings object since otherwise a hard reset would fuck with things.
+     */
+    tabsUnlocked: boolean;
 }
 
 const state = reactive<Partial<Settings>>({
     active: "",
     saves: [],
     showTPS: true,
-    theme: Themes.Paper,
     unthrottled: false,
     alignUnits: false,
     bigModal: false,
@@ -77,7 +80,8 @@ const state = reactive<Partial<Settings>>({
     language: "en",
     appendLayers: false,
     showHealthWarning: true,
-    e: false
+    e: false,
+    tabsUnlocked: false
 });
 
 watch(
@@ -110,7 +114,6 @@ export const hardResetSettings = (window.hardResetSettings = () => {
         active: "",
         saves: [],
         showTPS: true,
-        theme: Themes.Nordic,
         alignUnits: false,
         bigModal: false,
         engineering: false,

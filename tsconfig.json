@@ -19,7 +19,8 @@
     "baseUrl": "src",
     "types": [
       "vite/client",
-      "node"
+      "node",
+      "unplugin-icons/types/vue"
     ],
     "lib": [
       "esnext",

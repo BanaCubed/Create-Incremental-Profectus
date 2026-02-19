@@ -66,7 +66,7 @@ function togglePinned(e: MouseEvent) {
     }
 }
 
-const showPin = computed(() => props.pinned?.value === true && themes[settings.theme].showPin);
+const showPin = computed(() => props.pinned?.value === true);
 </script>
 
 <style scoped>
