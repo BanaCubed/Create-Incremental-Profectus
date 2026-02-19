@@ -151,34 +151,38 @@ export function createCostRequirement<T extends CostRequirementOptions>(optionsF
                             : "color: var(--danger)"
                     }
                 >
-                    {displayResource(
-                        resource,
-                        requirement.cost instanceof Formula
-                            ? calculateCost(
-                                  requirement.cost as InvertibleIntegralFormula,
-                                  amount ?? 1,
-                                  unref(requirement.cumulativeCost),
-                                  unref(requirement.directSum)
-                              )
-                            : unref(requirement.cost as MaybeRef<DecimalSource>)
-                    )}{" "}
+                    <b>
+                        {displayResource(
+                            resource,
+                            requirement.cost instanceof Formula
+                                ? calculateCost(
+                                      requirement.cost as InvertibleIntegralFormula,
+                                      amount ?? 1,
+                                      unref(requirement.cumulativeCost),
+                                      unref(requirement.directSum)
+                                  )
+                                : unref(requirement.cost as MaybeRef<DecimalSource>)
+                        )}
+                    </b>{" "}
                     {resource.displayName}
                 </span>
             ),
             display: (amount?: DecimalSource) => (
                 <div>
                     {unref(requirement.requiresPay as MaybeRef<boolean>) ? "Cost: " : "Requires: "}
-                    {displayResource(
-                        resource,
-                        requirement.cost instanceof Formula
-                            ? calculateCost(
-                                  requirement.cost as InvertibleIntegralFormula,
-                                  amount ?? 1,
-                                  unref(requirement.cumulativeCost),
-                                  unref(requirement.directSum)
-                              )
-                            : unref(requirement.cost as MaybeRef<DecimalSource>)
-                    )}{" "}
+                    <b>
+                        {displayResource(
+                            resource,
+                            requirement.cost instanceof Formula
+                                ? calculateCost(
+                                      requirement.cost as InvertibleIntegralFormula,
+                                      amount ?? 1,
+                                      unref(requirement.cumulativeCost),
+                                      unref(requirement.directSum)
+                                  )
+                                : unref(requirement.cost as MaybeRef<DecimalSource>)
+                        )}
+                    </b>{" "}
                     {resource.displayName}
                 </div>
             ),

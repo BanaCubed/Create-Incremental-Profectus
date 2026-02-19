@@ -14,7 +14,7 @@ import { noPersist } from "game/persistence";
 import { CostRequirementOptions, createCostRequirement } from "game/requirements";
 import { DecimalSource, format, formatWhole } from "util/bignum";
 import { renderCol } from "util/vue";
-import { computed, Ref } from "vue";
+import { computed, Ref, unref } from "vue";
 import { JSX } from "vue/jsx-runtime";
 import { addTooltip } from "wrappers/tooltips/tooltip";
 import {
@@ -27,6 +27,7 @@ import { createReset, ResetOptions } from "features/reset";
 import settings from "game/settings";
 import { createRepeatable, Repeatable, RepeatableOptions } from "features/clickables/repeatable";
 import effects, { EffectNames } from "../effects";
+import { processGetter } from "util/computed";
 
 // #region Interface
 export interface LayerCash extends Layer {
@@ -46,14 +47,16 @@ export enum CashPylonNames {
 
 export enum CashRepeatableNames {
     A = "CReA",
-    B = "CReB"
+    B = "CReB",
+    C = "CReC",
+    D = "CReD"
 }
 
 // #region Layer
 const layer: LayerCash = createLayer("cash", () => {
     const color: string = "#0b8000";
     // #region Resources
-    const points: Resource<DecimalSource> = createResource(10, "Cash", 2);
+    const points: Resource<DecimalSource> = createResource(0, "Cash", 2);
     const best: Ref<DecimalSource> = trackBest(points);
     const total: Ref<DecimalSource> = trackTotal(points);
     // #endregion Resources
@@ -92,6 +95,9 @@ const layer: LayerCash = createLayer("cash", () => {
         })),
         createMultiplicativeModifier<MultiplicativeModifierOptions>(() => ({
             multiplier: effects[EffectNames.CReBEffect]
+        })),
+        createMultiplicativeModifier<MultiplicativeModifierOptions>(() => ({
+            multiplier: effects[EffectNames.CReCEffect]
         }))
     ]);
     // #endregion Cash Gain
@@ -101,7 +107,12 @@ const layer: LayerCash = createLayer("cash", () => {
         [CashPylonNames.A]: createPylon<PylonOptions>(() => ({
             requirements: createCostRequirement<CostRequirementOptions>(() => ({
                 resource: noPersist(points),
-                cost: Formula.variable(pylons[CashPylonNames.A].amount).add(1).pow_base(2.5).mul(4)
+                cost: Formula.variable(pylons[CashPylonNames.A].amount)
+                    .add(1)
+                    .pow_base(2.5)
+                    .mul(4)
+                    .sub(10),
+                cumulativeCost: false
             })),
             gain: computed(() => cashGain.apply(1)),
             target: noPersist(points),
@@ -109,7 +120,11 @@ const layer: LayerCash = createLayer("cash", () => {
                 title: () => <h3>Cash Printer{settings.e ? " {CPyA}" : ""}</h3>,
                 description: () => (
                     <>
-                        <i>Generates NaN Cash every second</i>
+                        <i>
+                            Generates{" "}
+                            <b>{format(unref(processGetter(pylons[CashPylonNames.A].gain)))}</b>{" "}
+                            every second
+                        </i>
                     </>
                 ),
                 targetName: "Cash"
@@ -130,7 +145,7 @@ const layer: LayerCash = createLayer("cash", () => {
                 cumulativeCost: false
             })),
             display: {
-                title: () => <h3>untitled{settings.e ? " {CReA}" : ""}</h3>,
+                title: () => <h3>Ink Cartridges{settings.e ? " {CReA}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
@@ -139,7 +154,8 @@ const layer: LayerCash = createLayer("cash", () => {
                             exponentially.
                         </i>
                     </>
-                )
+                ),
+                effectDisplay: () => <>&times;{format(effects[EffectNames.CReAEffect].value)}</>
             }
         })),
         [CashRepeatableNames.B]: createRepeatable<RepeatableOptions>(() => ({
@@ -152,18 +168,63 @@ const layer: LayerCash = createLayer("cash", () => {
                 cumulativeCost: false
             })),
             display: {
-                title: () => <h3>untitled{settings.e ? " {CReB}" : ""}</h3>,
+                title: () => <h3>Motivation{settings.e ? " {CReB}" : ""}</h3>,
                 description: () => (
                     <>
                         <i>
                             Multiplies Cash generation by{" "}
-                            <b>&times;{format(effects[EffectNames.CReBEffectBase].value)}</b>{" "}
-                            exponentially.
-                            <br />
+                            <b>&times;{format(effects[EffectNames.CReBEffectBase].value)}</b>.
                             Multiplier is based on current Cash amount.
                         </i>
                     </>
-                )
+                ),
+                effectDisplay: () => <>&times;{format(effects[EffectNames.CReBEffect].value)}</>
+            }
+        })),
+        [CashRepeatableNames.C]: createRepeatable<RepeatableOptions>(() => ({
+            requirements: createCostRequirement<CostRequirementOptions>(() => ({
+                resource: noPersist(points),
+                cost: Formula.variable(repeatables[CashRepeatableNames.C].amount)
+                    .step(10, x => x.pow(2.5))
+                    .pow_base(15)
+                    .mul(100),
+                cumulativeCost: false
+            })),
+            display: {
+                title: () => <h3>Synergy{settings.e ? " {CReC}" : ""}</h3>,
+                description: () => (
+                    <>
+                        <i>
+                            Multiplies Cash generation by{" "}
+                            <b>&times;{format(effects[EffectNames.CReCEffectBase].value)}</b>.
+                            Multiplier is based on bought Cash Printer count.
+                        </i>
+                    </>
+                ),
+                effectDisplay: () => <>&times;{format(effects[EffectNames.CReCEffect].value)}</>
+            }
+        })),
+        [CashRepeatableNames.D]: createRepeatable<RepeatableOptions>(() => ({
+            requirements: createCostRequirement<CostRequirementOptions>(() => ({
+                resource: noPersist(points),
+                cost: Formula.variable(repeatables[CashRepeatableNames.D].amount)
+                    .step(5, x => x.pow(3))
+                    .pow_base(50)
+                    .mul(1000),
+                cumulativeCost: false
+            })),
+            display: {
+                title: () => <h3>Premium Ink{settings.e ? " {CReD}" : ""}</h3>,
+                description: () => (
+                    <>
+                        <i>
+                            Increases the base multiplier for{" "}
+                            <b>Ink Cartridges{settings.e ? " {CReA}" : ""}</b> by{" "}
+                            <b>+{format(effects[EffectNames.CReDEffectBase].value)}</b> linearly.
+                        </i>
+                    </>
+                ),
+                effectDisplay: () => <>+{format(effects[EffectNames.CReDEffect].value)}</>
             }
         }))
     };
@@ -184,7 +245,9 @@ const layer: LayerCash = createLayer("cash", () => {
                     <Spacer />
                     {renderCol(
                         repeatables[CashRepeatableNames.A],
-                        repeatables[CashRepeatableNames.B]
+                        repeatables[CashRepeatableNames.B],
+                        repeatables[CashRepeatableNames.C],
+                        repeatables[CashRepeatableNames.D]
                     )}
                 </div>
             </>

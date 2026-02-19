@@ -147,18 +147,25 @@ export function createPylon<T extends PylonOptions>(optionsFunc: () => T) {
                             {Decimal.gt(unref(pylon.generated), 0) ? (
                                 <>{formatWhole(unref(pylon.generated))}[</>
                             ) : null}
-                            <>{formatWhole(unref(amount))}</>
+                            <>
+                                <b>{formatWhole(unref(amount))}</b>
+                            </>
                             {Decimal.isFinite(unref(pylon.limit)) ? (
-                                <> / {formatWhole(unref(pylon.limit))}</>
+                                <>
+                                    {" "}
+                                    / <b>{formatWhole(unref(pylon.limit))}</b>
+                                </>
                             ) : null}
                             {Decimal.gt(unref(pylon.generated), 0) ? <>]</> : null}
                         </div>
                     )}
                     <div>
                         Currently:{" "}
-                        {((target as unknown as Resource)?.precision ?? 2) === 0
-                            ? formatWhole(pylon.effect.value)
-                            : format(pylon.effect.value)}{" "}
+                        <b>
+                            {((target as unknown as Resource)?.precision ?? 2) === 0
+                                ? formatWhole(pylon.effect.value)
+                                : format(pylon.effect.value)}
+                        </b>{" "}
                         {render(targetName)}/s
                     </div>
                     {unref(pylon.maxed) ? null : (

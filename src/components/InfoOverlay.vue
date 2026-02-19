@@ -2,8 +2,8 @@
     <TransitionGroup name="infos" tag="div" class="tpsDisplay">
         <div key="0" v-if="!tps.isNan() && showTPS">TPS: <TpsRender /></div>
         <div key="1" v-if="devSpeed === 0">Paused</div>
-        <div key="2" v-if="e">Debug Mode</div>
-        <div key="3" v-if="true">v0.5-β35</div>
+        <div key="2" v-if="e">{Debug Mode}</div>
+        <div key="3" v-if="true">v0.5-β36</div>
     </TransitionGroup>
 </template>
 

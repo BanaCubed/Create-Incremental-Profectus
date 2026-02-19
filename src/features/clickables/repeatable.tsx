@@ -142,24 +142,34 @@ export function createRepeatable<T extends RepeatableOptions>(optionsFunc: () =>
                         </div>
                     )}
                     {render(description)}
+                    {showAmount === false &&
+                    effectDisplay == null &&
+                    unref(repeatable.maxed) ? null : (
+                        <>
+                            <br />
+                            <br />
+                        </>
+                    )}
                     {showAmount === false ? null : (
                         <div>
-                            <br />
-                            <>Amount: {formatWhole(unref(amount))}</>
+                            <>
+                                Amount: <b>{formatWhole(unref(amount))}</b>
+                            </>
                             {Decimal.isFinite(unref(repeatable.limit)) ? (
-                                <> / {formatWhole(unref(repeatable.limit))}</>
+                                <>
+                                    {" "}
+                                    / <b>{formatWhole(unref(repeatable.limit))}</b>
+                                </>
                             ) : undefined}
                         </div>
                     )}
                     {effectDisplay == null ? null : (
                         <div>
-                            <br />
-                            Currently: {render(effectDisplay)}
+                            Currently: <b>{render(effectDisplay)}</b>
                         </div>
                     )}
                     {unref(repeatable.maxed) ? null : (
                         <div>
-                            <br />
                             {displayRequirements(requirements, unref(repeatable.amountToIncrease))}
                         </div>
                     )}
